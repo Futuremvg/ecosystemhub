@@ -395,13 +395,15 @@ export default function Empresas() {
 
   return (
     <AppLayout>
-      <div className="space-y-5 w-full">
+      <div className="space-y-6 w-full">
         {/* Header */}
         <div className="flex flex-col gap-4">
           <div className="flex items-center justify-between gap-3">
             <div className="min-w-0">
               <h1 className="text-xl sm:text-2xl font-bold text-foreground flex items-center gap-2">
-                <Building2 className="w-5 h-5 sm:w-6 sm:h-6 text-primary shrink-0" />
+                <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                  <Building2 className="w-5 h-5 text-primary" />
+                </div>
                 <span className="truncate">{t("ecosystem.title")}</span>
               </h1>
               <p className="text-xs text-muted-foreground mt-1">
@@ -593,84 +595,74 @@ export default function Empresas() {
                 </Dialog>
               </div>
 
-              {/* Accordion Categories */}
-              <Accordion type="multiple" defaultValue={categories.map(c => c.id)} className="space-y-3">
-                {categories.map((category) => {
-                  const categoryLinks = getLinksByCategory(category.id);
-                  const IconComponent = iconMap[category.icon] || Building2;
-
-                  return (
-                    <AccordionItem 
-                      key={category.id} 
-                      value={category.id}
-                      className="border rounded-xl overflow-hidden bg-card"
-                    >
-                      <AccordionTrigger className="px-4 py-3 hover:no-underline hover:bg-muted/50">
-                        <div className="flex items-center gap-3">
-                          <div className="p-2 rounded-lg bg-primary/10">
-                            <IconComponent className="w-5 h-5 text-primary" />
+              {/* Links List - Clean and compact */}
+              <div className="space-y-2">
+                {filteredLinks.length === 0 ? (
+                  <div className="text-center py-8">
+                    <Link2 className="w-10 h-10 mx-auto text-muted-foreground/30 mb-2" />
+                    <p className="text-sm text-muted-foreground">{t("ecosystem.noLinks")}</p>
+                  </div>
+                ) : (
+                  filteredLinks.map((link) => {
+                    const category = categories.find(c => c.id === link.category_id);
+                    const IconComponent = category ? iconMap[category.icon] || Link2 : Link2;
+                    const priority = priorityConfig[link.priority as keyof typeof priorityConfig] || priorityConfig.medium;
+                    
+                    return (
+                      <div
+                        key={link.id}
+                        className="flex items-center gap-3 p-3 rounded-lg border border-border/50 bg-card hover:bg-secondary/30 transition-colors group"
+                      >
+                        <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                          <IconComponent className="w-4 h-4 text-primary" />
+                        </div>
+                        
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <a
+                              href={link.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="font-medium text-sm hover:text-primary transition-colors truncate"
+                            >
+                              {link.name}
+                            </a>
+                            <ExternalLink className="w-3 h-3 text-muted-foreground shrink-0" />
                           </div>
-                          <div className="text-left">
-                            <span className="font-semibold">{category.name}</span>
-                            <span className="text-muted-foreground text-sm ml-2">
-                              ({categoryLinks.length})
-                            </span>
+                          <div className="flex items-center gap-2 mt-0.5">
+                            {category && (
+                              <span className="text-xs text-muted-foreground truncate">
+                                {category.name}
+                              </span>
+                            )}
+                            {link.description && (
+                              <>
+                                <span className="text-muted-foreground/50">•</span>
+                                <span className="text-xs text-muted-foreground truncate">
+                                  {link.description}
+                                </span>
+                              </>
+                            )}
                           </div>
                         </div>
-                      </AccordionTrigger>
-                      <AccordionContent className="px-4 pb-4">
-                        {categoryLinks.length === 0 ? (
-                          <p className="text-sm text-muted-foreground text-center py-4">
-                            {t("ecosystem.noLinks")}
-                          </p>
-                        ) : (
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2">
-                            {categoryLinks.map((link) => {
-                              const priority = priorityConfig[link.priority as keyof typeof priorityConfig] || priorityConfig.medium;
-                              return (
-                                <div
-                                  key={link.id}
-                                  className="flex items-center gap-3 p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors group"
-                                >
-                                  <a
-                                    href={link.url}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="flex-1 min-w-0"
-                                  >
-                                    <div className="flex items-center gap-2">
-                                      <span className="font-medium text-sm hover:text-primary transition-colors truncate">
-                                        {link.name}
-                                      </span>
-                                      <ExternalLink className="w-3 h-3 text-muted-foreground shrink-0" />
-                                    </div>
-                                    {link.description && (
-                                      <p className="text-xs text-muted-foreground mt-0.5 truncate">
-                                        {link.description}
-                                      </p>
-                                    )}
-                                  </a>
-                                  <Badge variant="outline" className={cn("text-xs shrink-0", priority.color)}>
-                                    {t(`priority.${link.priority}`)}
-                                  </Badge>
-                                  <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    className="opacity-0 group-hover:opacity-100 h-7 w-7 shrink-0"
-                                    onClick={() => handleDeleteLink(link.id)}
-                                  >
-                                    <Trash2 className="w-3 h-3 text-destructive" />
-                                  </Button>
-                                </div>
-                              );
-                            })}
-                          </div>
-                        )}
-                      </AccordionContent>
-                    </AccordionItem>
-                  );
-                })}
-              </Accordion>
+                        
+                        <Badge variant="outline" className={cn("text-[10px] px-1.5 py-0.5 shrink-0", priority.color)}>
+                          {t(`priority.${link.priority}`)}
+                        </Badge>
+                        
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="opacity-0 group-hover:opacity-100 h-7 w-7 shrink-0"
+                          onClick={() => handleDeleteLink(link.id)}
+                        >
+                          <Trash2 className="w-3.5 h-3.5 text-destructive" />
+                        </Button>
+                      </div>
+                    );
+                  })
+                )}
+              </div>
             </div>
           </TabsContent>
         </Tabs>
