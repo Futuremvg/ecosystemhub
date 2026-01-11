@@ -274,14 +274,16 @@ export default function Documentos() {
     <AppLayout>
       <div className="space-y-6 w-full max-w-full overflow-hidden box-border">
         {/* Header */}
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-4">
           <div className="flex items-start justify-between gap-2">
             <div className="min-w-0 flex-1">
-              <h1 className="text-lg sm:text-2xl md:text-3xl font-bold text-foreground flex items-center gap-2">
-                <FileText className="w-5 h-5 sm:w-8 sm:h-8 text-blue-500 shrink-0" />
+              <h1 className="text-xl sm:text-2xl font-bold text-foreground flex items-center gap-2">
+                <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                  <FileText className="w-5 h-5 text-primary" />
+                </div>
                 <span className="truncate">{t("documents.title")}</span>
               </h1>
-              <p className="text-xs sm:text-sm text-muted-foreground mt-1">
+              <p className="text-xs text-muted-foreground mt-1">
                 {documents.length} {t("documents.saved")}
               </p>
             </div>

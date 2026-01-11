@@ -369,21 +369,23 @@ export default function Dinheiro() {
 
   return (
     <AppLayout>
-      <div className="space-y-5 w-full">
+      <div className="space-y-6 w-full">
         {/* Header */}
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-4">
           <div className="flex items-center justify-between gap-3">
             <div className="min-w-0">
               <h1 className="text-xl sm:text-2xl font-bold text-foreground flex items-center gap-2">
-                <DollarSign className="w-5 h-5 sm:w-6 sm:h-6 text-primary shrink-0" />
+                <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                  <DollarSign className="w-5 h-5 text-primary" />
+                </div>
                 <span className="truncate">{t("money.title")}</span>
               </h1>
-              <p className="text-xs sm:text-sm text-muted-foreground mt-1 truncate">
+              <p className="text-xs text-muted-foreground mt-1 truncate">
                 {t("money.subtitle")}
               </p>
             </div>
             {/* Year Selector */}
-            <div className="flex items-center gap-0.5 bg-muted rounded-lg p-0.5 shrink-0">
+            <div className="flex items-center gap-0.5 bg-secondary rounded-lg p-0.5 shrink-0">
               <Button
                 variant="ghost"
                 size="icon"
@@ -429,18 +431,18 @@ export default function Dinheiro() {
           </div>
         </div>
 
-        {/* Summary Cards */}
-        <div className="grid grid-cols-3 gap-2 sm:gap-4">
-          <Card className="material-card bg-gradient-to-br from-financial-positive/10 to-financial-positive/5">
-            <CardContent className="p-2 sm:p-4">
-              <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3">
-                <div className="p-1.5 sm:p-2 rounded-lg bg-financial-positive/20 w-fit">
-                  <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-financial-positive" />
+        {/* Summary Cards - Matching Home style */}
+        <div className="grid grid-cols-3 gap-3">
+          <Card className="relative overflow-hidden border-0 bg-gradient-to-br from-primary/10 to-primary/5 shadow-sm">
+            <div className="absolute top-0 right-0 w-20 h-20 bg-primary/10 rounded-full -translate-y-8 translate-x-8" />
+            <CardContent className="p-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-primary/20 w-fit">
+                  <TrendingUp className="w-4 h-4 text-primary" />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-[10px] sm:text-sm text-muted-foreground truncate hidden sm:block">{t("money.incomeTotal")}</p>
-                  <p className="text-[10px] sm:text-sm text-muted-foreground truncate sm:hidden">{t("money.income")}</p>
-                  <p className="text-xs sm:text-xl font-bold text-financial-positive truncate">
+                  <p className="text-xs text-muted-foreground truncate">{t("money.income")}</p>
+                  <p className="text-lg font-bold text-foreground truncate">
                     {formatCurrency(
                       months.reduce((sum, _, i) => sum + getMonthlyTotal(i + 1, "income"), 0)
                     )}
@@ -450,16 +452,16 @@ export default function Dinheiro() {
             </CardContent>
           </Card>
 
-          <Card className="material-card bg-gradient-to-br from-financial-negative/10 to-financial-negative/5">
-            <CardContent className="p-2 sm:p-4">
-              <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3">
-                <div className="p-1.5 sm:p-2 rounded-lg bg-financial-negative/20 w-fit">
-                  <TrendingDown className="w-4 h-4 sm:w-5 sm:h-5 text-financial-negative" />
+          <Card className="relative overflow-hidden border-0 bg-gradient-to-br from-destructive/10 to-destructive/5 shadow-sm">
+            <div className="absolute top-0 right-0 w-20 h-20 bg-destructive/10 rounded-full -translate-y-8 translate-x-8" />
+            <CardContent className="p-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-destructive/20 w-fit">
+                  <TrendingDown className="w-4 h-4 text-destructive" />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-[10px] sm:text-sm text-muted-foreground truncate hidden sm:block">{t("money.expensesTotal")}</p>
-                  <p className="text-[10px] sm:text-sm text-muted-foreground truncate sm:hidden">{t("money.expenses")}</p>
-                  <p className="text-xs sm:text-xl font-bold text-financial-negative truncate">
+                  <p className="text-xs text-muted-foreground truncate">{t("money.expenses")}</p>
+                  <p className="text-lg font-bold text-foreground truncate">
                     {formatCurrency(
                       entries
                         .filter(e => e.category_id !== null)
@@ -471,24 +473,43 @@ export default function Dinheiro() {
             </CardContent>
           </Card>
 
-          <Card className="material-card bg-gradient-to-br from-god-gold/10 to-god-gold/5">
-            <CardContent className="p-2 sm:p-4">
-              <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3">
-                <div className="p-1.5 sm:p-2 rounded-lg bg-god-gold/20 w-fit">
-                  <DollarSign className="w-4 h-4 sm:w-5 sm:h-5 text-god-gold" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="text-[10px] sm:text-sm text-muted-foreground truncate">{t("common.result")}</p>
-                  <p className="text-xs sm:text-xl font-bold truncate">
-                    {formatCurrency(
-                      months.reduce((sum, _, i) => sum + getMonthlyTotal(i + 1, "income"), 0) -
-                      entries.filter(e => e.category_id !== null).reduce((sum, e) => sum + Number(e.amount), 0)
-                    )}
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          {(() => {
+            const balance = months.reduce((sum, _, i) => sum + getMonthlyTotal(i + 1, "income"), 0) -
+              entries.filter(e => e.category_id !== null).reduce((sum, e) => sum + Number(e.amount), 0);
+            const isPositive = balance >= 0;
+            return (
+              <Card className={cn(
+                "relative overflow-hidden border-0 shadow-sm",
+                isPositive 
+                  ? "bg-gradient-to-br from-primary/15 to-primary/5" 
+                  : "bg-gradient-to-br from-destructive/15 to-destructive/5"
+              )}>
+                <div className={cn(
+                  "absolute top-0 right-0 w-20 h-20 rounded-full -translate-y-8 translate-x-8",
+                  isPositive ? "bg-primary/15" : "bg-destructive/15"
+                )} />
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-3">
+                    <div className={cn(
+                      "p-2 rounded-lg w-fit",
+                      isPositive ? "bg-primary/20" : "bg-destructive/20"
+                    )}>
+                      <Wallet className={cn("w-4 h-4", isPositive ? "text-primary" : "text-destructive")} />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-xs text-muted-foreground truncate">{t("common.result")}</p>
+                      <p className={cn(
+                        "text-lg font-bold truncate",
+                        isPositive ? "text-primary" : "text-destructive"
+                      )}>
+                        {formatCurrency(balance)}
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })()}
         </div>
 
         {/* Tabs */}

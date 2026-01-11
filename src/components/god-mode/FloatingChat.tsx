@@ -198,14 +198,14 @@ export function FloatingChat({
 
   return (
     <>
-      {/* Floating Button */}
+      {/* Floating Button - positioned higher to avoid overlap */}
       <button
         onClick={handleFloatingButtonClick}
         className={cn(
           "fixed z-[60] w-12 h-12 sm:w-13 sm:h-13 rounded-full",
           "flex items-center justify-center transition-all duration-300",
           "hover:scale-105 active:scale-95",
-          "bottom-5 right-5 sm:bottom-6 sm:right-6",
+          "bottom-20 right-4 sm:bottom-24 sm:right-6",
           "shadow-lg",
           isListening 
             ? "bg-primary animate-pulse" 
@@ -230,7 +230,7 @@ export function FloatingChat({
         onDrop={handleDrop}
         className={cn(
           "fixed z-[60] w-[380px] max-w-[calc(100vw-1.5rem)]",
-          "bottom-5 right-3 sm:bottom-6 sm:right-6",
+          "bottom-20 right-3 sm:bottom-24 sm:right-6",
           "bg-card border border-border/60 rounded-xl shadow-xl",
           "flex flex-col overflow-hidden transition-all duration-300",
           isOpen ? "opacity-100 scale-100" : "opacity-0 scale-95 pointer-events-none",
