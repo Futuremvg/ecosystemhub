@@ -334,7 +334,7 @@ export default function Home() {
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
-        className="flex flex-col w-full space-y-5"
+        className="flex flex-col w-full space-y-6"
       >
         {/* Header */}
         <div className="flex flex-col gap-3">
@@ -367,26 +367,171 @@ export default function Home() {
           <div className="flex items-center justify-start">
             <SettingsPanel />
           </div>
+        </div>
 
-          {/* Motivational Quote */}
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.5, duration: 0.5 }}
-            className="flex items-start gap-3 p-3 bg-card/40 rounded-lg border border-border/30"
-          >
-            <Quote className="w-4 h-4 text-primary shrink-0 mt-0.5" />
-            <div className="flex-1 min-w-0">
-              <p className="text-muted-foreground italic text-sm leading-relaxed">
-                "{dailyQuote.text}"
-              </p>
-              <p className="text-primary/70 text-xs mt-1.5 font-medium">
-                — {dailyQuote.author}
-              </p>
-            </div>
-          </motion.div>
+        {/* P&L Summary Cards */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1, duration: 0.3 }}
+          className="space-y-3"
+        >
+          <h2 className={cn(
+            "font-semibold text-foreground",
+            isMobile ? "text-base" : "text-lg"
+          )}>
+            {t("home.profitLoss") || "Profit & Loss"}
+          </h2>
+          
+          <div className={cn(
+            "grid gap-3",
+            isMobile ? "grid-cols-1" : "grid-cols-3"
+          )}>
+            {/* Monthly Income Card */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.15 }}
+            >
+              <Card className="relative overflow-hidden border-0 bg-gradient-to-br from-primary/10 to-primary/5 shadow-sm">
+                <div className="absolute top-0 right-0 w-24 h-24 bg-primary/10 rounded-full -translate-y-8 translate-x-8" />
+                <CardContent className={cn("p-5", isMobile && "p-4")}>
+                  <p className="text-sm text-muted-foreground mb-2">{t("home.monthlyIncome")}</p>
+                  <p className={cn(
+                    "font-bold text-foreground",
+                    isMobile ? "text-xl" : "text-2xl"
+                  )}>
+                    {isLoadingStats ? "..." : formatCurrency(totalIncome)}
+                  </p>
+                </CardContent>
+              </Card>
+            </motion.div>
 
-          {/* Add Transaction Button */}
+            {/* Monthly Expenses Card */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.2 }}
+            >
+              <Card className="relative overflow-hidden border-0 bg-gradient-to-br from-destructive/10 to-destructive/5 shadow-sm">
+                <div className="absolute top-0 right-0 w-24 h-24 bg-destructive/10 rounded-full -translate-y-8 translate-x-8" />
+                <CardContent className={cn("p-5", isMobile && "p-4")}>
+                  <p className="text-sm text-muted-foreground mb-2">{t("home.monthlyExpenses")}</p>
+                  <p className={cn(
+                    "font-bold text-foreground",
+                    isMobile ? "text-xl" : "text-2xl"
+                  )}>
+                    {isLoadingStats ? "..." : formatCurrency(totalExpenses)}
+                  </p>
+                </CardContent>
+              </Card>
+            </motion.div>
+
+            {/* Net Income Card */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.25 }}
+            >
+              <Card className={cn(
+                "relative overflow-hidden border-0 shadow-sm",
+                totalBalance >= 0 
+                  ? "bg-gradient-to-br from-primary/15 to-primary/5" 
+                  : "bg-gradient-to-br from-destructive/15 to-destructive/5"
+              )}>
+                <div className={cn(
+                  "absolute top-0 right-0 w-24 h-24 rounded-full -translate-y-8 translate-x-8",
+                  totalBalance >= 0 ? "bg-primary/15" : "bg-destructive/15"
+                )} />
+                <CardContent className={cn("p-5", isMobile && "p-4")}>
+                  <p className="text-sm text-muted-foreground mb-2">{t("home.netIncome") || "Net Income"}</p>
+                  <p className={cn(
+                    "font-bold",
+                    isMobile ? "text-xl" : "text-2xl",
+                    totalBalance >= 0 ? "text-primary" : "text-destructive"
+                  )}>
+                    {isLoadingStats ? "..." : formatCurrency(totalBalance)}
+                  </p>
+                </CardContent>
+              </Card>
+            </motion.div>
+          </div>
+        </motion.div>
+
+        {/* Quick Actions Grid */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className={cn(
+            "grid gap-3",
+            isMobile ? "grid-cols-2" : "grid-cols-4"
+          )}
+        >
+          {[
+            { icon: Building2, label: t("ecosystem.companies") || "Ecosystem", desc: t("home.ecosystemDesc") || "Manage your companies, ecosystem, and entities.", path: "/empresas", color: "bg-primary/10", iconColor: "text-primary" },
+            { icon: DollarSign, label: t("nav.money"), desc: t("home.moneyDesc") || "Track your company's income, accounts, and financials.", path: "/dinheiro", color: "bg-primary/10", iconColor: "text-primary" },
+            { icon: FileText, label: t("nav.documents"), desc: t("home.documentsDesc") || "Access documents, files, and important papers.", path: "/documentos", color: "bg-secondary", iconColor: "text-primary" },
+            { icon: Sparkles, label: t("home.tipTitle") || "God Mode Tip", desc: t("home.tipDesc") || "God Mode Tip to keep your evaluation too long from the biggest.", path: "#", color: "bg-god-gold/10", iconColor: "text-god-gold" },
+          ].map((action, idx) => (
+            <motion.div
+              key={action.label}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.35 + idx * 0.05 }}
+            >
+              <Link to={action.path}>
+                <Card className="h-full border-0 bg-card hover:bg-secondary/50 transition-all duration-200 cursor-pointer group shadow-sm hover:shadow-md">
+                  <CardContent className={cn("p-4", isMobile && "p-3")}>
+                    <div className={cn(
+                      "w-10 h-10 rounded-xl flex items-center justify-center mb-3",
+                      action.color
+                    )}>
+                      <action.icon className={cn("w-5 h-5", action.iconColor)} />
+                    </div>
+                    <h3 className={cn(
+                      "font-semibold text-foreground mb-1",
+                      isMobile ? "text-sm" : "text-base"
+                    )}>
+                      {action.label}
+                    </h3>
+                    <p className="text-xs text-muted-foreground line-clamp-2">
+                      {action.desc}
+                    </p>
+                  </CardContent>
+                </Card>
+              </Link>
+            </motion.div>
+          ))}
+        </motion.div>
+
+        {/* Motivational Quote */}
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.5, duration: 0.5 }}
+        >
+          <Card className="border-0 bg-gradient-to-r from-primary/5 to-transparent shadow-sm">
+            <CardContent className="p-4 flex items-start gap-3">
+              <Quote className="w-5 h-5 text-primary shrink-0 mt-0.5" />
+              <div className="flex-1 min-w-0">
+                <p className="text-muted-foreground italic text-sm leading-relaxed">
+                  "{dailyQuote.text}"
+                </p>
+                <p className="text-primary/70 text-xs mt-1.5 font-medium">
+                  — {dailyQuote.author}
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        {/* Add Transaction Button */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.55 }}
+        >
           <AddTransactionDialog
             sources={sources}
             categories={categories}
@@ -397,26 +542,33 @@ export default function Home() {
             onCreateSource={handleCreateSource}
             onCreateCategory={handleCreateCategory}
           />
-        </div>
+        </motion.div>
 
-        {/* Consolidated P&L Card (when there are companies) */}
-        {companies.length > 0 ? (
+        {/* Company Cards Section */}
+        {companies.length > 0 && (
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1, duration: 0.3 }}
+            transition={{ delay: 0.6, duration: 0.3 }}
             className="space-y-4"
           >
             {/* Hub Companies */}
             {hubCompanies.length > 0 && (
               <div className="space-y-3">
-                <h2 className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                  {t("home.consolidatedView") || "Consolidated View"}
-                </h2>
+                <div className="flex items-center justify-between">
+                  <h2 className={cn(
+                    "font-semibold text-foreground",
+                    isMobile ? "text-base" : "text-lg"
+                  )}>
+                    {t("home.consolidatedView") || "Consolidated View"}
+                  </h2>
+                  <Link to="/empresas" className="text-xs text-primary hover:underline">
+                    {t("common.seeAll") || "See All"}
+                  </Link>
+                </div>
                 <div className="grid gap-3">
                   {hubCompanies.map((hub, idx) => {
                     const financials = getCompanyFinancials(hub.id);
-                    // Include satellite totals in hub
                     const satellitesOfHub = satelliteCompanies.filter(s => s.parent_id === hub.id);
                     const satelliteIncome = satellitesOfHub.reduce((sum, s) => sum + getCompanyFinancials(s.id).income, 0);
                     const satelliteExpenses = satellitesOfHub.reduce((sum, s) => sum + getCompanyFinancials(s.id).expenses, 0);
@@ -426,7 +578,7 @@ export default function Home() {
                         key={hub.id}
                         initial={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
-                        transition={{ delay: 0.15 + idx * 0.05 }}
+                        transition={{ delay: 0.65 + idx * 0.05 }}
                       >
                         <CompanyPLCard
                           company={hub}
@@ -459,7 +611,7 @@ export default function Home() {
                         key={company.id}
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.2 + idx * 0.05 }}
+                        transition={{ delay: 0.7 + idx * 0.05 }}
                       >
                         <CompanyPLCard
                           company={company}
@@ -474,149 +626,14 @@ export default function Home() {
               </div>
             )}
           </motion.div>
-        ) : (
-          /* Fallback: Simple P&L when no companies */
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-          >
-            <Card className={cn(
-              "material-card overflow-hidden",
-              isMobile ? "mb-6" : "mb-4"
-            )}>
-              <CardContent className={cn(isMobile ? "p-4" : "p-6")}>
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className={cn(
-                    "font-semibold text-foreground",
-                    isMobile ? "text-sm" : "text-base"
-                  )}>
-                    {t("home.profitLoss") || "Profit & Loss"}
-                  </h2>
-                  <span className="text-xs text-muted-foreground">
-                    {currentDate.toLocaleDateString(language, { month: "long", year: "numeric" })}
-                  </span>
-                </div>
-
-                <div className="flex items-center justify-between py-3 border-b border-border">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-financial-positive/10 flex items-center justify-center">
-                      <TrendingUp className="w-4 h-4 text-financial-positive" />
-                    </div>
-                    <span className="text-sm">{t("home.monthlyIncome")}</span>
-                  </div>
-                  <span className="font-semibold text-financial-positive">
-                    {isLoadingStats ? "..." : formatCurrency(totalIncome)}
-                  </span>
-                </div>
-
-                <div className="flex items-center justify-between py-3 border-b border-border">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-financial-negative/10 flex items-center justify-center">
-                      <TrendingDown className="w-4 h-4 text-financial-negative" />
-                    </div>
-                    <span className="text-sm">{t("home.monthlyExpenses")}</span>
-                  </div>
-                  <span className="font-semibold text-financial-negative">
-                    {isLoadingStats ? "..." : `(${formatCurrency(totalExpenses)})`}
-                  </span>
-                </div>
-
-                <div className="flex items-center justify-between pt-3">
-                  <span className="font-semibold">{t("home.netIncome") || "Net Income"}</span>
-                  <span className={cn(
-                    "font-bold text-xl",
-                    totalBalance >= 0 ? "text-financial-positive" : "text-financial-negative"
-                  )}>
-                    {isLoadingStats ? "..." : formatCurrency(totalBalance)}
-                  </span>
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
         )}
-
-        {/* Navigation Cards */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.25 }}
-          className={cn(
-            "grid gap-3",
-            isMobile ? "grid-cols-3 mt-auto" : "grid-cols-1 sm:grid-cols-3"
-          )}
-        >
-          {quickActions.map((action, idx) => (
-            <motion.div
-              key={action.path}
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.3 + idx * 0.05 }}
-            >
-              <Link to={action.path}>
-                <Card className={cn(
-                  "material-card cursor-pointer group h-full hover:shadow-lg transition-all duration-300 hover:border-primary/30",
-                  isMobile ? "p-4 text-center" : ""
-                )}>
-                  <CardContent className={cn(isMobile ? "p-0" : "p-5")}>
-                    <div className={cn(
-                      "rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform shadow-lg",
-                      action.color,
-                      isMobile ? "w-10 h-10 mx-auto mb-2" : "w-12 h-12 mb-4"
-                    )}>
-                      <action.icon className={cn("text-white", isMobile ? "w-5 h-5" : "w-6 h-6")} />
-                    </div>
-                    <span className={cn(
-                      "font-medium text-foreground",
-                      isMobile ? "text-xs" : "text-base"
-                    )}>
-                      {action.label}
-                    </span>
-                  </CardContent>
-                </Card>
-              </Link>
-            </motion.div>
-          ))}
-        </motion.div>
-
-        {/* Tip Card */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.4 }}
-        >
-          <Card className={cn(
-            "material-card border-god-gold/20 bg-god-gold/5",
-            isMobile ? "mt-4" : "mt-2"
-          )}>
-            <CardContent className="p-4 flex items-start gap-3">
-              <div className="p-2 rounded-lg bg-god-gold/10 shrink-0">
-                <Sparkles className="w-5 h-5 text-god-gold" />
-              </div>
-              <div className="min-w-0">
-                <h4 className={cn(
-                  "font-medium text-foreground",
-                  isMobile ? "text-sm" : "text-base"
-                )}>
-                  {t("home.tipTitle")}
-                </h4>
-                <p className={cn(
-                  "text-muted-foreground",
-                  isMobile ? "text-xs" : "text-sm"
-                )}>
-                  {t("home.tipDesc")}
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
 
         {/* Mini Stats Row - Only on mobile */}
         {isMobile && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 0.45 }}
+            transition={{ delay: 0.75 }}
             className="flex items-center justify-around mt-4 pt-4 border-t border-border"
           >
             <div className="text-center">
