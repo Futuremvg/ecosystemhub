@@ -187,7 +187,7 @@ export function FileUpload({
           )}
 
           {!isUploading && progress !== 100 && (
-            <Button onClick={uploadFile} className="w-full bg-god-gold text-god-gold-dark hover:bg-god-gold-glow">
+            <Button onClick={uploadFile} className="w-full bg-primary text-primary-foreground hover:bg-primary/90">
               <Upload className="w-4 h-4 mr-2" />
               Fazer Upload
             </Button>

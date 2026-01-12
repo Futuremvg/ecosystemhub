@@ -357,7 +357,7 @@ export default function Dinheiro() {
   if (loading || isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
-        <Loader2 className="w-8 h-8 animate-spin text-god-gold" />
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
       </div>
     );
   }
@@ -531,7 +531,7 @@ export default function Dinheiro() {
                 </div>
                 <Dialog open={isAddingSource} onOpenChange={setIsAddingSource}>
                   <DialogTrigger asChild>
-                    <Button size="sm" className="bg-god-gold text-god-gold-dark hover:bg-god-gold-glow">
+                    <Button size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90">
                       <Plus className="w-4 h-4 mr-2" />
                       {t("money.addSource")}
                     </Button>
@@ -641,7 +641,7 @@ export default function Dinheiro() {
                 </div>
                 <Dialog open={isAddingCategory} onOpenChange={setIsAddingCategory}>
                   <DialogTrigger asChild>
-                    <Button size="sm" className="bg-god-gold text-god-gold-dark hover:bg-god-gold-glow">
+                    <Button size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90">
                       <Plus className="w-4 h-4 mr-2" />
                       {t("money.addCategory")}
                     </Button>

@@ -356,15 +356,22 @@ export default function Empresas() {
     }
   };
 
-  // Filter links and remove duplicates by URL
+  // Filter links - only show links that belong to the selected company OR have no company (global)
+  // Avoid showing parent/child company links mixed together
   const filteredLinks = links.filter(link => {
     const matchesSearch = link.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       link.description?.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCompany = !selectedCompany || link.company_id === selectedCompany.id || link.company_id === null;
+    
+    // Only show links that specifically belong to this company, or global links (no company_id)
+    // Do NOT inherit links from parent companies to avoid duplication
+    const matchesCompany = selectedCompany 
+      ? link.company_id === selectedCompany.id || link.company_id === null
+      : link.company_id === null; // When no company selected, only show global links
+    
     return matchesSearch && matchesCompany;
   }).filter((link, index, self) => 
-    // Remove duplicates based on URL and category_id
-    index === self.findIndex(l => l.url === link.url && l.category_id === link.category_id)
+    // Remove duplicates based on URL (same URL = same link, regardless of category)
+    index === self.findIndex(l => l.url === link.url)
   );
 
   const getLinksByCategory = (categoryId: string) =>
@@ -383,7 +390,7 @@ export default function Empresas() {
   if (loading || isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
-        <Loader2 className="w-8 h-8 animate-spin text-god-gold" />
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
       </div>
     );
   }
@@ -450,7 +457,7 @@ export default function Empresas() {
                     setEditingCompany(null);
                     setIsCompanyDialogOpen(true);
                   }}
-                  className="bg-god-gold text-god-gold-dark hover:bg-god-gold-glow shrink-0 text-xs h-8 px-2.5"
+                  className="bg-primary text-primary-foreground hover:bg-primary/90 shrink-0 text-xs h-8 px-2.5"
                 >
                   <Plus className="w-3.5 h-3.5" />
                   <span className="hidden sm:inline sm:ml-1">{t("common.add")}</span>
@@ -467,7 +474,7 @@ export default function Empresas() {
                   <Button 
                     size="sm"
                     onClick={() => setIsCompanyDialogOpen(true)}
-                    className="bg-god-gold text-god-gold-dark hover:bg-god-gold-glow"
+                    className="bg-primary text-primary-foreground hover:bg-primary/90"
                   >
                     <Plus className="w-4 h-4 mr-2" />
                     {t("common.add")}
@@ -518,7 +525,7 @@ export default function Empresas() {
                 
                 <Dialog open={isAddingLink} onOpenChange={setIsAddingLink}>
                   <DialogTrigger asChild>
-                    <Button className="bg-god-gold text-god-gold-dark hover:bg-god-gold-glow">
+                    <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
                       <Plus className="w-4 h-4 mr-2" />
                       {t("common.add")}
                     </Button>
@@ -587,7 +594,7 @@ export default function Empresas() {
                           onChange={(e) => setNewLink({ ...newLink, description: e.target.value })}
                         />
                       </div>
-                      <Button onClick={handleAddLink} className="w-full bg-god-gold text-god-gold-dark hover:bg-god-gold-glow">
+                      <Button onClick={handleAddLink} className="w-full bg-primary text-primary-foreground hover:bg-primary/90">
                         {t("common.add")} Link
                       </Button>
                     </div>

@@ -263,7 +263,7 @@ export default function Documentos() {
   if (loading || isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
-        <Loader2 className="w-8 h-8 animate-spin text-god-gold" />
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
       </div>
     );
   }
@@ -361,7 +361,7 @@ export default function Documentos() {
               {/* Add Document Button */}
               <Dialog open={isAdding} onOpenChange={setIsAdding}>
                 <DialogTrigger asChild>
-                  <Button size="sm" className="bg-god-gold text-god-gold-dark hover:bg-god-gold-glow shrink-0 h-8 px-2.5">
+                  <Button size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90 shrink-0 h-8 px-2.5">
                     <Plus className="w-4 h-4" />
                     <span className="hidden sm:inline sm:ml-1">{t("documents.add")}</span>
                   </Button>
@@ -443,7 +443,7 @@ export default function Documentos() {
                           </SelectContent>
                         </Select>
                       </div>
-                      <Button onClick={handleAddDocument} className="w-full bg-god-gold text-god-gold-dark hover:bg-god-gold-glow">
+                      <Button onClick={handleAddDocument} className="w-full bg-primary text-primary-foreground hover:bg-primary/90">
                         {t("common.save")}
                       </Button>
                     </TabsContent>
