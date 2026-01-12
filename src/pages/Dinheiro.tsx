@@ -431,18 +431,18 @@ export default function Dinheiro() {
           </div>
         </div>
 
-        {/* Summary Cards - Matching Home style */}
-        <div className="grid grid-cols-3 gap-3">
+        {/* Summary Cards - Mobile-first responsive layout */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <Card className="relative overflow-hidden border-0 bg-gradient-to-br from-primary/10 to-primary/5 shadow-sm">
             <div className="absolute top-0 right-0 w-20 h-20 bg-primary/10 rounded-full -translate-y-8 translate-x-8" />
             <CardContent className="p-4">
               <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-primary/20 w-fit">
-                  <TrendingUp className="w-4 h-4 text-primary" />
+                <div className="p-2.5 rounded-lg bg-primary/20 shrink-0">
+                  <TrendingUp className="w-5 h-5 text-primary" />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-xs text-muted-foreground truncate">{t("money.income")}</p>
-                  <p className="text-lg font-bold text-foreground truncate">
+                  <p className="text-sm font-medium text-foreground/80">{t("money.income")}</p>
+                  <p className="text-xl sm:text-lg font-bold text-foreground">
                     {formatCurrency(
                       months.reduce((sum, _, i) => sum + getMonthlyTotal(i + 1, "income"), 0)
                     )}
@@ -456,12 +456,12 @@ export default function Dinheiro() {
             <div className="absolute top-0 right-0 w-20 h-20 bg-destructive/10 rounded-full -translate-y-8 translate-x-8" />
             <CardContent className="p-4">
               <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-destructive/20 w-fit">
-                  <TrendingDown className="w-4 h-4 text-destructive" />
+                <div className="p-2.5 rounded-lg bg-destructive/20 shrink-0">
+                  <TrendingDown className="w-5 h-5 text-destructive" />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-xs text-muted-foreground truncate">{t("money.expenses")}</p>
-                  <p className="text-lg font-bold text-foreground truncate">
+                  <p className="text-sm font-medium text-foreground/80">{t("money.expenses")}</p>
+                  <p className="text-xl sm:text-lg font-bold text-foreground">
                     {formatCurrency(
                       entries
                         .filter(e => e.category_id !== null)
@@ -480,7 +480,7 @@ export default function Dinheiro() {
             return (
               <Card className={cn(
                 "relative overflow-hidden border-0 shadow-sm",
-                isPositive 
+                isPositive
                   ? "bg-gradient-to-br from-primary/15 to-primary/5" 
                   : "bg-gradient-to-br from-destructive/15 to-destructive/5"
               )}>
@@ -491,15 +491,15 @@ export default function Dinheiro() {
                 <CardContent className="p-4">
                   <div className="flex items-center gap-3">
                     <div className={cn(
-                      "p-2 rounded-lg w-fit",
+                      "p-2.5 rounded-lg shrink-0",
                       isPositive ? "bg-primary/20" : "bg-destructive/20"
                     )}>
-                      <Wallet className={cn("w-4 h-4", isPositive ? "text-primary" : "text-destructive")} />
+                      <Wallet className={cn("w-5 h-5", isPositive ? "text-primary" : "text-destructive")} />
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className="text-xs text-muted-foreground truncate">{t("common.result")}</p>
+                      <p className="text-sm font-medium text-foreground/80">{t("common.result")}</p>
                       <p className={cn(
-                        "text-lg font-bold truncate",
+                        "text-xl sm:text-lg font-bold",
                         isPositive ? "text-primary" : "text-destructive"
                       )}>
                         {formatCurrency(balance)}
