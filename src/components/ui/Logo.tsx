@@ -66,7 +66,7 @@ export function Logo({ className, showText = true, size = "md" }: LogoProps) {
       </svg>
       
       {showText && (
-        <span className={cn("font-bold tracking-tight text-foreground", text)}>
+        <span className={cn("font-bold tracking-tight text-sidebar-foreground", text)}>
           Architecta
         </span>
       )}
