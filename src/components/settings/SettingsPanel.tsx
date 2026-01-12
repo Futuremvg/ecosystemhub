@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Globe, Coins, RefreshCw, Building2, Users, Crown } from "lucide-react";
+import { Globe, Coins, RefreshCw, Building2, Users, Crown, Sun, Moon } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { useAppSettings } from "@/contexts/AppSettingsContext";
@@ -56,11 +56,41 @@ export function SettingsPanel() {
   const { isSuperAdmin } = useTenant();
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [businessType, setBusinessType] = useState<string | null>(null);
+  const [isDark, setIsDark] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return document.documentElement.classList.contains('dark');
+    }
+    return false;
+  });
 
   useEffect(() => {
     const storedType = localStorage.getItem("business_type");
     setBusinessType(storedType);
   }, []);
+
+  // Initialize theme from localStorage
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'dark') {
+      document.documentElement.classList.add('dark');
+      setIsDark(true);
+    } else if (savedTheme === 'light') {
+      document.documentElement.classList.remove('dark');
+      setIsDark(false);
+    }
+  }, []);
+
+  const toggleTheme = () => {
+    const newIsDark = !isDark;
+    setIsDark(newIsDark);
+    if (newIsDark) {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
+    }
+  };
 
   const handleRedoOnboarding = () => {
     setShowConfirmDialog(true);
@@ -129,6 +159,27 @@ export function SettingsPanel() {
           </TooltipTrigger>
           <TooltipContent>
             <p>Refazer configuração inicial</p>
+          </TooltipContent>
+        </Tooltip>
+
+        {/* Theme Toggle */}
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={toggleTheme}
+              className="h-7 sm:h-8 w-7 sm:w-8 p-0 border-primary/30 hover:bg-primary/10 hover:border-primary/50"
+            >
+              {isDark ? (
+                <Sun className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-yellow-500" />
+              ) : (
+                <Moon className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-primary" />
+              )}
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>{isDark ? "Modo Claro" : "Modo Escuro"}</p>
           </TooltipContent>
         </Tooltip>
 

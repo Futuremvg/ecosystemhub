@@ -70,7 +70,7 @@ export function DesktopSidebar({ collapsed = false, onToggle, isMobileSheet = fa
                 ) : (
                   <Logo size="md" />
                 )}
-                <p className="text-[11px] text-sidebar-foreground/40 mt-0.5 truncate">
+                <p className="text-[11px] text-sidebar-foreground/70 mt-0.5 truncate font-medium">
                   {tenant?.name || "Business OS"}
                 </p>
               </div>
