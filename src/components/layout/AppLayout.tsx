@@ -1,4 +1,5 @@
 import { ReactNode, useState, useEffect, useRef, useCallback } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { DesktopSidebar } from "./DesktopSidebar";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Button } from "@/components/ui/button";
@@ -128,39 +129,52 @@ export function AppLayout({ children }: AppLayoutProps) {
             </div>
           </main>
 
-          {/* Mobile Sidebar Overlay */}
-          <div 
-            className={cn(
-              "fixed inset-0 z-40 bg-black/60 backdrop-blur-sm transition-opacity duration-300",
-              mobileSidebarOpen ? "opacity-100" : "opacity-0 pointer-events-none"
+          {/* Mobile Sidebar Overlay & Drawer with AnimatePresence */}
+          <AnimatePresence>
+            {mobileSidebarOpen && (
+              <>
+                {/* Overlay */}
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.25, ease: "easeOut" }}
+                  className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm"
+                  onClick={() => setMobileSidebarOpen(false)}
+                  onMouseEnter={handleSidebarHoverEnd}
+                />
+                
+                {/* Sidebar Drawer */}
+                <motion.aside
+                  ref={sidebarRef}
+                  initial={{ x: "-100%" }}
+                  animate={{ x: 0 }}
+                  exit={{ x: "-100%" }}
+                  transition={{ 
+                    type: "spring", 
+                    stiffness: 300, 
+                    damping: 30,
+                    mass: 0.8
+                  }}
+                  className="fixed left-0 top-0 h-full w-72 z-50 bg-sidebar shadow-2xl"
+                  onMouseEnter={handleSidebarHoverStart}
+                  onMouseLeave={handleSidebarHoverEnd}
+                  onTouchEnd={(e) => {
+                    const target = e.target as HTMLElement;
+                    if (!target.closest('a, button')) {
+                      handleSidebarHoverEnd();
+                    }
+                  }}
+                >
+                  <DesktopSidebar 
+                    collapsed={false} 
+                    onToggle={() => setMobileSidebarOpen(false)}
+                    isMobileSheet
+                  />
+                </motion.aside>
+              </>
             )}
-            onClick={() => setMobileSidebarOpen(false)}
-            onMouseEnter={handleSidebarHoverEnd}
-          />
-          
-          {/* Mobile Sidebar Drawer */}
-          <aside 
-            ref={sidebarRef}
-            className={cn(
-              "fixed left-0 top-0 h-full w-72 z-50 bg-sidebar transform transition-transform duration-300 ease-out",
-              mobileSidebarOpen ? "translate-x-0" : "-translate-x-full"
-            )}
-            onMouseEnter={handleSidebarHoverStart}
-            onMouseLeave={handleSidebarHoverEnd}
-            onTouchEnd={(e) => {
-              // Don't close if touch ended on a link/button inside sidebar
-              const target = e.target as HTMLElement;
-              if (!target.closest('a, button')) {
-                handleSidebarHoverEnd();
-              }
-            }}
-          >
-            <DesktopSidebar 
-              collapsed={false} 
-              onToggle={() => setMobileSidebarOpen(false)}
-              isMobileSheet
-            />
-          </aside>
+          </AnimatePresence>
         </div>
       )}
       

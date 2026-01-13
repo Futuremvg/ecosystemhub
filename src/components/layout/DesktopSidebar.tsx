@@ -1,4 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
 import { Home, Building2, DollarSign, FileText, Settings, ChevronLeft, ChevronRight, X, Shield, HelpCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAppSettings } from "@/contexts/AppSettingsContext";
@@ -44,57 +45,83 @@ export function DesktopSidebar({ collapsed = false, onToggle, isMobileSheet = fa
 
   return (
     <TooltipProvider delayDuration={0}>
-      <div className={cn(
-        "h-full bg-sidebar text-sidebar-foreground flex flex-col transition-all duration-300 border-r border-border/30",
-        collapsed ? "w-16" : "w-64"
-      )}>
+      <motion.div 
+        initial={false}
+        animate={{ width: collapsed ? 64 : 256 }}
+        transition={{ 
+          type: "spring", 
+          stiffness: 300, 
+          damping: 30,
+          mass: 0.8
+        }}
+        className="h-full bg-sidebar text-sidebar-foreground flex flex-col border-r border-border/30 overflow-hidden"
+      >
         {/* Logo */}
         <div className={cn(
-          "border-b border-border/30 flex items-center shrink-0",
+          "border-b border-border/30 flex items-center shrink-0 transition-all duration-300",
           collapsed ? "p-3 justify-center h-16" : "px-5 py-4 h-16"
         )}>
-          {collapsed ? (
-            <div 
-              className="w-9 h-9 rounded-lg flex items-center justify-center"
-              style={{ backgroundColor: tenant?.primary_color || "hsl(var(--accent))" }}
-            >
-              <span className="font-bold text-sidebar text-sm">
-                {tenant?.name?.charAt(0).toUpperCase() || "M"}
-              </span>
-            </div>
-          ) : (
-            <div className="flex items-center justify-between flex-1 min-w-0">
-              <div className="flex-1 min-w-0">
-                {tenant?.logo_url ? (
-                  <img src={tenant.logo_url} alt={tenant.name} className="h-8 object-contain" />
-                ) : (
-                  <Logo size="md" />
-                )}
-                <p className="text-[11px] text-sidebar-foreground/70 mt-0.5 truncate font-medium">
-                  {tenant?.name || "Business OS"}
-                </p>
-              </div>
-            </div>
-          )}
+          <AnimatePresence mode="wait">
+            {collapsed ? (
+              <motion.div 
+                key="collapsed-logo"
+                initial={{ scale: 0.8, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.8, opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                className="w-9 h-9 rounded-lg flex items-center justify-center"
+                style={{ backgroundColor: tenant?.primary_color || "hsl(var(--accent))" }}
+              >
+                <span className="font-bold text-sidebar text-sm">
+                  {tenant?.name?.charAt(0).toUpperCase() || "M"}
+                </span>
+              </motion.div>
+            ) : (
+              <motion.div 
+                key="expanded-logo"
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -10 }}
+                transition={{ duration: 0.2 }}
+                className="flex items-center justify-between flex-1 min-w-0"
+              >
+                <div className="flex-1 min-w-0">
+                  {tenant?.logo_url ? (
+                    <img src={tenant.logo_url} alt={tenant.name} className="h-8 object-contain" />
+                  ) : (
+                    <Logo size="md" />
+                  )}
+                  <p className="text-[11px] text-sidebar-foreground/70 mt-0.5 truncate font-medium">
+                    {tenant?.name || "Business OS"}
+                  </p>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
           
           {/* Toggle/Close button */}
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={onToggle}
-            className={cn(
-              "shrink-0 h-8 w-8 text-sidebar-foreground/50 hover:text-sidebar-foreground hover:bg-sidebar-accent/50",
-              collapsed && !isMobileSheet && "absolute -right-3 top-5 w-6 h-6 rounded-full bg-sidebar border border-border/50 shadow-sm"
-            )}
+          <motion.div
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.95 }}
           >
-            {isMobileSheet ? (
-              <X className="w-4 h-4" />
-            ) : collapsed ? (
-              <ChevronRight className="w-3.5 h-3.5" />
-            ) : (
-              <ChevronLeft className="w-4 h-4" />
-            )}
-          </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={onToggle}
+              className={cn(
+                "shrink-0 h-8 w-8 text-sidebar-foreground/50 hover:text-sidebar-foreground hover:bg-sidebar-accent/50 transition-colors",
+                collapsed && !isMobileSheet && "absolute -right-3 top-5 w-6 h-6 rounded-full bg-sidebar border border-border/50 shadow-sm"
+              )}
+            >
+              {isMobileSheet ? (
+                <X className="w-4 h-4" />
+              ) : collapsed ? (
+                <ChevronRight className="w-3.5 h-3.5" />
+              ) : (
+                <ChevronLeft className="w-4 h-4" />
+              )}
+            </Button>
+          </motion.div>
         </div>
 
         {/* Navigation */}
@@ -164,7 +191,7 @@ export function DesktopSidebar({ collapsed = false, onToggle, isMobileSheet = fa
             </p>
           </div>
         )}
-      </div>
+      </motion.div>
     </TooltipProvider>
   );
 }
