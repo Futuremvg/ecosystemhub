@@ -7,8 +7,18 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { 
   Building2, DollarSign, FileText, TrendingUp, TrendingDown,
-  LogOut, Loader2, Calendar, Sparkles, Quote
+  LogOut, Loader2, Calendar, Sparkles, Quote, AlertTriangle
 } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 import { SettingsPanel } from "@/components/settings/SettingsPanel";
@@ -98,6 +108,7 @@ export default function Home() {
   const isMobile = useIsMobile();
   
   const [companies, setCompanies] = useState<Company[]>([]);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [companyFinancials, setCompanyFinancials] = useState<CompanyFinancials[]>([]);
   const [isLoadingStats, setIsLoadingStats] = useState(true);
   const [sources, setSources] = useState<FinancialSource[]>([]);
@@ -346,9 +357,41 @@ export default function Home() {
             )}>
               {getGreeting()}! ✨
             </h1>
-            <Button variant="ghost" size="icon" onClick={signOut} className="h-8 w-8 shrink-0 text-foreground">
+            <Button variant="ghost" size="icon" onClick={() => setShowLogoutConfirm(true)} className="h-8 w-8 shrink-0 text-foreground">
               <LogOut className="w-4 h-4" />
             </Button>
+
+            {/* Logout Confirmation Modal */}
+            <AlertDialog open={showLogoutConfirm} onOpenChange={setShowLogoutConfirm}>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 rounded-full bg-destructive/10">
+                      <AlertTriangle className="w-5 h-5 text-destructive" />
+                    </div>
+                    <AlertDialogTitle>{t("common.logout")}</AlertDialogTitle>
+                  </div>
+                  <AlertDialogDescription className="pt-2">
+                    {language === "pt" 
+                      ? "Tem certeza que deseja sair da sua conta?" 
+                      : language === "fr"
+                      ? "Êtes-vous sûr de vouloir vous déconnecter ?"
+                      : "Are you sure you want to log out?"}
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>
+                    {language === "pt" ? "Cancelar" : language === "fr" ? "Annuler" : "Cancel"}
+                  </AlertDialogCancel>
+                  <AlertDialogAction 
+                    onClick={signOut}
+                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                  >
+                    {language === "pt" ? "Sim, sair" : language === "fr" ? "Oui, déconnecter" : "Yes, log out"}
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </div>
           
           {/* Second row: Date */}
