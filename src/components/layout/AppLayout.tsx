@@ -1,4 +1,4 @@
-import { ReactNode, useState, useEffect } from "react";
+import { ReactNode, useState, useEffect, useRef, useCallback } from "react";
 import { DesktopSidebar } from "./DesktopSidebar";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Button } from "@/components/ui/button";
@@ -16,6 +16,38 @@ export function AppLayout({ children }: AppLayoutProps) {
   const isMobile = useIsMobile();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
+  const sidebarRef = useRef<HTMLElement>(null);
+  const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Handle hover/touch interaction for mobile menu
+  const handleMenuHoverStart = useCallback(() => {
+    if (hoverTimeoutRef.current) {
+      clearTimeout(hoverTimeoutRef.current);
+    }
+    setMobileSidebarOpen(true);
+  }, []);
+
+  const handleSidebarHoverEnd = useCallback(() => {
+    hoverTimeoutRef.current = setTimeout(() => {
+      setMobileSidebarOpen(false);
+    }, 300); // Small delay to prevent flickering
+  }, []);
+
+  const handleSidebarHoverStart = useCallback(() => {
+    if (hoverTimeoutRef.current) {
+      clearTimeout(hoverTimeoutRef.current);
+    }
+  }, []);
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (hoverTimeoutRef.current) {
+        clearTimeout(hoverTimeoutRef.current);
+      }
+    };
+  }, []);
   const { user } = useAuth();
   
   const {
@@ -76,9 +108,13 @@ export function AppLayout({ children }: AppLayoutProps) {
           {/* Mobile Header */}
           <header className="shrink-0 h-14 px-4 flex items-center bg-background border-b border-border/40">
             <Button
+              ref={menuButtonRef}
               variant="ghost"
               size="icon"
               onClick={() => setMobileSidebarOpen(true)}
+              onMouseEnter={handleMenuHoverStart}
+              onMouseLeave={handleSidebarHoverEnd}
+              onTouchStart={handleMenuHoverStart}
               className="h-10 w-10 text-foreground"
             >
               <Menu className="w-5 h-5" />
@@ -99,14 +135,25 @@ export function AppLayout({ children }: AppLayoutProps) {
               mobileSidebarOpen ? "opacity-100" : "opacity-0 pointer-events-none"
             )}
             onClick={() => setMobileSidebarOpen(false)}
+            onMouseEnter={handleSidebarHoverEnd}
           />
           
           {/* Mobile Sidebar Drawer */}
           <aside 
+            ref={sidebarRef}
             className={cn(
               "fixed left-0 top-0 h-full w-72 z-50 bg-sidebar transform transition-transform duration-300 ease-out",
               mobileSidebarOpen ? "translate-x-0" : "-translate-x-full"
             )}
+            onMouseEnter={handleSidebarHoverStart}
+            onMouseLeave={handleSidebarHoverEnd}
+            onTouchEnd={(e) => {
+              // Don't close if touch ended on a link/button inside sidebar
+              const target = e.target as HTMLElement;
+              if (!target.closest('a, button')) {
+                handleSidebarHoverEnd();
+              }
+            }}
           >
             <DesktopSidebar 
               collapsed={false} 
