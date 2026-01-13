@@ -107,18 +107,33 @@ export function useAuth() {
 
   const signOut = useCallback(async () => {
     try {
-      const { error } = await supabase.auth.signOut();
+      // Clear local state first to ensure UI updates
+      setUser(null);
+      setSession(null);
+      
+      const { error } = await supabase.auth.signOut({ scope: 'local' });
       if (error) throw error;
+      
       toast({
         title: "Logout realizado",
         description: "Você saiu da sua conta.",
       });
+      
+      // Force navigation to auth page - fixes Safari issue
+      // Using setTimeout to ensure state is cleared before navigation
+      setTimeout(() => {
+        window.location.href = '/auth';
+      }, 100);
     } catch (error: any) {
       toast({
         title: "Erro ao sair",
         description: error.message,
         variant: "destructive",
       });
+      // Even on error, try to navigate to auth
+      setTimeout(() => {
+        window.location.href = '/auth';
+      }, 100);
     }
   }, [toast]);
 
