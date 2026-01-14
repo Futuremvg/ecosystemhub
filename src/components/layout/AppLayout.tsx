@@ -1,5 +1,5 @@
 import { ReactNode, useState, useEffect, useRef, useCallback } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, PanInfo, useMotionValue, useTransform, animate } from "framer-motion";
 import { DesktopSidebar } from "./DesktopSidebar";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Button } from "@/components/ui/button";
@@ -13,6 +13,11 @@ interface AppLayoutProps {
   children: ReactNode;
 }
 
+// Constants for swipe gesture
+const SIDEBAR_WIDTH = 288; // 72 in tailwind = 288px
+const SWIPE_THRESHOLD = 50;
+const EDGE_ZONE = 30; // px from left edge to trigger swipe open
+
 export function AppLayout({ children }: AppLayoutProps) {
   const isMobile = useIsMobile();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -20,6 +25,79 @@ export function AppLayout({ children }: AppLayoutProps) {
   const menuButtonRef = useRef<HTMLButtonElement>(null);
   const sidebarRef = useRef<HTMLElement>(null);
   const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  
+  // Swipe gesture state
+  const sidebarX = useMotionValue(-SIDEBAR_WIDTH);
+  const overlayOpacity = useTransform(sidebarX, [-SIDEBAR_WIDTH, 0], [0, 0.6]);
+  const isDragging = useRef(false);
+  const swipeStartX = useRef(0);
+
+  // Handle swipe open from edge
+  const handleTouchStart = useCallback((e: TouchEvent) => {
+    if (!isMobile) return;
+    const touch = e.touches[0];
+    if (touch.clientX < EDGE_ZONE && !mobileSidebarOpen) {
+      swipeStartX.current = touch.clientX;
+      isDragging.current = true;
+    }
+  }, [isMobile, mobileSidebarOpen]);
+
+  const handleTouchMove = useCallback((e: TouchEvent) => {
+    if (!isDragging.current || !isMobile) return;
+    const touch = e.touches[0];
+    const delta = touch.clientX - swipeStartX.current;
+    const newX = Math.min(0, Math.max(-SIDEBAR_WIDTH, -SIDEBAR_WIDTH + delta));
+    sidebarX.set(newX);
+  }, [isMobile, sidebarX]);
+
+  const handleTouchEnd = useCallback(() => {
+    if (!isDragging.current || !isMobile) return;
+    isDragging.current = false;
+    const currentX = sidebarX.get();
+    
+    if (currentX > -SIDEBAR_WIDTH + SWIPE_THRESHOLD) {
+      // Open sidebar
+      animate(sidebarX, 0, { type: "spring", stiffness: 300, damping: 30 });
+      setMobileSidebarOpen(true);
+    } else {
+      // Close sidebar
+      animate(sidebarX, -SIDEBAR_WIDTH, { type: "spring", stiffness: 300, damping: 30 });
+    }
+  }, [isMobile, sidebarX]);
+
+  // Handle swipe close on sidebar
+  const handleSidebarPanEnd = useCallback((e: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
+    if (info.offset.x < -SWIPE_THRESHOLD || info.velocity.x < -500) {
+      animate(sidebarX, -SIDEBAR_WIDTH, { type: "spring", stiffness: 300, damping: 30 });
+      setMobileSidebarOpen(false);
+    } else {
+      animate(sidebarX, 0, { type: "spring", stiffness: 300, damping: 30 });
+    }
+  }, [sidebarX]);
+
+  // Edge swipe listeners
+  useEffect(() => {
+    if (!isMobile) return;
+    
+    document.addEventListener('touchstart', handleTouchStart, { passive: true });
+    document.addEventListener('touchmove', handleTouchMove, { passive: true });
+    document.addEventListener('touchend', handleTouchEnd);
+    
+    return () => {
+      document.removeEventListener('touchstart', handleTouchStart);
+      document.removeEventListener('touchmove', handleTouchMove);
+      document.removeEventListener('touchend', handleTouchEnd);
+    };
+  }, [isMobile, handleTouchStart, handleTouchMove, handleTouchEnd]);
+
+  // Sync sidebar position when opening via button
+  useEffect(() => {
+    if (mobileSidebarOpen) {
+      animate(sidebarX, 0, { type: "spring", stiffness: 300, damping: 30 });
+    } else {
+      animate(sidebarX, -SIDEBAR_WIDTH, { type: "spring", stiffness: 300, damping: 30 });
+    }
+  }, [mobileSidebarOpen, sidebarX]);
 
   // Handle hover/touch interaction for mobile menu
   const handleMenuHoverStart = useCallback(() => {
@@ -129,52 +207,36 @@ export function AppLayout({ children }: AppLayoutProps) {
             </div>
           </main>
 
-          {/* Mobile Sidebar Overlay & Drawer with AnimatePresence */}
-          <AnimatePresence>
-            {mobileSidebarOpen && (
-              <>
-                {/* Overlay */}
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.25, ease: "easeOut" }}
-                  className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm"
-                  onClick={() => setMobileSidebarOpen(false)}
-                  onMouseEnter={handleSidebarHoverEnd}
-                />
-                
-                {/* Sidebar Drawer */}
-                <motion.aside
-                  ref={sidebarRef}
-                  initial={{ x: "-100%" }}
-                  animate={{ x: 0 }}
-                  exit={{ x: "-100%" }}
-                  transition={{ 
-                    type: "spring", 
-                    stiffness: 300, 
-                    damping: 30,
-                    mass: 0.8
-                  }}
-                  className="fixed left-0 top-0 h-full w-72 z-50 bg-sidebar shadow-2xl"
-                  onMouseEnter={handleSidebarHoverStart}
-                  onMouseLeave={handleSidebarHoverEnd}
-                  onTouchEnd={(e) => {
-                    const target = e.target as HTMLElement;
-                    if (!target.closest('a, button')) {
-                      handleSidebarHoverEnd();
-                    }
-                  }}
-                >
-                  <DesktopSidebar 
-                    collapsed={false} 
-                    onToggle={() => setMobileSidebarOpen(false)}
-                    isMobileSheet
-                  />
-                </motion.aside>
-              </>
-            )}
-          </AnimatePresence>
+          {/* Mobile Sidebar - Swipe Gesture Enabled */}
+          <motion.div
+            className="fixed inset-0 z-40 bg-black pointer-events-none"
+            style={{ opacity: overlayOpacity }}
+          />
+          
+          {mobileSidebarOpen && (
+            <motion.div
+              className="fixed inset-0 z-40"
+              onClick={() => setMobileSidebarOpen(false)}
+            />
+          )}
+          
+          <motion.aside
+            ref={sidebarRef}
+            style={{ x: sidebarX }}
+            drag="x"
+            dragConstraints={{ left: -SIDEBAR_WIDTH, right: 0 }}
+            dragElastic={0.1}
+            onDragEnd={handleSidebarPanEnd}
+            className="fixed left-0 top-0 h-full w-72 z-50 bg-sidebar shadow-2xl touch-pan-y"
+            onMouseEnter={handleSidebarHoverStart}
+            onMouseLeave={handleSidebarHoverEnd}
+          >
+            <DesktopSidebar 
+              collapsed={false} 
+              onToggle={() => setMobileSidebarOpen(false)}
+              isMobileSheet
+            />
+          </motion.aside>
         </div>
       )}
       
@@ -196,3 +258,4 @@ export function AppLayout({ children }: AppLayoutProps) {
     </div>
   );
 }
+
