@@ -207,6 +207,44 @@ export function AppLayout({ children }: AppLayoutProps) {
             </div>
           </main>
 
+          {/* Swipe Zone Indicator - Visual hint for swipe gesture */}
+          {!mobileSidebarOpen && (
+            <motion.div
+              className="fixed left-0 top-1/2 -translate-y-1/2 z-30 pointer-events-none"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 1, duration: 0.5 }}
+            >
+              <motion.div
+                className="flex items-center gap-1 pl-1 pr-2 py-3 rounded-r-full bg-primary/10 backdrop-blur-sm border border-l-0 border-primary/20"
+                animate={{ 
+                  x: [0, 8, 0],
+                  opacity: [0.6, 1, 0.6]
+                }}
+                transition={{ 
+                  repeat: Infinity, 
+                  duration: 2,
+                  ease: "easeInOut",
+                  repeatDelay: 3
+                }}
+              >
+                <svg 
+                  width="16" 
+                  height="16" 
+                  viewBox="0 0 24 24" 
+                  fill="none" 
+                  stroke="currentColor" 
+                  strokeWidth="2" 
+                  strokeLinecap="round" 
+                  strokeLinejoin="round"
+                  className="text-primary/70"
+                >
+                  <path d="m9 18 6-6-6-6"/>
+                </svg>
+              </motion.div>
+            </motion.div>
+          )}
+
           {/* Mobile Sidebar - Swipe Gesture Enabled */}
           <motion.div
             className="fixed inset-0 z-40 bg-black pointer-events-none"
