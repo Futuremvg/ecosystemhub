@@ -176,9 +176,9 @@ export default function Billing() {
             </Card>
           )}
 
-          {/* Plans Grid - Including Free Plan - All stacked on mobile/tablet */}
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3">
-            {/* Free Plan Card */}
+          {/* Desktop: Grid layout | Mobile/Tablet: Compact horizontal cards */}
+          <div className="hidden lg:grid lg:grid-cols-4 gap-3">
+            {/* Free Plan Card - Desktop */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -223,10 +223,6 @@ export default function Billing() {
                       <X className="h-3 w-3 text-destructive/50 flex-shrink-0" />
                       GodMode
                     </li>
-                    <li className="flex items-center gap-1.5 text-muted-foreground">
-                      <X className="h-3 w-3 text-destructive/50 flex-shrink-0" />
-                      {isPt ? 'Scanner' : 'Scanner'}
-                    </li>
                   </ul>
                 </CardContent>
 
@@ -245,7 +241,7 @@ export default function Billing() {
               </Card>
             </motion.div>
 
-            {/* Premium Plans */}
+            {/* Premium Plans - Desktop */}
             {(Object.entries(SUBSCRIPTION_PLANS) as [PlanId, typeof SUBSCRIPTION_PLANS[PlanId]][]).map(([planId, plan], index) => {
               const isCurrent = isCurrentPlan(planId);
               const isPopular = planId === 'annual';
@@ -310,15 +306,7 @@ export default function Billing() {
                         </li>
                         <li className="flex items-center gap-1.5">
                           <Check className="h-3 w-3 text-green-500 flex-shrink-0" />
-                          {isPt ? '∞ transações' : '∞ transactions'}
-                        </li>
-                        <li className="flex items-center gap-1.5">
-                          <Check className="h-3 w-3 text-green-500 flex-shrink-0" />
                           GodMode IA
-                        </li>
-                        <li className="flex items-center gap-1.5">
-                          <Check className="h-3 w-3 text-green-500 flex-shrink-0" />
-                          {isPt ? 'Scanner + Import' : 'Scanner + Import'}
                         </li>
                       </ul>
                     </CardContent>
@@ -356,6 +344,129 @@ export default function Billing() {
                         </div>
                       )}
                     </CardFooter>
+                  </Card>
+                </motion.div>
+              );
+            })}
+          </div>
+
+          {/* Mobile/Tablet: Compact horizontal cards stacked vertically */}
+          <div className="lg:hidden space-y-2">
+            {/* Free Plan - Compact */}
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              <Card className={`transition-all duration-300 ${
+                !subscription?.subscribed ? 'ring-2 ring-muted-foreground/30' : ''
+              }`}>
+                <CardContent className="p-3 flex items-center gap-3">
+                  <div className="p-2 rounded-full bg-muted text-muted-foreground shrink-0">
+                    <Zap className="h-4 w-4" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <span className="font-semibold text-sm">{isPt ? 'Gratuito' : 'Free'}</span>
+                      {!subscription?.subscribed && (
+                        <Badge variant="secondary" className="text-[9px] px-1 py-0">
+                          {isPt ? 'Atual' : 'Current'}
+                        </Badge>
+                      )}
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      1 {isPt ? 'empresa' : 'company'} • 5 docs • 20 trans
+                    </p>
+                  </div>
+                  <div className="text-right shrink-0">
+                    <span className="font-bold text-lg">{isPt ? 'R$ 0' : '$0'}</span>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+
+            {/* Premium Plans - Compact Horizontal */}
+            {(Object.entries(SUBSCRIPTION_PLANS) as [PlanId, typeof SUBSCRIPTION_PLANS[PlanId]][]).map(([planId, plan], index) => {
+              const isCurrent = isCurrentPlan(planId);
+              const isPopular = planId === 'annual';
+
+              return (
+                <motion.div
+                  key={planId}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: (index + 1) * 0.1, duration: 0.3 }}
+                >
+                  <Card className={`transition-all duration-300 ${
+                    isPopular ? 'border-primary shadow-md' : ''
+                  } ${isCurrent ? 'ring-2 ring-primary' : ''}`}>
+                    <CardContent className="p-3">
+                      <div className="flex items-center gap-3">
+                        <div className={`p-2 rounded-full shrink-0 ${
+                          isPopular ? 'bg-primary/10 text-primary' : 'bg-muted text-muted-foreground'
+                        }`}>
+                          {getPlanIcon(planId)}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="font-semibold text-sm">{getPlanName(plan, isPt)}</span>
+                            {isPopular && (
+                              <Badge className="bg-primary text-primary-foreground text-[9px] px-1 py-0">
+                                ⭐ {isPt ? 'Popular' : 'Best'}
+                              </Badge>
+                            )}
+                            {isCurrent && (
+                              <Badge variant="secondary" className={`text-[9px] px-1 py-0 ${isTrialing ? "bg-amber-100 text-amber-800" : ""}`}>
+                                {isTrialing ? 'Trial' : isPt ? 'Atual' : 'Current'}
+                              </Badge>
+                            )}
+                            {plan.savings && (
+                              <Badge variant="outline" className="text-[9px] text-green-600 border-green-600 px-1 py-0">
+                                -{plan.savings}%
+                              </Badge>
+                            )}
+                          </div>
+                          <p className="text-xs text-muted-foreground">
+                            ∞ {isPt ? 'empresas' : 'companies'} • ∞ docs • GodMode IA
+                          </p>
+                        </div>
+                        <div className="text-right shrink-0">
+                          <div className="font-bold text-lg">{formatPrice(plan.price)}</div>
+                          <p className="text-[10px] text-muted-foreground">/{getIntervalText(plan)}</p>
+                        </div>
+                      </div>
+                      
+                      {/* Action button */}
+                      <div className="mt-2">
+                        {isCurrent ? (
+                          <Button className="w-full h-8 text-xs" variant="outline" disabled>
+                            <Check className="h-3 w-3 mr-1" />
+                            {t('billing.currentPlan')}
+                          </Button>
+                        ) : subscription?.subscribed ? (
+                          <Button 
+                            className="w-full h-8 text-xs" 
+                            variant="outline"
+                            onClick={handleManageSubscription}
+                            disabled={portalLoading}
+                          >
+                            {portalLoading && <Loader2 className="h-3 w-3 animate-spin mr-1" />}
+                            {t('billing.changePlan')}
+                          </Button>
+                        ) : (
+                          <Button
+                            className="w-full h-8 text-xs"
+                            variant={isPopular ? 'default' : 'outline'}
+                            onClick={() => handleCheckout(planId)}
+                            disabled={!!checkoutLoading}
+                          >
+                            {checkoutLoading === planId && <Loader2 className="h-3 w-3 animate-spin mr-1" />}
+                            {t('billing.subscribeNow')}
+                            {!subscription?.subscribed && <span className="ml-1 text-[10px]">• 7 {isPt ? 'dias grátis' : 'days free'}</span>}
+                          </Button>
+                        )}
+                      </div>
+                    </CardContent>
                   </Card>
                 </motion.div>
               );

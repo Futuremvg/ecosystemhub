@@ -428,7 +428,8 @@ export default function Home() {
             {t("home.profitLoss") || "Profit & Loss"}
           </h2>
           
-          <div className="grid gap-3 grid-cols-1 sm:grid-cols-3">
+          {/* Grid: 3 columns on all screen sizes for consistent alignment */}
+          <div className="grid grid-cols-3 gap-2 md:gap-3">
             {/* Monthly Income Card */}
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
