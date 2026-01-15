@@ -4,7 +4,7 @@ import { AppLayout } from "@/components/layout/AppLayout";
 import { useAuth } from "@/hooks/useAuth";
 import { useGodMode } from "@/hooks/useGodMode";
 import { useSubscriptionLimits } from "@/hooks/useSubscriptionLimits";
-import { Loader2, Sparkles, Zap, MessageCircle, Mic, Trash2 } from "lucide-react";
+import { Loader2, Sparkles, Zap, MessageCircle, Mic, Trash2, Maximize2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { UpgradeModal } from "@/components/ui/UpgradeModal";
@@ -152,17 +152,28 @@ export default function Assistente() {
           <p className="text-muted-foreground mt-2">
             Sua segunda mente está pronta para ajudar
           </p>
-          {messages.length > 0 && (
+          <div className="flex items-center justify-center gap-2 mt-4">
             <Button
-              variant="ghost"
+              variant="outline"
               size="sm"
-              onClick={clearHistory}
-              className="mt-4 text-muted-foreground hover:text-destructive"
+              onClick={() => navigate('/godmode')}
+              className="text-primary border-primary/30 hover:bg-primary/10"
             >
-              <Trash2 className="w-4 h-4 mr-2" />
-              Limpar histórico
+              <Maximize2 className="w-4 h-4 mr-2" />
+              Modo Tela Cheia
             </Button>
-          )}
+            {messages.length > 0 && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={clearHistory}
+                className="text-muted-foreground hover:text-destructive"
+              >
+                <Trash2 className="w-4 h-4 mr-2" />
+                Limpar histórico
+              </Button>
+            )}
+          </div>
         </div>
 
         {/* Quick Tips */}
