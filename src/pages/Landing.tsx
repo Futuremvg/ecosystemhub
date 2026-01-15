@@ -459,32 +459,38 @@ export default function Landing() {
             </p>
           </motion.div>
 
-          <div className="grid md:grid-cols-4 gap-4 max-w-5xl mx-auto">
+          <div className="grid md:grid-cols-4 gap-4 max-w-5xl mx-auto items-stretch">
             {/* FREE Plan */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
+              className="flex"
             >
-              <Card className="h-full border-border/50">
-                <CardContent className="p-5">
-                  <h3 className="font-bold mb-1">{isPt ? "Grátis" : "Free"}</h3>
+              <Card className="w-full border-border/50 flex flex-col">
+                <CardContent className="p-5 flex flex-col h-full">
+                  <div className="h-6 mb-2" /> {/* Spacer to align with badge */}
+                  <h3 className="font-bold text-lg mb-1">{isPt ? "Grátis" : "Free"}</h3>
                   <div className="mb-4">
                     <span className="text-3xl font-bold">$0</span>
                     <span className="text-muted-foreground text-sm">/{isPt ? "mês" : "mo"}</span>
                   </div>
-                  <ul className="space-y-2 mb-4">
+                  <p className="text-xs text-muted-foreground mb-3">
+                    {isPt ? "Para começar a organizar" : "To start organizing"}
+                  </p>
+                  <div className="h-6 mb-3" /> {/* Spacer to align with savings badge */}
+                  <ul className="space-y-2 mb-4 flex-grow">
                     {freePlanFeatures.map((feature, j) => (
-                      <li key={j} className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <Check className="w-4 h-4 text-primary flex-shrink-0" />
-                        {feature}
+                      <li key={j} className="flex items-start gap-2 text-sm text-muted-foreground">
+                        <Check className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
+                        <span>{feature}</span>
                       </li>
                     ))}
                   </ul>
                   <Button 
                     onClick={() => navigate("/auth")}
                     variant="outline"
-                    className="w-full"
+                    className="w-full mt-auto"
                   >
                     {isPt ? "Começar" : "Get Started"}
                   </Button>
@@ -500,28 +506,47 @@ export default function Landing() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: (i + 1) * 0.1 }}
+                className="flex"
               >
-                <Card className={`h-full ${i === 1 ? 'border-primary shadow-md' : 'border-border/50'}`}>
-                  <CardContent className="p-5">
-                    {i === 1 && (
-                      <Badge className="mb-2 bg-primary text-primary-foreground">
-                        {isPt ? "Popular" : "Popular"}
-                      </Badge>
-                    )}
-                    <h3 className="font-bold mb-1">{isPt ? plan.name_pt : plan.name_en}</h3>
+                <Card className={`w-full flex flex-col ${i === 1 ? 'border-primary shadow-md ring-1 ring-primary/20' : 'border-border/50'}`}>
+                  <CardContent className="p-5 flex flex-col h-full">
+                    <div className="h-6 mb-2 flex items-center">
+                      {i === 1 && (
+                        <Badge className="bg-primary text-primary-foreground">
+                          {isPt ? "Popular" : "Popular"}
+                        </Badge>
+                      )}
+                    </div>
+                    <h3 className="font-bold text-lg mb-1">{isPt ? plan.name_pt : plan.name_en}</h3>
                     <div className="mb-4">
                       <span className="text-3xl font-bold">{formatPriceUSD(plan.price)}</span>
                       <span className="text-muted-foreground text-sm">/{isPt ? (plan.interval === 'year' ? 'ano' : 'mês') : (plan.interval === 'year' ? 'yr' : 'mo')}</span>
                     </div>
                     <p className="text-xs text-muted-foreground mb-3">{isPt ? plan.description_pt : plan.description_en}</p>
-                    {plan.savings && (
-                      <Badge variant="secondary" className="mb-3">
-                        {isPt ? `Economize ${plan.savings}%` : `Save ${plan.savings}%`}
-                      </Badge>
-                    )}
+                    <div className="h-6 mb-3 flex items-center">
+                      {plan.savings && (
+                        <Badge variant="secondary">
+                          {isPt ? `Economize ${plan.savings}%` : `Save ${plan.savings}%`}
+                        </Badge>
+                      )}
+                    </div>
+                    <ul className="space-y-2 mb-4 flex-grow">
+                      <li className="flex items-start gap-2 text-sm text-muted-foreground">
+                        <Check className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
+                        <span>{isPt ? "Empresas ilimitadas" : "Unlimited companies"}</span>
+                      </li>
+                      <li className="flex items-start gap-2 text-sm text-muted-foreground">
+                        <Check className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
+                        <span>{isPt ? "GodMode AI" : "GodMode AI"}</span>
+                      </li>
+                      <li className="flex items-start gap-2 text-sm text-muted-foreground">
+                        <Check className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
+                        <span>{isPt ? "Docs ilimitados" : "Unlimited docs"}</span>
+                      </li>
+                    </ul>
                     <Button 
                       onClick={() => navigate("/auth")}
-                      className={`w-full ${i === 1 ? '' : 'bg-primary/90'}`}
+                      className={`w-full mt-auto ${i === 1 ? '' : ''}`}
                     >
                       {isPt ? "7 Dias Grátis" : "7 Days Free"}
                     </Button>
