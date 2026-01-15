@@ -1,15 +1,22 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { useAuth } from "@/hooks/useAuth";
 import { useGodMode } from "@/hooks/useGodMode";
+import { useSubscriptionLimits } from "@/hooks/useSubscriptionLimits";
 import { Loader2, Sparkles, Zap, MessageCircle, Mic, Trash2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { UpgradeModal } from "@/components/ui/UpgradeModal";
 
 export default function Assistente() {
   const navigate = useNavigate();
   const { user, loading } = useAuth();
+  const { canUseFeature, isSubscribed, loading: limitsLoading } = useSubscriptionLimits();
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  
+  const canUseGodMode = canUseFeature('godMode');
+  
   const {
     messages,
     isLoading,
@@ -32,7 +39,7 @@ export default function Assistente() {
     }
   }, [user, loading, navigate]);
 
-  if (loading || isLoadingHistory) {
+  if (loading || isLoadingHistory || limitsLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center">
@@ -46,6 +53,89 @@ export default function Assistente() {
   }
 
   if (!user) return null;
+
+  // If user is not subscribed, show upgrade prompt
+  if (!canUseGodMode) {
+    return (
+      <AppLayout>
+        <div className="space-y-6 animate-fade-in max-w-full overflow-x-hidden">
+          {/* Header */}
+          <div className="text-center py-8">
+            <div className="relative inline-block">
+              <div className="w-24 h-24 mx-auto rounded-full bg-gradient-to-br from-muted via-muted to-muted-foreground/20 flex items-center justify-center opacity-50">
+                <Sparkles className="w-12 h-12 text-muted-foreground" />
+              </div>
+            </div>
+            <h1 className="text-2xl md:text-3xl font-bold mt-6">God Mode</h1>
+            <p className="text-muted-foreground mt-2">
+              Recurso Premium
+            </p>
+          </div>
+
+          {/* Locked Card */}
+          <Card className="material-card max-w-lg mx-auto border-primary/20">
+            <CardContent className="p-8 text-center">
+              <div className="w-16 h-16 mx-auto rounded-full bg-primary/10 flex items-center justify-center mb-4">
+                <Sparkles className="w-8 h-8 text-primary" />
+              </div>
+              <h3 className="text-lg font-semibold mb-2">GodMode é um recurso Premium</h3>
+              <p className="text-muted-foreground mb-6">
+                Desbloqueie o assistente de voz com IA para comandar suas finanças por texto ou voz.
+              </p>
+              <Button onClick={() => navigate('/billing')} className="w-full">
+                <Sparkles className="w-4 h-4 mr-2" />
+                Fazer Upgrade • 7 dias grátis
+              </Button>
+            </CardContent>
+          </Card>
+
+          {/* Features Preview */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-3xl mx-auto px-2 opacity-50">
+            <Card className="material-card text-center">
+              <CardContent className="pt-6">
+                <div className="w-12 h-12 mx-auto rounded-full bg-muted flex items-center justify-center mb-3">
+                  <MessageCircle className="w-6 h-6 text-muted-foreground" />
+                </div>
+                <h3 className="font-medium text-sm">Chat por Texto</h3>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Digite suas perguntas e comandos
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="material-card text-center">
+              <CardContent className="pt-6">
+                <div className="w-12 h-12 mx-auto rounded-full bg-muted flex items-center justify-center mb-3">
+                  <Mic className="w-6 h-6 text-muted-foreground" />
+                </div>
+                <h3 className="font-medium text-sm">Comando de Voz</h3>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Fale diretamente com o assistente
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="material-card text-center">
+              <CardContent className="pt-6">
+                <div className="w-12 h-12 mx-auto rounded-full bg-muted flex items-center justify-center mb-3">
+                  <Zap className="w-6 h-6 text-muted-foreground" />
+                </div>
+                <h3 className="font-medium text-sm">Respostas Rápidas</h3>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Insights instantâneos do seu negócio
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+        <UpgradeModal 
+          open={showUpgradeModal} 
+          onOpenChange={setShowUpgradeModal}
+          feature="godMode"
+        />
+      </AppLayout>
+    );
+  }
 
   return (
     <AppLayout>

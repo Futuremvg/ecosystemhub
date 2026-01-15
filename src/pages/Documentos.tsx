@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { useAuth } from "@/hooks/useAuth";
+import { useSubscriptionLimits } from "@/hooks/useSubscriptionLimits";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,6 +18,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { FileUpload } from "@/components/documents/FileUpload";
 import { useAppSettings } from "@/contexts/AppSettingsContext";
+import { UpgradeModal } from "@/components/ui/UpgradeModal";
 
 interface Document {
   id: string;
@@ -54,6 +56,7 @@ export default function Documentos() {
   const { user, loading } = useAuth();
   const { toast } = useToast();
   const { t, language } = useAppSettings();
+  const { canAddMore, getFeatureLimit, isSubscribed } = useSubscriptionLimits();
   
   const [documents, setDocuments] = useState<Document[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -64,6 +67,7 @@ export default function Documentos() {
   const [showCategoryManager, setShowCategoryManager] = useState(false);
   const [customCategories, setCustomCategories] = useState<CustomCategory[]>([]);
   const [newCategoryName, setNewCategoryName] = useState("");
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   
   const [newDoc, setNewDoc] = useState({
     name: "",
@@ -71,6 +75,14 @@ export default function Documentos() {
     file_type: "",
     category: "other",
   });
+  
+  const handleAddDocumentClick = () => {
+    if (!canAddMore('documents', documents.length)) {
+      setShowUpgradeModal(true);
+      return;
+    }
+    setIsAdding(true);
+  };
 
   // Combine default and custom categories
   const categories = [
@@ -361,7 +373,12 @@ export default function Documentos() {
               {/* Add Document Button */}
               <Dialog open={isAdding} onOpenChange={setIsAdding}>
                 <DialogTrigger asChild>
-                  <Button size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90 shrink-0 h-8 px-2.5">
+                  <Button size="sm" onClick={(e) => {
+                    if (!canAddMore('documents', documents.length)) {
+                      e.preventDefault();
+                      setShowUpgradeModal(true);
+                    }
+                  }} className="bg-primary text-primary-foreground hover:bg-primary/90 shrink-0 h-8 px-2.5">
                     <Plus className="w-4 h-4" />
                     <span className="hidden sm:inline sm:ml-1">{t("documents.add")}</span>
                   </Button>
@@ -565,6 +582,15 @@ export default function Documentos() {
             })}
           </div>
         )}
+        
+        {/* Upgrade Modal */}
+        <UpgradeModal
+          open={showUpgradeModal}
+          onOpenChange={setShowUpgradeModal}
+          feature="documents"
+          currentCount={documents.length}
+          limit={getFeatureLimit('documents')}
+        />
       </div>
     </AppLayout>
   );

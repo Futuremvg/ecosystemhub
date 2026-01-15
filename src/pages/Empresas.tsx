@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { useAuth } from "@/hooks/useAuth";
+import { useSubscriptionLimits } from "@/hooks/useSubscriptionLimits";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -27,6 +28,7 @@ import { CompanyDialog } from "@/components/companies/CompanyDialog";
 import { CompanySelector } from "@/components/companies/CompanySelector";
 import { CompanyDetailsSheet } from "@/components/companies/CompanyDetailsSheet";
 import { CompanyTree } from "@/components/companies/CompanyTree";
+import { UpgradeModal } from "@/components/ui/UpgradeModal";
 
 interface Company {
   id: string;
@@ -117,9 +119,11 @@ export default function Empresas() {
   const { user, loading } = useAuth();
   const { toast } = useToast();
   const { t } = useAppSettings();
+  const { canAddMore, getFeatureLimit, isSubscribed } = useSubscriptionLimits();
   
   const [companies, setCompanies] = useState<Company[]>([]);
   const [selectedCompany, setSelectedCompanyState] = useState<Company | null>(null);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   
   const setSelectedCompany = (company: Company | null) => {
     setSelectedCompanyState(company);
@@ -144,6 +148,15 @@ export default function Empresas() {
     priority: "medium" as const,
     category_id: "",
   });
+  
+  const handleAddCompanyClick = () => {
+    if (!canAddMore('companies', companies.length)) {
+      setShowUpgradeModal(true);
+      return;
+    }
+    setEditingCompany(null);
+    setIsCompanyDialogOpen(true);
+  };
 
   useEffect(() => {
     if (!loading && !user) {
@@ -453,14 +466,14 @@ export default function Empresas() {
                 </div>
                 <Button 
                   size="sm"
-                  onClick={() => {
-                    setEditingCompany(null);
-                    setIsCompanyDialogOpen(true);
-                  }}
+                  onClick={handleAddCompanyClick}
                   className="bg-primary text-primary-foreground hover:bg-primary/90 shrink-0 text-xs h-8 px-2.5"
                 >
                   <Plus className="w-3.5 h-3.5" />
                   <span className="hidden sm:inline sm:ml-1">{t("common.add")}</span>
+                  {!isSubscribed && companies.length >= getFeatureLimit('companies') && (
+                    <Badge variant="secondary" className="ml-1 text-[10px] px-1">PRO</Badge>
+                  )}
                 </Button>
               </div>
 
@@ -473,7 +486,7 @@ export default function Empresas() {
                   </p>
                   <Button 
                     size="sm"
-                    onClick={() => setIsCompanyDialogOpen(true)}
+                    onClick={handleAddCompanyClick}
                     className="bg-primary text-primary-foreground hover:bg-primary/90"
                   >
                     <Plus className="w-4 h-4 mr-2" />
@@ -695,6 +708,15 @@ export default function Empresas() {
           onSave={handleSaveCompany}
           onDelete={handleDeleteCompany}
           userId={user.id}
+        />
+        
+        {/* Upgrade Modal */}
+        <UpgradeModal
+          open={showUpgradeModal}
+          onOpenChange={setShowUpgradeModal}
+          feature="companies"
+          currentCount={companies.length}
+          limit={getFeatureLimit('companies')}
         />
       </div>
     </AppLayout>
