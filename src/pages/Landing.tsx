@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -19,11 +19,6 @@ export default function Landing() {
   const navigate = useNavigate();
   const [lang, setLang] = useState<"pt" | "en">("pt");
   const isPt = lang === "pt";
-  
-  const { scrollYProgress } = useScroll();
-  const heroY = useTransform(scrollYProgress, [0, 0.3], [0, -50]);
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.2], [1, 0.8]);
-  const floatingY = useTransform(scrollYProgress, [0, 1], [0, -100]);
 
   const features = [
     {
