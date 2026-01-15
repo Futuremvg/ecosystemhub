@@ -201,8 +201,8 @@ export default function Billing() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.1, duration: 0.5 }}
                 >
-                  <Card className={`relative h-full flex flex-col ${
-                    isPopular ? 'border-primary shadow-lg scale-105' : ''
+                  <Card className={`relative h-full flex flex-col transition-all duration-300 hover:border-primary hover:shadow-lg ${
+                    isPopular ? 'border-primary shadow-lg scale-105' : 'hover:scale-[1.02]'
                   } ${isCurrent ? 'ring-2 ring-primary' : ''}`}>
                     {isPopular && (
                       <div className="absolute -top-3 left-1/2 -translate-x-1/2">
@@ -277,7 +277,7 @@ export default function Billing() {
                       ) : (
                         <div className="space-y-2 w-full">
                           <Button
-                            className={`w-full ${isPopular ? 'bg-primary' : ''}`}
+                            className="w-full"
                             variant={isPopular ? 'default' : 'outline'}
                             onClick={() => handleCheckout(planId)}
                             disabled={!!checkoutLoading}
@@ -287,11 +287,9 @@ export default function Billing() {
                             ) : null}
                             {t('billing.subscribeNow')}
                           </Button>
-                          {isPopular && (
-                            <p className="text-xs text-center text-primary font-medium">
-                              {isPt ? '✨ 7 dias grátis!' : '✨ 7 days free!'}
-                            </p>
-                          )}
+                          <p className="text-xs text-center text-primary font-medium">
+                            {isPt ? '✨ 7 dias grátis!' : '✨ 7 days free!'}
+                          </p>
                         </div>
                       )}
                     </CardFooter>
