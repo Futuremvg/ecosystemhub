@@ -9,6 +9,7 @@ export interface SubscriptionStatus {
   price_id: string | null;
   subscription_end: string | null;
   interval: string | null;
+  status: string | null;
 }
 
 export function useSubscription() {
