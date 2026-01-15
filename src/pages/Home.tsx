@@ -428,10 +428,7 @@ export default function Home() {
             {t("home.profitLoss") || "Profit & Loss"}
           </h2>
           
-          <div className={cn(
-            "grid gap-3",
-            isMobile ? "grid-cols-1" : "grid-cols-3"
-          )}>
+          <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
             {/* Monthly Income Card */}
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
@@ -508,10 +505,7 @@ export default function Home() {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
-          className={cn(
-            "grid gap-3",
-            isMobile ? "grid-cols-2" : "grid-cols-4"
-          )}
+          className="grid gap-3 grid-cols-2 md:grid-cols-4"
         >
           {[
             { icon: Building2, label: t("ecosystem.companies") || "Ecosystem", desc: t("home.ecosystemDesc") || "Manage your companies, ecosystem, and entities.", path: "/empresas", color: "bg-primary/10", iconColor: "text-primary" },
@@ -643,13 +637,10 @@ export default function Home() {
             {/* Satellite Companies */}
             {satelliteCompanies.length > 0 && (
               <div className="space-y-3">
-                <h2 className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                  {t("ecosystem.companies") || "Companies"}
-                </h2>
-                <div className={cn(
-                  "grid gap-2",
-                  isMobile ? "grid-cols-1" : "grid-cols-2 lg:grid-cols-3"
-                )}>
+              <h2 className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                {t("ecosystem.companies") || "Companies"}
+              </h2>
+              <div className="grid gap-2 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
                   {satelliteCompanies.map((company, idx) => {
                     const financials = getCompanyFinancials(company.id);
                     return (
