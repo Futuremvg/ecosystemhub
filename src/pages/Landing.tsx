@@ -219,7 +219,6 @@ export default function Landing() {
       {/* Hero Section with Parallax */}
       <section className="relative container mx-auto px-4 py-16 md:py-24 overflow-hidden">
         <motion.div
-          style={{ y: heroY, opacity: heroOpacity }}
           className="text-center max-w-4xl mx-auto relative z-10"
         >
           <motion.div
@@ -294,7 +293,7 @@ export default function Landing() {
           transition={{ duration: 0.8, delay: 0.4 }}
           className="mt-12 relative"
         >
-          <motion.div style={{ y: floatingY }} className="relative mx-auto max-w-5xl">
+          <motion.div className="relative mx-auto max-w-5xl">
             {/* Browser Frame */}
             <div className="rounded-2xl border border-border bg-card shadow-2xl overflow-hidden">
               {/* Browser Header */}
