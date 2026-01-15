@@ -31,11 +31,8 @@ const currencies = [
 ];
 
 const languages = [
-  { value: "en-CA", label: "EN-CA", flag: "🇨🇦" },
-  { value: "fr-CA", label: "FR-CA", flag: "🇨🇦" },
-  { value: "en-US", label: "EN-US", flag: "🇺🇸" },
-  { value: "pt-BR", label: "PT-BR", flag: "🇧🇷" },
-  { value: "es-ES", label: "ES-ES", flag: "🇪🇸" },
+  { value: "en-US", label: "EN", flag: "🇺🇸" },
+  { value: "pt-BR", label: "PT", flag: "🇧🇷" },
 ];
 
 const businessTypeLabels: Record<string, string> = {

@@ -9,6 +9,7 @@ import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useSubscription } from '@/hooks/useSubscription';
+import { useAppSettings } from '@/contexts/AppSettingsContext';
 import { SUBSCRIPTION_PLANS, formatPrice, PlanId } from '@/lib/stripe-config';
 import { AppLayout } from '@/components/layout/AppLayout';
 
@@ -17,27 +18,30 @@ export default function Billing() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { subscription, currentPlan, loading: subLoading, refetch } = useSubscription();
+  const { t, language } = useAppSettings();
   
   const [checkoutLoading, setCheckoutLoading] = useState<PlanId | null>(null);
   const [portalLoading, setPortalLoading] = useState(false);
 
+  const isPt = language.startsWith("pt");
+
   // Handle success/cancel from Stripe
   useEffect(() => {
     if (searchParams.get('success') === 'true') {
-      toast.success('Assinatura ativada com sucesso!', {
-        description: 'Bem-vindo ao Ecosystem Hub!'
+      toast.success(t('billing.success'), {
+        description: t('billing.welcome')
       });
       refetch();
     } else if (searchParams.get('canceled') === 'true') {
-      toast.info('Checkout cancelado', {
-        description: 'Você pode assinar a qualquer momento.'
+      toast.info(t('billing.canceled'), {
+        description: t('billing.canceledDesc')
       });
     }
-  }, [searchParams, refetch]);
+  }, [searchParams, refetch, t]);
 
   const handleCheckout = async (planId: PlanId) => {
     if (!user) {
-      toast.error('Faça login para assinar');
+      toast.error(t('billing.loginToSubscribe'));
       navigate('/auth');
       return;
     }
@@ -56,8 +60,8 @@ export default function Billing() {
         window.open(data.url, '_blank');
       }
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Erro ao iniciar checkout';
-      toast.error('Erro no checkout', { description: message });
+      const message = err instanceof Error ? err.message : t('billing.checkoutError');
+      toast.error(t('billing.checkoutError'), { description: message });
     } finally {
       setCheckoutLoading(null);
     }
@@ -65,7 +69,7 @@ export default function Billing() {
 
   const handleManageSubscription = async () => {
     if (!user) {
-      toast.error('Faça login para gerenciar sua assinatura');
+      toast.error(t('billing.loginToSubscribe'));
       return;
     }
 
@@ -81,8 +85,8 @@ export default function Billing() {
         window.open(data.url, '_blank');
       }
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Erro ao abrir portal';
-      toast.error('Erro', { description: message });
+      const message = err instanceof Error ? err.message : t('billing.portalError');
+      toast.error(t('billing.portalError'), { description: message });
     } finally {
       setPortalLoading(false);
     }
@@ -100,6 +104,24 @@ export default function Billing() {
     return currentPlan?.id === planId;
   };
 
+  const getIntervalText = (plan: typeof SUBSCRIPTION_PLANS[PlanId]) => {
+    if (plan.interval === 'year') {
+      return t('billing.perYear');
+    }
+    if (plan.interval_count > 1) {
+      return `${plan.interval_count} ${t('billing.perMonths')}`;
+    }
+    return t('billing.perMonth');
+  };
+
+  const features = [
+    t('billing.features.financial'),
+    t('billing.features.companies'),
+    t('billing.features.documents'),
+    t('billing.features.godMode'),
+    t('billing.features.support'),
+  ];
+
   return (
     <AppLayout>
       <div className="container max-w-5xl py-8 px-4">
@@ -110,9 +132,9 @@ export default function Billing() {
         >
           {/* Header */}
           <div className="text-center mb-10">
-            <h1 className="text-3xl font-bold mb-2">Planos e Cobrança</h1>
+            <h1 className="text-3xl font-bold mb-2">{t('billing.title')}</h1>
             <p className="text-muted-foreground">
-              Escolha o plano ideal para seu negócio
+              {t('billing.subtitle')}
             </p>
           </div>
 
@@ -124,17 +146,17 @@ export default function Billing() {
                   <div>
                     <CardTitle className="flex items-center gap-2">
                       <CreditCard className="h-5 w-5 text-primary" />
-                      Sua Assinatura
+                      {t('billing.yourSubscription')}
                     </CardTitle>
                     <CardDescription>
-                      Plano {currentPlan.name} • Renovação em{' '}
+                      {t('billing.planName')} {currentPlan.name} • {t('billing.renewalDate')}{' '}
                       {subscription.subscription_end 
-                        ? new Date(subscription.subscription_end).toLocaleDateString('pt-BR')
+                        ? new Date(subscription.subscription_end).toLocaleDateString(isPt ? 'pt-BR' : 'en-US')
                         : 'N/A'}
                     </CardDescription>
                   </div>
                   <Badge variant="default" className="bg-primary">
-                    Ativo
+                    {t('billing.active')}
                   </Badge>
                 </div>
               </CardHeader>
@@ -149,7 +171,7 @@ export default function Billing() {
                   ) : (
                     <ExternalLink className="h-4 w-4 mr-2" />
                   )}
-                  Gerenciar Assinatura
+                  {t('billing.manageSubscription')}
                 </Button>
                 <Button
                   variant="ghost"
@@ -182,7 +204,7 @@ export default function Billing() {
                     {isPopular && (
                       <div className="absolute -top-3 left-1/2 -translate-x-1/2">
                         <Badge className="bg-primary text-primary-foreground">
-                          Mais Popular
+                          {t('billing.mostPopular')}
                         </Badge>
                       </div>
                     )}
@@ -190,7 +212,7 @@ export default function Billing() {
                     {isCurrent && (
                       <div className="absolute -top-3 right-4">
                         <Badge variant="secondary">
-                          Seu Plano
+                          {t('billing.yourPlan')}
                         </Badge>
                       </div>
                     )}
@@ -207,12 +229,12 @@ export default function Billing() {
                           {formatPrice(plan.price)}
                         </span>
                         <span className="text-muted-foreground">
-                          /{plan.interval_count > 1 ? `${plan.interval_count} meses` : plan.interval === 'year' ? 'ano' : 'mês'}
+                          /{getIntervalText(plan)}
                         </span>
                       </div>
                       {plan.savings && (
                         <Badge variant="outline" className="mt-2 text-green-600 border-green-600">
-                          Economize {plan.savings}%
+                          {t('billing.save')} {plan.savings}%
                         </Badge>
                       )}
                     </CardHeader>
@@ -222,13 +244,7 @@ export default function Billing() {
                         {plan.description}
                       </p>
                       <ul className="space-y-2">
-                        {[
-                          'Gestão financeira completa',
-                          'Gerenciamento de empresas',
-                          'Documentos ilimitados',
-                          'God Mode AI Assistant',
-                          'Suporte prioritário',
-                        ].map((feature) => (
+                        {features.map((feature) => (
                           <li key={feature} className="flex items-center gap-2 text-sm">
                             <Check className="h-4 w-4 text-green-500 flex-shrink-0" />
                             {feature}
@@ -241,7 +257,7 @@ export default function Billing() {
                       {isCurrent ? (
                         <Button className="w-full" variant="outline" disabled>
                           <Check className="h-4 w-4 mr-2" />
-                          Plano Atual
+                          {t('billing.currentPlan')}
                         </Button>
                       ) : subscription?.subscribed ? (
                         <Button 
@@ -253,7 +269,7 @@ export default function Billing() {
                           {portalLoading ? (
                             <Loader2 className="h-4 w-4 animate-spin mr-2" />
                           ) : null}
-                          Alterar Plano
+                          {t('billing.changePlan')}
                         </Button>
                       ) : (
                         <Button
@@ -265,7 +281,7 @@ export default function Billing() {
                           {checkoutLoading === planId ? (
                             <Loader2 className="h-4 w-4 animate-spin mr-2" />
                           ) : null}
-                          Assinar Agora
+                          {t('billing.subscribeNow')}
                         </Button>
                       )}
                     </CardFooter>
@@ -278,7 +294,7 @@ export default function Billing() {
           {/* Payment Methods Info */}
           <div className="mt-10 text-center">
             <p className="text-sm text-muted-foreground mb-4">
-              Pagamento seguro processado pelo Stripe
+              {t('billing.securePayment')}
             </p>
             <div className="flex justify-center items-center gap-3 flex-wrap">
               {/* Visa */}

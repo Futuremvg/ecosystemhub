@@ -56,7 +56,7 @@ export function AddTransactionDialog({
   onCreateCategory,
 }: AddTransactionDialogProps) {
   const { t, language } = useAppSettings();
-  const months = language.startsWith("pt") ? monthsPT : language.startsWith("fr") ? monthsFR : monthsEN;
+  const months = language.startsWith("pt") ? monthsPT : monthsEN;
   
   const [open, setOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<"income" | "expense" | "scan">("income");
