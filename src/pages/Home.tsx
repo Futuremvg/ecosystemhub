@@ -428,16 +428,17 @@ export default function Home() {
             {t("home.profitLoss") || "Profit & Loss"}
           </h2>
           
-          {/* Grid: 3 columns - compact cards that fit well */}
+          {/* Grid: 3 columns - equal height cards */}
           <div className="grid grid-cols-3 gap-2">
             {/* Monthly Income Card */}
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.15 }}
+              className="h-full"
             >
-              <Card className="border-0 bg-gradient-to-br from-primary/10 to-primary/5 shadow-sm h-full">
-                <CardContent className="p-3 md:p-4">
+              <Card className="border-0 bg-gradient-to-br from-primary/10 to-primary/5 shadow-sm h-full min-h-[70px]">
+                <CardContent className="p-3 md:p-4 flex flex-col justify-center h-full">
                   <p className="text-[10px] md:text-xs text-muted-foreground mb-1 truncate">
                     {t("home.monthlyIncome")}
                   </p>
@@ -453,9 +454,10 @@ export default function Home() {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.2 }}
+              className="h-full"
             >
-              <Card className="border-0 bg-gradient-to-br from-destructive/10 to-destructive/5 shadow-sm h-full">
-                <CardContent className="p-3 md:p-4">
+              <Card className="border-0 bg-gradient-to-br from-destructive/10 to-destructive/5 shadow-sm h-full min-h-[70px]">
+                <CardContent className="p-3 md:p-4 flex flex-col justify-center h-full">
                   <p className="text-[10px] md:text-xs text-muted-foreground mb-1 truncate">
                     {t("home.monthlyExpenses")}
                   </p>
@@ -471,14 +473,15 @@ export default function Home() {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.25 }}
+              className="h-full"
             >
               <Card className={cn(
-                "border-0 shadow-sm h-full",
+                "border-0 shadow-sm h-full min-h-[70px]",
                 totalBalance >= 0 
                   ? "bg-gradient-to-br from-primary/15 to-primary/5" 
                   : "bg-gradient-to-br from-destructive/15 to-destructive/5"
               )}>
-                <CardContent className="p-3 md:p-4">
+                <CardContent className="p-3 md:p-4 flex flex-col justify-center h-full">
                   <p className="text-[10px] md:text-xs text-muted-foreground mb-1 truncate">
                     {t("home.netIncome") || "Net"}
                   </p>
