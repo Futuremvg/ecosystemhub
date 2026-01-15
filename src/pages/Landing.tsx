@@ -8,7 +8,7 @@ import {
   Building2, DollarSign, FileText, Sparkles, 
   Check, ArrowRight, Receipt, FileSpreadsheet, MessageSquare,
   Star, Clock, Target, Brain, Zap, FolderKanban, Briefcase,
-  ChevronDown, HelpCircle
+  ChevronDown, HelpCircle, Cookie, X
 } from "lucide-react";
 import { SUBSCRIPTION_PLANS, formatPriceUSD } from "@/lib/stripe-config";
 import { Logo } from "@/components/ui/Logo";
@@ -23,6 +23,14 @@ export default function Landing() {
   const navigate = useNavigate();
   const [lang, setLang] = useState<"pt" | "en">("en");
   const isPt = lang === "pt";
+  const [showCookies, setShowCookies] = useState(() => {
+    return !localStorage.getItem('cookiesAccepted');
+  });
+
+  const acceptCookies = () => {
+    localStorage.setItem('cookiesAccepted', 'true');
+    setShowCookies(false);
+  };
 
   // Value proposition benefits
   const valueBenefits = [
@@ -287,7 +295,7 @@ export default function Landing() {
                   whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: i * 0.08 }}
-                  className="flex items-center gap-4 bg-background rounded-lg p-4 border border-border/50 shadow-sm"
+                  className="flex items-center gap-4 bg-background rounded-lg p-4 border border-border/50 shadow-sm hover:border-primary/50 hover:shadow-md transition-all duration-200 cursor-default"
                 >
                   <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary shrink-0">
                     {benefit.icon}
@@ -357,7 +365,7 @@ export default function Landing() {
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.1 }}
               >
-                <Card className="h-full hover:shadow-md transition-shadow border-border/50">
+                <Card className="h-full hover:shadow-lg hover:border-primary/50 hover:-translate-y-1 transition-all duration-200 border-border/50">
                   <CardContent className="p-5">
                     <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary mb-3">
                       {feature.icon}
@@ -390,7 +398,7 @@ export default function Landing() {
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.1 }}
               >
-                <Card className="h-full text-center border-border/50">
+                <Card className="h-full text-center border-border/50 hover:shadow-lg hover:border-primary/50 hover:-translate-y-1 transition-all duration-200">
                   <CardContent className="p-5">
                     <span className="text-3xl font-bold text-primary/20">{step.step}</span>
                     <h3 className="font-semibold mt-2 mb-1">{step.title}</h3>
@@ -421,7 +429,7 @@ export default function Landing() {
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.1 }}
               >
-                <Card className="h-full border-border/50">
+                <Card className="h-full border-border/50 hover:shadow-lg hover:border-primary/50 hover:-translate-y-1 transition-all duration-200">
                   <CardContent className="p-5">
                     <div className="flex gap-0.5 mb-3">
                       {[...Array(5)].map((_, j) => (
@@ -561,12 +569,12 @@ export default function Landing() {
                     </div>
                   )}
                   
-                  <Card className={`h-full flex flex-col ${
+                  <Card className={`h-full flex flex-col hover:-translate-y-1 transition-all duration-200 ${
                     isBestValue 
-                      ? 'border-primary border-2 shadow-lg' 
+                      ? 'border-primary border-2 shadow-lg hover:shadow-xl' 
                       : isPopular 
-                        ? 'border-amber-500 border-2 shadow-md' 
-                        : 'border-border/50'
+                        ? 'border-amber-500 border-2 shadow-md hover:shadow-lg' 
+                        : 'border-border/50 hover:border-primary/50 hover:shadow-lg'
                   }`}>
                     <CardContent className="p-5 flex flex-col flex-1">
                       <div className="flex items-center justify-between mb-1">
@@ -675,12 +683,55 @@ export default function Landing() {
               <Logo className="w-5 h-5" />
               <span className="text-sm text-muted-foreground">Architecta</span>
             </div>
+            <div className="flex items-center gap-4 text-xs text-muted-foreground">
+              <a href="/privacy" className="hover:text-foreground transition-colors">
+                {isPt ? "Política de Privacidade" : "Privacy Policy"}
+              </a>
+              <a href="/terms" className="hover:text-foreground transition-colors">
+                {isPt ? "Termos de Uso" : "Terms of Service"}
+              </a>
+            </div>
             <p className="text-xs text-muted-foreground">
               © {new Date().getFullYear()} Architecta. {isPt ? "Todos os direitos reservados." : "All rights reserved."}
             </p>
           </div>
         </div>
       </footer>
+
+      {/* Cookie Consent Banner */}
+      {showCookies && (
+        <motion.div
+          initial={{ y: 100, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          className="fixed bottom-0 left-0 right-0 z-50 p-4 bg-background border-t border-border shadow-lg"
+        >
+          <div className="container mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <Cookie className="w-5 h-5 text-primary shrink-0" />
+              <p className="text-sm text-muted-foreground">
+                {isPt 
+                  ? "Usamos cookies para melhorar sua experiência. Ao continuar, você concorda com nossa " 
+                  : "We use cookies to improve your experience. By continuing, you agree to our "}
+                <a href="/privacy" className="text-primary hover:underline">
+                  {isPt ? "Política de Privacidade" : "Privacy Policy"}
+                </a>
+                {isPt ? " e " : " and "}
+                <a href="/terms" className="text-primary hover:underline">
+                  {isPt ? "Termos de Uso" : "Terms of Service"}
+                </a>.
+              </p>
+            </div>
+            <div className="flex items-center gap-2 shrink-0">
+              <Button size="sm" onClick={acceptCookies}>
+                {isPt ? "Aceitar" : "Accept"}
+              </Button>
+              <Button size="sm" variant="ghost" onClick={() => setShowCookies(false)}>
+                <X className="w-4 h-4" />
+              </Button>
+            </div>
+          </div>
+        </motion.div>
+      )}
     </div>
   );
 }
