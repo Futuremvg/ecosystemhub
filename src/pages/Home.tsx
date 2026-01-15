@@ -428,22 +428,20 @@ export default function Home() {
             {t("home.profitLoss") || "Profit & Loss"}
           </h2>
           
-          {/* Grid: 3 columns on all screen sizes for consistent alignment */}
-          <div className="grid grid-cols-3 gap-2 md:gap-3">
+          {/* Grid: 3 columns - compact cards that fit well */}
+          <div className="grid grid-cols-3 gap-2">
             {/* Monthly Income Card */}
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.15 }}
             >
-              <Card className="relative overflow-hidden border-0 bg-gradient-to-br from-primary/10 to-primary/5 shadow-sm">
-                <div className="absolute top-0 right-0 w-24 h-24 bg-primary/10 rounded-full -translate-y-8 translate-x-8" />
-                <CardContent className={cn("p-5", isMobile && "p-4")}>
-                  <p className="text-sm text-muted-foreground mb-2">{t("home.monthlyIncome")}</p>
-                  <p className={cn(
-                    "font-bold text-foreground",
-                    isMobile ? "text-xl" : "text-2xl"
-                  )}>
+              <Card className="border-0 bg-gradient-to-br from-primary/10 to-primary/5 shadow-sm h-full">
+                <CardContent className="p-3 md:p-4">
+                  <p className="text-[10px] md:text-xs text-muted-foreground mb-1 truncate">
+                    {t("home.monthlyIncome")}
+                  </p>
+                  <p className="font-bold text-foreground text-base md:text-xl truncate">
                     {isLoadingStats ? "..." : formatCurrency(totalIncome)}
                   </p>
                 </CardContent>
@@ -456,14 +454,12 @@ export default function Home() {
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.2 }}
             >
-              <Card className="relative overflow-hidden border-0 bg-gradient-to-br from-destructive/10 to-destructive/5 shadow-sm">
-                <div className="absolute top-0 right-0 w-24 h-24 bg-destructive/10 rounded-full -translate-y-8 translate-x-8" />
-                <CardContent className={cn("p-5", isMobile && "p-4")}>
-                  <p className="text-sm text-muted-foreground mb-2">{t("home.monthlyExpenses")}</p>
-                  <p className={cn(
-                    "font-bold text-foreground",
-                    isMobile ? "text-xl" : "text-2xl"
-                  )}>
+              <Card className="border-0 bg-gradient-to-br from-destructive/10 to-destructive/5 shadow-sm h-full">
+                <CardContent className="p-3 md:p-4">
+                  <p className="text-[10px] md:text-xs text-muted-foreground mb-1 truncate">
+                    {t("home.monthlyExpenses")}
+                  </p>
+                  <p className="font-bold text-foreground text-base md:text-xl truncate">
                     {isLoadingStats ? "..." : formatCurrency(totalExpenses)}
                   </p>
                 </CardContent>
@@ -477,20 +473,17 @@ export default function Home() {
               transition={{ delay: 0.25 }}
             >
               <Card className={cn(
-                "relative overflow-hidden border-0 shadow-sm",
+                "border-0 shadow-sm h-full",
                 totalBalance >= 0 
                   ? "bg-gradient-to-br from-primary/15 to-primary/5" 
                   : "bg-gradient-to-br from-destructive/15 to-destructive/5"
               )}>
-                <div className={cn(
-                  "absolute top-0 right-0 w-24 h-24 rounded-full -translate-y-8 translate-x-8",
-                  totalBalance >= 0 ? "bg-primary/15" : "bg-destructive/15"
-                )} />
-                <CardContent className={cn("p-5", isMobile && "p-4")}>
-                  <p className="text-sm text-muted-foreground mb-2">{t("home.netIncome") || "Net Income"}</p>
+                <CardContent className="p-3 md:p-4">
+                  <p className="text-[10px] md:text-xs text-muted-foreground mb-1 truncate">
+                    {t("home.netIncome") || "Net"}
+                  </p>
                   <p className={cn(
-                    "font-bold",
-                    isMobile ? "text-xl" : "text-2xl",
+                    "font-bold text-base md:text-xl truncate",
                     totalBalance >= 0 ? "text-primary" : "text-destructive"
                   )}>
                     {isLoadingStats ? "..." : formatCurrency(totalBalance)}
