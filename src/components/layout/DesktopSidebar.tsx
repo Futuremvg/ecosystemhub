@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Home, Building2, DollarSign, FileText, Settings, ChevronLeft, ChevronRight, X, Shield, HelpCircle } from "lucide-react";
+import { Home, Building2, DollarSign, FileText, Settings, ChevronLeft, ChevronRight, X, Shield, HelpCircle, CreditCard } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAppSettings } from "@/contexts/AppSettingsContext";
 import { useTenant } from "@/contexts/TenantContext";
@@ -14,6 +14,7 @@ const getNavItems = (t: (key: string) => string, isSuperAdmin: boolean) => {
     { icon: Building2, label: t("nav.companies"), path: "/empresas" },
     { icon: DollarSign, label: t("nav.money"), path: "/dinheiro" },
     { icon: FileText, label: t("nav.documents"), path: "/documentos" },
+    { icon: CreditCard, label: t("nav.billing") || "Cobrança", path: "/billing" },
     { icon: Settings, label: t("nav.settings"), path: "/configuracoes" },
     { icon: HelpCircle, label: t("nav.help"), path: "/ajuda" },
   ];

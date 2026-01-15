@@ -17,6 +17,7 @@ import Documentos from "./pages/Documentos";
 import Configuracoes from "./pages/Configuracoes";
 import Ajuda from "./pages/Ajuda";
 import AdminTenants from "./pages/AdminTenants";
+import Billing from "./pages/Billing";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -35,6 +36,7 @@ function AnimatedRoutes() {
         <Route path="/configuracoes" element={<PageTransition><Configuracoes /></PageTransition>} />
         <Route path="/ajuda" element={<PageTransition><Ajuda /></PageTransition>} />
         <Route path="/admin/tenants" element={<PageTransition><AdminTenants /></PageTransition>} />
+        <Route path="/billing" element={<PageTransition><Billing /></PageTransition>} />
         {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
         <Route path="*" element={<PageTransition><NotFound /></PageTransition>} />
       </Routes>
