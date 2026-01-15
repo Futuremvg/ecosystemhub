@@ -275,17 +275,24 @@ export default function Billing() {
                           {t('billing.changePlan')}
                         </Button>
                       ) : (
-                        <Button
-                          className={`w-full ${isPopular ? 'bg-primary' : ''}`}
-                          variant={isPopular ? 'default' : 'outline'}
-                          onClick={() => handleCheckout(planId)}
-                          disabled={!!checkoutLoading}
-                        >
-                          {checkoutLoading === planId ? (
-                            <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                          ) : null}
-                          {t('billing.subscribeNow')}
-                        </Button>
+                        <div className="space-y-2 w-full">
+                          <Button
+                            className={`w-full ${isPopular ? 'bg-primary' : ''}`}
+                            variant={isPopular ? 'default' : 'outline'}
+                            onClick={() => handleCheckout(planId)}
+                            disabled={!!checkoutLoading}
+                          >
+                            {checkoutLoading === planId ? (
+                              <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                            ) : null}
+                            {t('billing.subscribeNow')}
+                          </Button>
+                          {isPopular && (
+                            <p className="text-xs text-center text-primary font-medium">
+                              {isPt ? '✨ 7 dias grátis!' : '✨ 7 days free!'}
+                            </p>
+                          )}
+                        </div>
                       )}
                     </CardFooter>
                   </Card>
@@ -294,7 +301,7 @@ export default function Billing() {
             })}
           </div>
 
-          {/* Trial CTA for non-subscribers */}
+          {/* Trial CTA Banner for non-subscribers */}
           {!subscription?.subscribed && (
             <Card className="mt-8 border-primary/30 bg-gradient-to-r from-primary/5 to-primary/10">
               <CardContent className="py-6">
@@ -304,14 +311,15 @@ export default function Billing() {
                       <Sparkles className="h-6 w-6 text-primary" />
                     </div>
                     <div>
-                      <h3 className="font-semibold">{isPt ? 'Comece seu trial grátis hoje!' : 'Start your free trial today!'}</h3>
+                      <h3 className="font-semibold">{isPt ? '🚀 Comece seu trial grátis hoje!' : '🚀 Start your free trial today!'}</h3>
                       <p className="text-sm text-muted-foreground">
                         {isPt ? 'Experimente todos os recursos por 7 dias sem compromisso' : 'Try all features for 7 days with no commitment'}
                       </p>
                     </div>
                   </div>
-                  <Button onClick={() => handleCheckout('monthly')} className="shrink-0">
-                    {isPt ? 'Começar Trial' : 'Start Trial'}
+                  <Button onClick={() => handleCheckout('annual')} className="shrink-0">
+                    <Sparkles className="h-4 w-4 mr-2" />
+                    {isPt ? 'Começar Trial Grátis' : 'Start Free Trial'}
                   </Button>
                 </div>
               </CardContent>
