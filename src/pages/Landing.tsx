@@ -17,6 +17,7 @@ import { Logo } from "@/components/ui/Logo";
 import dashboardMockup from "@/assets/dashboard-mockup.png";
 import companiesMockup from "@/assets/companies-mockup.png";
 import financesMockup from "@/assets/finances-mockup.png";
+import appDemoVideo from "@/assets/app-demo-video.mp4";
 
 export default function Landing() {
   const navigate = useNavigate();
@@ -536,11 +537,53 @@ export default function Landing() {
               <Target className="w-3 h-3 mr-1" />
               {isPt ? "Como Funciona" : "How It Works"}
             </Badge>
-            <h2 className="text-2xl md:text-4xl font-bold">
-              {isPt ? "4 Passos Simples" : "4 Simple Steps"}
+            <h2 className="text-2xl md:text-4xl font-bold mb-2">
+              {isPt ? "Veja o Sistema em Ação" : "See the System in Action"}
             </h2>
+            <p className="text-sm text-muted-foreground max-w-xl mx-auto">
+              {isPt 
+                ? "Assista ao vídeo e conheça a plataforma em poucos segundos" 
+                : "Watch the video and get to know the platform in seconds"}
+            </p>
           </motion.div>
 
+          {/* Video Demo */}
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="max-w-4xl mx-auto mb-12"
+          >
+            <div className="relative rounded-2xl border border-border bg-card shadow-2xl overflow-hidden">
+              {/* Browser Header */}
+              <div className="flex items-center gap-2 px-4 py-2.5 bg-muted/50 border-b border-border">
+                <div className="flex gap-1.5">
+                  <div className="w-2.5 h-2.5 rounded-full bg-red-400" />
+                  <div className="w-2.5 h-2.5 rounded-full bg-yellow-400" />
+                  <div className="w-2.5 h-2.5 rounded-full bg-green-400" />
+                </div>
+                <div className="flex-1 mx-4">
+                  <div className="bg-background rounded-md px-3 py-1 text-xs text-muted-foreground text-center max-w-[200px] mx-auto flex items-center justify-center gap-1">
+                    <Play className="w-3 h-3" />
+                    {isPt ? "Demonstração" : "Demo"}
+                  </div>
+                </div>
+              </div>
+              
+              {/* Video */}
+              <video 
+                src={appDemoVideo}
+                autoPlay 
+                loop 
+                muted 
+                playsInline
+                className="w-full h-auto"
+              />
+            </div>
+          </motion.div>
+
+          {/* Steps */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 max-w-4xl mx-auto">
             {howItWorks.map((step, i) => (
               <motion.div
