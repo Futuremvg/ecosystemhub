@@ -2,9 +2,11 @@ import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useGodMode } from "@/hooks/useGodMode";
+import { useAudioAnalyzer } from "@/hooks/useAudioAnalyzer";
 import { useSubscriptionLimits } from "@/hooks/useSubscriptionLimits";
 import { useAppSettings } from "@/contexts/AppSettingsContext";
 import { RadioWaves } from "@/components/god-mode/RadioWaves";
+import { AudioWaveform } from "@/components/god-mode/AudioWaveform";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { 
@@ -18,7 +20,8 @@ import {
   Sparkles,
   Trash2,
   History,
-  Plus
+  Plus,
+  Wifi
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
@@ -37,6 +40,15 @@ export default function GodModeFullscreen() {
   const lastTranscriptionRef = useRef<string>("");
   
   const canUseGodMode = canUseFeature('godMode');
+  
+  // Audio analyzer for reactive waveform
+  const { 
+    volume, 
+    frequencies, 
+    isAnalyzing, 
+    startAnalyzing, 
+    stopAnalyzing 
+  } = useAudioAnalyzer();
   
   const {
     messages,
@@ -104,8 +116,10 @@ export default function GodModeFullscreen() {
   const handleVoiceClick = () => {
     if (isListening) {
       stopVoice();
+      stopAnalyzing();
     } else {
       startVoice();
+      startAnalyzing();
     }
   };
 
@@ -147,6 +161,11 @@ export default function GodModeFullscreen() {
         <div className="flex items-center gap-2">
           <Sparkles className="w-5 h-5 text-primary" />
           <span className="font-semibold text-white">God Mode AI</span>
+          {/* Realtime sync indicator */}
+          <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-primary/20 text-primary text-[10px] font-medium">
+            <Wifi className="w-3 h-3" />
+            <span>LIVE</span>
+          </div>
         </div>
         
         <div className="flex items-center gap-1">
@@ -240,6 +259,17 @@ export default function GodModeFullscreen() {
               className="relative cursor-pointer transition-transform hover:scale-105 active:scale-95"
             >
               <RadioWaves state={godState} className="w-80 h-80" />
+              {/* Audio reactive waveform overlay */}
+              {isAnalyzing && (
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <AudioWaveform 
+                    frequencies={frequencies} 
+                    volume={volume} 
+                    isActive={isAnalyzing}
+                    className="absolute bottom-1/4"
+                  />
+                </div>
+              )}
             </button>
             
             <div className="mt-8 text-center">
@@ -253,19 +283,39 @@ export default function GodModeFullscreen() {
                   ? (isPt ? "Processando..." : "Processing...")
                   : (isPt ? "Toque no centro para falar ou digite abaixo" : "Tap the center to speak or type below")}
               </p>
+              {isAnalyzing && (
+                <div className="mt-4 flex items-center justify-center gap-2">
+                  <div 
+                    className="w-2 h-2 rounded-full bg-primary animate-pulse"
+                    style={{ transform: `scale(${0.8 + volume * 1.5})` }}
+                  />
+                  <span className="text-xs text-primary font-medium">
+                    {isPt ? 'Volume detectado' : 'Volume detected'}: {Math.round(volume * 100)}%
+                  </span>
+                </div>
+              )}
             </div>
           </div>
         ) : (
           /* Chat Messages */
           <div className="flex-1 flex flex-col">
             {/* Compact Radio Waves Header */}
-            <div className="flex justify-center py-4">
+            <div className="flex flex-col items-center py-4">
               <button
                 onClick={handleVoiceClick}
                 className="relative cursor-pointer transition-transform hover:scale-105 active:scale-95"
               >
                 <RadioWaves state={godState} className="w-32 h-32" />
               </button>
+              {/* Compact waveform when in chat mode */}
+              {isAnalyzing && (
+                <AudioWaveform 
+                  frequencies={frequencies} 
+                  volume={volume} 
+                  isActive={isAnalyzing}
+                  className="mt-2 h-8"
+                />
+              )}
             </div>
 
             {/* Messages */}

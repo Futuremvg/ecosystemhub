@@ -76,6 +76,7 @@ export function useGodMode() {
   const sendMessageRef = useRef<(content: string) => void>(() => {});
   const userRef = useRef(user);
   const conversationIdRef = useRef<string | null>(null);
+  const realtimeChannelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
 
   // Keep refs updated
   useEffect(() => {
@@ -85,6 +86,53 @@ export function useGodMode() {
   useEffect(() => {
     conversationIdRef.current = currentConversationId;
   }, [currentConversationId]);
+
+  // Setup Supabase Realtime subscription for cross-device sync
+  useEffect(() => {
+    if (!user) return;
+
+    // Subscribe to realtime changes on conversations table
+    const channel = supabase
+      .channel('god-mode-realtime')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'conversations',
+          filter: `user_id=eq.${user.id}`,
+        },
+        (payload) => {
+          console.log("Realtime message received:", payload);
+          const newMsg = payload.new as any;
+          
+          // Check if this message already exists (prevent duplicates)
+          setMessages(prev => {
+            const exists = prev.some(m => m.id === newMsg.id);
+            if (exists) return prev;
+            
+            const message: Message = {
+              id: newMsg.id,
+              role: newMsg.role,
+              content: newMsg.content,
+              timestamp: new Date(newMsg.created_at),
+            };
+            
+            return [...prev, message];
+          });
+        }
+      )
+      .subscribe();
+
+    realtimeChannelRef.current = channel;
+
+    return () => {
+      if (realtimeChannelRef.current) {
+        supabase.removeChannel(realtimeChannelRef.current);
+        realtimeChannelRef.current = null;
+      }
+    };
+  }, [user]);
 
   // Clear transcription callback
   const clearTranscription = useCallback(() => {
