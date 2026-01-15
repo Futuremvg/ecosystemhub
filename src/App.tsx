@@ -20,6 +20,7 @@ import Ajuda from "./pages/Ajuda";
 import AdminTenants from "./pages/AdminTenants";
 import Billing from "./pages/Billing";
 import Assistente from "./pages/Assistente";
+import GodModeFullscreen from "./pages/GodModeFullscreen";
 import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
 import NotFound from "./pages/NotFound";
@@ -41,6 +42,7 @@ function AnimatedRoutes() {
         <Route path="/configuracoes" element={<PageTransition><Configuracoes /></PageTransition>} />
         <Route path="/ajuda" element={<PageTransition><Ajuda /></PageTransition>} />
         <Route path="/assistente" element={<PageTransition><Assistente /></PageTransition>} />
+        <Route path="/godmode" element={<GodModeFullscreen />} />
         <Route path="/admin/tenants" element={<PageTransition><AdminTenants /></PageTransition>} />
         <Route path="/billing" element={<PageTransition><Billing /></PageTransition>} />
         <Route path="/privacy" element={<PageTransition><Privacy /></PageTransition>} />
