@@ -40,6 +40,7 @@ interface Message {
   content: string;
   timestamp: Date;
   actions?: ExecutedAction[];
+  conversationId?: string;
 }
 
 interface ExecutedAction {
@@ -49,8 +50,17 @@ interface ExecutedAction {
   name?: string;
 }
 
+interface Conversation {
+  id: string;
+  title: string;
+  lastMessage: Date;
+  messageCount: number;
+}
+
 export function useGodMode() {
   const [messages, setMessages] = useState<Message[]>([]);
+  const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [currentConversationId, setCurrentConversationId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [godState, setGodState] = useState<GodModeState>("idle");
   const [isListening, setIsListening] = useState(false);
@@ -65,52 +75,103 @@ export function useGodMode() {
   const speechSynthRef = useRef<SpeechSynthesisUtterance | null>(null);
   const sendMessageRef = useRef<(content: string) => void>(() => {});
   const userRef = useRef(user);
+  const conversationIdRef = useRef<string | null>(null);
 
-  // Keep userRef updated
+  // Keep refs updated
   useEffect(() => {
     userRef.current = user;
   }, [user]);
+
+  useEffect(() => {
+    conversationIdRef.current = currentConversationId;
+  }, [currentConversationId]);
 
   // Clear transcription callback
   const clearTranscription = useCallback(() => {
     setTranscription("");
   }, []);
 
-  // Load conversation history from database
+  // Load conversation list (not messages - start clean like ChatGPT)
   useEffect(() => {
-    const loadHistory = async () => {
+    const loadConversationList = async () => {
       if (!user) {
         setIsLoadingHistory(false);
         return;
       }
 
       try {
+        // Get all conversations grouped by date to create a list
         const { data, error } = await supabase
           .from("conversations")
           .select("*")
           .eq("user_id", user.id)
-          .order("created_at", { ascending: true })
-          .limit(50);
+          .order("created_at", { ascending: false });
 
         if (error) throw error;
 
         if (data && data.length > 0) {
-          const loadedMessages: Message[] = data.map((conv) => ({
-            id: conv.id,
-            role: conv.role as "user" | "assistant",
-            content: conv.content,
-            timestamp: new Date(conv.created_at),
-          }));
-          setMessages(loadedMessages);
+          // Group messages by conversation session (messages within 30 minutes of each other)
+          const groupedConversations: Map<string, { messages: any[], firstTimestamp: Date, lastTimestamp: Date }> = new Map();
+          
+          let currentGroupId = crypto.randomUUID();
+          let lastTimestamp: Date | null = null;
+          
+          // Process in chronological order for grouping
+          const sortedData = [...data].sort((a, b) => 
+            new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+          );
+          
+          for (const msg of sortedData) {
+            const msgTimestamp = new Date(msg.created_at);
+            
+            // If more than 30 minutes since last message, start new conversation
+            if (lastTimestamp && (msgTimestamp.getTime() - lastTimestamp.getTime()) > 30 * 60 * 1000) {
+              currentGroupId = crypto.randomUUID();
+            }
+            
+            if (!groupedConversations.has(currentGroupId)) {
+              groupedConversations.set(currentGroupId, {
+                messages: [],
+                firstTimestamp: msgTimestamp,
+                lastTimestamp: msgTimestamp
+              });
+            }
+            
+            const group = groupedConversations.get(currentGroupId)!;
+            group.messages.push(msg);
+            group.lastTimestamp = msgTimestamp;
+            lastTimestamp = msgTimestamp;
+          }
+          
+          // Convert to conversation list
+          const convList: Conversation[] = [];
+          groupedConversations.forEach((group, id) => {
+            // Get first user message as title
+            const firstUserMsg = group.messages.find(m => m.role === 'user');
+            const title = firstUserMsg 
+              ? firstUserMsg.content.substring(0, 40) + (firstUserMsg.content.length > 40 ? '...' : '')
+              : 'Conversa';
+            
+            convList.push({
+              id,
+              title,
+              lastMessage: group.lastTimestamp,
+              messageCount: group.messages.length
+            });
+          });
+          
+          // Sort by most recent
+          convList.sort((a, b) => b.lastMessage.getTime() - a.lastMessage.getTime());
+          setConversations(convList);
         }
       } catch (error) {
-        console.error("Erro ao carregar histórico:", error);
+        console.error("Erro ao carregar lista de conversas:", error);
       } finally {
         setIsLoadingHistory(false);
       }
     };
 
-    loadHistory();
+    loadConversationList();
   }, [user]);
 
   // Save message to database
@@ -500,7 +561,86 @@ export function useGodMode() {
     }
   }, [messages, toast, handleActions, speakResponse, saveMessage]);
 
-  // Clear conversation history
+  // Start a new conversation (clear current messages but keep history)
+  const newConversation = useCallback(() => {
+    setMessages([]);
+    setCurrentConversationId(null);
+    toast({
+      title: "Nova conversa",
+      description: "Iniciando uma nova conversa.",
+    });
+  }, [toast]);
+
+  // Select and load a past conversation
+  const selectConversation = useCallback(async (conversationId: string) => {
+    if (!userRef.current) return;
+
+    try {
+      const { data, error } = await supabase
+        .from("conversations")
+        .select("*")
+        .eq("user_id", userRef.current.id)
+        .order("created_at", { ascending: true });
+
+      if (error) throw error;
+
+      if (data && data.length > 0) {
+        // Find messages belonging to this conversation group
+        // Recreate the grouping logic to find the right messages
+        let currentGroupId = crypto.randomUUID();
+        let lastTimestamp: Date | null = null;
+        const messageGroups: Map<string, any[]> = new Map();
+        
+        for (const msg of data) {
+          const msgTimestamp = new Date(msg.created_at);
+          
+          if (lastTimestamp && (msgTimestamp.getTime() - lastTimestamp.getTime()) > 30 * 60 * 1000) {
+            currentGroupId = crypto.randomUUID();
+          }
+          
+          if (!messageGroups.has(currentGroupId)) {
+            messageGroups.set(currentGroupId, []);
+          }
+          
+          messageGroups.get(currentGroupId)!.push(msg);
+          lastTimestamp = msgTimestamp;
+        }
+        
+        // Find the group that matches
+        let targetMessages: any[] = [];
+        let groupIndex = 0;
+        const groupIds = Array.from(messageGroups.keys());
+        
+        // Since we regenerate IDs, match by index from conversations list
+        const conversationIndex = conversations.findIndex(c => c.id === conversationId);
+        if (conversationIndex >= 0) {
+          const targetGroupId = groupIds[groupIds.length - 1 - conversationIndex];
+          targetMessages = messageGroups.get(targetGroupId) || [];
+        }
+        
+        if (targetMessages.length > 0) {
+          const loadedMessages: Message[] = targetMessages.map((conv) => ({
+            id: conv.id,
+            role: conv.role as "user" | "assistant",
+            content: conv.content,
+            timestamp: new Date(conv.created_at),
+            conversationId
+          }));
+          setMessages(loadedMessages);
+          setCurrentConversationId(conversationId);
+        }
+      }
+    } catch (error) {
+      console.error("Erro ao carregar conversa:", error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível carregar a conversa.",
+        variant: "destructive",
+      });
+    }
+  }, [conversations, toast]);
+
+  // Clear all conversation history
   const clearHistory = useCallback(async () => {
     if (!userRef.current) return;
 
@@ -511,6 +651,8 @@ export function useGodMode() {
         .eq("user_id", userRef.current.id);
       
       setMessages([]);
+      setConversations([]);
+      setCurrentConversationId(null);
       toast({
         title: "Histórico limpo",
         description: "Todas as conversas foram removidas.",
@@ -531,6 +673,8 @@ export function useGodMode() {
 
   return {
     messages,
+    conversations,
+    currentConversationId,
     isLoading,
     isLoadingHistory,
     godState,
@@ -543,5 +687,7 @@ export function useGodMode() {
     toggleSpeech,
     clearHistory,
     clearTranscription,
+    newConversation,
+    selectConversation,
   };
 }

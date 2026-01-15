@@ -131,6 +131,8 @@ export function AppLayout({ children }: AppLayoutProps) {
   
   const {
     messages,
+    conversations,
+    currentConversationId,
     isLoading,
     godState,
     isListening,
@@ -140,6 +142,8 @@ export function AppLayout({ children }: AppLayoutProps) {
     stopVoice,
     clearTranscription,
     clearHistory,
+    newConversation,
+    selectConversation,
   } = useGodMode();
 
   // Prevent body scroll when mobile sidebar is open
@@ -291,6 +295,10 @@ export function AppLayout({ children }: AppLayoutProps) {
           transcription={transcription}
           onClearTranscription={clearTranscription}
           onClearHistory={clearHistory}
+          conversations={conversations}
+          onSelectConversation={selectConversation}
+          onNewConversation={newConversation}
+          currentConversationId={currentConversationId || undefined}
         />
       )}
     </div>
