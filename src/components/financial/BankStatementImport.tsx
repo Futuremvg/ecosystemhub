@@ -1,4 +1,5 @@
 import { useState, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,8 +7,10 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
-import { FileUp, Upload, Loader2, Check, X, FileSpreadsheet } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { FileUp, Upload, Loader2, Check, X, FileSpreadsheet, Crown } from "lucide-react";
 import { useAppSettings } from "@/contexts/AppSettingsContext";
+import { useSubscriptionLimits } from "@/hooks/useSubscriptionLimits";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -44,7 +47,10 @@ export function BankStatementImport({
   selectedYear, 
   onImportComplete 
 }: BankStatementImportProps) {
-  const { t, formatCurrency } = useAppSettings();
+  const { t, formatCurrency, language } = useAppSettings();
+  const { canUseFeature } = useSubscriptionLimits();
+  const navigate = useNavigate();
+  const isPt = language.startsWith('pt');
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   const [open, setOpen] = useState(false);
@@ -55,6 +61,7 @@ export function BankStatementImport({
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
   const [fileName, setFileName] = useState<string>("");
 
+  const canImport = canUseFeature('bankStatementImport');
   const expenseCategories = categories.filter(c => c.type === "expense");
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -171,6 +178,7 @@ export function BankStatementImport({
         <Button variant="outline" size="sm" className="h-9">
           <FileUp className="w-4 h-4 mr-2" />
           {t("money.importStatement") || "Import Statement"}
+          {!canImport && <Badge variant="secondary" className="ml-1.5 text-[10px] px-1">PRO</Badge>}
         </Button>
       </DialogTrigger>
       <DialogContent className="w-[calc(100vw-2rem)] max-w-2xl max-h-[85vh] overflow-hidden flex flex-col">
@@ -182,8 +190,25 @@ export function BankStatementImport({
         </DialogHeader>
 
         <div className="space-y-4 flex-1 overflow-hidden flex flex-col">
-          {/* File Upload */}
-          {transactions.length === 0 && (
+          {/* Premium Block */}
+          {!canImport ? (
+            <div className="space-y-4 text-center py-6">
+              <div className="w-16 h-16 mx-auto rounded-full bg-primary/10 flex items-center justify-center">
+                <Crown className="w-8 h-8 text-primary" />
+              </div>
+              <div>
+                <h3 className="font-semibold">{isPt ? 'Importação Premium' : 'Premium Import'}</h3>
+                <p className="text-sm text-muted-foreground mt-1">
+                  {isPt ? 'Faça upgrade para importar extratos bancários automaticamente.' : 'Upgrade to automatically import bank statements.'}
+                </p>
+              </div>
+              <Button onClick={() => navigate('/billing')} className="w-full">
+                <Crown className="w-4 h-4 mr-2" />
+                {isPt ? 'Fazer Upgrade • 7 dias grátis' : 'Upgrade • 7 days free'}
+              </Button>
+            </div>
+          ) : transactions.length === 0 ? (
+          /* File Upload */
             <div className="space-y-3">
               <Label>{t("money.selectFile") || "Select File"}</Label>
               <div 
@@ -213,7 +238,7 @@ export function BankStatementImport({
                 className="hidden"
               />
             </div>
-          )}
+          ) : null}
 
           {/* Transactions List */}
           {transactions.length > 0 && (

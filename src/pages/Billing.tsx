@@ -127,69 +127,57 @@ export default function Billing() {
 
   return (
     <AppLayout>
-      <div className="container max-w-5xl py-8 px-4">
+      <div className="container max-w-6xl py-4 px-4">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
           {/* Header */}
-          <div className="text-center mb-10">
-            <h1 className="text-3xl font-bold mb-2">{t('billing.title')}</h1>
-            <p className="text-muted-foreground">
+          <div className="text-center mb-4">
+            <h1 className="text-2xl font-bold mb-1">{t('billing.title')}</h1>
+            <p className="text-sm text-muted-foreground">
               {t('billing.subtitle')}
             </p>
           </div>
 
-          {/* Current Subscription Status */}
+          {/* Current Subscription Status - Compact */}
           {subscription?.subscribed && currentPlan && (
-            <Card className="mb-8 border-primary/50 bg-primary/5">
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <CardTitle className="flex items-center gap-2">
-                      <CreditCard className="h-5 w-5 text-primary" />
-                      {t('billing.yourSubscription')}
-                    </CardTitle>
-                    <CardDescription>
-                      {t('billing.planName')} {getPlanName(currentPlan, isPt)} • {t('billing.renewalDate')}{' '}
-                      {subscription.subscription_end 
-                        ? new Date(subscription.subscription_end).toLocaleDateString(isPt ? 'pt-BR' : 'en-US')
-                        : 'N/A'}
-                    </CardDescription>
+            <Card className="mb-4 border-primary/50 bg-primary/5">
+              <CardContent className="py-3 px-4">
+                <div className="flex items-center justify-between flex-wrap gap-2">
+                  <div className="flex items-center gap-3">
+                    <CreditCard className="h-5 w-5 text-primary" />
+                    <div>
+                      <p className="font-medium text-sm">
+                        {getPlanName(currentPlan, isPt)} 
+                        <Badge variant="default" className={`ml-2 text-[10px] ${isTrialing ? "bg-amber-500" : "bg-primary"}`}>
+                          {isTrialing ? 'Trial' : t('billing.active')}
+                        </Badge>
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {t('billing.renewalDate')} {subscription.subscription_end 
+                          ? new Date(subscription.subscription_end).toLocaleDateString(isPt ? 'pt-BR' : 'en-US')
+                          : 'N/A'}
+                      </p>
+                    </div>
                   </div>
-                  <Badge variant="default" className={isTrialing ? "bg-amber-500" : "bg-primary"}>
-                    {isTrialing ? (isPt ? 'Em Trial' : 'In Trial') : t('billing.active')}
-                  </Badge>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleManageSubscription}
+                    disabled={portalLoading}
+                  >
+                    {portalLoading ? <Loader2 className="h-3 w-3 animate-spin" /> : <ExternalLink className="h-3 w-3 mr-1" />}
+                    {t('billing.manageSubscription')}
+                  </Button>
                 </div>
-              </CardHeader>
-              <CardFooter className="flex gap-3">
-                <Button
-                  variant="outline"
-                  onClick={handleManageSubscription}
-                  disabled={portalLoading}
-                >
-                  {portalLoading ? (
-                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                  ) : (
-                    <ExternalLink className="h-4 w-4 mr-2" />
-                  )}
-                  {t('billing.manageSubscription')}
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={refetch}
-                  disabled={subLoading}
-                >
-                  <RefreshCw className={`h-4 w-4 ${subLoading ? 'animate-spin' : ''}`} />
-                </Button>
-              </CardFooter>
+              </CardContent>
             </Card>
           )}
 
           {/* Plans Grid - Including Free Plan */}
-          <div className="grid md:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {/* Free Plan Card */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -200,69 +188,57 @@ export default function Billing() {
                 !subscription?.subscribed ? 'ring-2 ring-muted-foreground/30' : ''
               }`}>
                 {!subscription?.subscribed && (
-                  <div className="absolute -top-3 right-4">
-                    <Badge variant="secondary">
-                      {isPt ? 'Seu Plano' : 'Your Plan'}
+                  <div className="absolute -top-2 right-2">
+                    <Badge variant="secondary" className="text-[10px] px-1.5 py-0">
+                      {isPt ? 'Atual' : 'Current'}
                     </Badge>
                   </div>
                 )}
 
-                <CardHeader className="text-center pb-2">
-                  <div className="mx-auto mb-3 p-3 rounded-full bg-muted text-muted-foreground">
-                    <Zap className="h-6 w-6" />
+                <CardHeader className="text-center p-3 pb-1">
+                  <div className="mx-auto mb-2 p-2 rounded-full bg-muted text-muted-foreground">
+                    <Zap className="h-4 w-4" />
                   </div>
-                  <CardTitle>{isPt ? 'Gratuito' : 'Free'}</CardTitle>
-                  <div className="mt-2">
-                    <span className="text-3xl font-bold">
-                      {isPt ? 'R$ 0' : '$0'}
-                    </span>
-                    <span className="text-muted-foreground">
-                      /{isPt ? 'sempre' : 'forever'}
-                    </span>
+                  <CardTitle className="text-sm">{isPt ? 'Gratuito' : 'Free'}</CardTitle>
+                  <div className="mt-1">
+                    <span className="text-xl font-bold">{isPt ? 'R$ 0' : '$0'}</span>
                   </div>
                 </CardHeader>
 
-                <CardContent className="flex-1">
-                  <p className="text-sm text-muted-foreground text-center mb-4">
-                    {isPt ? 'Para começar a organizar suas finanças' : 'To start organizing your finances'}
-                  </p>
-                  <ul className="space-y-2">
-                    <li className="flex items-center gap-2 text-sm">
-                      <Check className="h-4 w-4 text-green-500 flex-shrink-0" />
+                <CardContent className="flex-1 p-3 pt-1">
+                  <ul className="space-y-1 text-xs">
+                    <li className="flex items-center gap-1.5">
+                      <Check className="h-3 w-3 text-green-500 flex-shrink-0" />
                       {isPt ? '1 empresa' : '1 company'}
                     </li>
-                    <li className="flex items-center gap-2 text-sm">
-                      <Check className="h-4 w-4 text-green-500 flex-shrink-0" />
+                    <li className="flex items-center gap-1.5">
+                      <Check className="h-3 w-3 text-green-500 flex-shrink-0" />
                       {isPt ? '5 documentos' : '5 documents'}
                     </li>
-                    <li className="flex items-center gap-2 text-sm">
-                      <Check className="h-4 w-4 text-green-500 flex-shrink-0" />
-                      {isPt ? '20 transações/mês' : '20 transactions/month'}
+                    <li className="flex items-center gap-1.5">
+                      <Check className="h-3 w-3 text-green-500 flex-shrink-0" />
+                      {isPt ? '20 trans/mês' : '20 trans/mo'}
                     </li>
-                    <li className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <X className="h-4 w-4 text-destructive/50 flex-shrink-0" />
-                      {isPt ? 'Sem GodMode' : 'No GodMode'}
+                    <li className="flex items-center gap-1.5 text-muted-foreground">
+                      <X className="h-3 w-3 text-destructive/50 flex-shrink-0" />
+                      GodMode
                     </li>
-                    <li className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <X className="h-4 w-4 text-destructive/50 flex-shrink-0" />
-                      {isPt ? 'Sem scanner de recibos' : 'No receipt scanner'}
-                    </li>
-                    <li className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <X className="h-4 w-4 text-destructive/50 flex-shrink-0" />
-                      {isPt ? 'Sem importação de extratos' : 'No statement import'}
+                    <li className="flex items-center gap-1.5 text-muted-foreground">
+                      <X className="h-3 w-3 text-destructive/50 flex-shrink-0" />
+                      {isPt ? 'Scanner' : 'Scanner'}
                     </li>
                   </ul>
                 </CardContent>
 
-                <CardFooter>
+                <CardFooter className="p-3 pt-0">
                   {!subscription?.subscribed ? (
-                    <Button className="w-full" variant="outline" disabled>
-                      <Check className="h-4 w-4 mr-2" />
-                      {isPt ? 'Plano Atual' : 'Current Plan'}
+                    <Button className="w-full h-8 text-xs" variant="outline" disabled>
+                      <Check className="h-3 w-3 mr-1" />
+                      {isPt ? 'Atual' : 'Current'}
                     </Button>
                   ) : (
-                    <Button className="w-full" variant="ghost" disabled>
-                      {isPt ? 'Plano Gratuito' : 'Free Plan'}
+                    <Button className="w-full h-8 text-xs" variant="ghost" disabled>
+                      {isPt ? 'Gratuito' : 'Free'}
                     </Button>
                   )}
                 </CardFooter>
@@ -282,92 +258,99 @@ export default function Billing() {
                   transition={{ delay: index * 0.1, duration: 0.5 }}
                 >
                   <Card className={`relative h-full flex flex-col transition-all duration-300 hover:border-primary hover:shadow-lg ${
-                    isPopular ? 'border-primary shadow-lg scale-105' : 'hover:scale-[1.02]'
+                    isPopular ? 'border-primary shadow-md scale-[1.02]' : 'hover:scale-[1.02]'
                   } ${isCurrent ? 'ring-2 ring-primary' : ''}`}>
                     {isPopular && (
-                      <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                        <Badge className="bg-primary text-primary-foreground">
+                      <div className="absolute -top-2 left-1/2 -translate-x-1/2">
+                        <Badge className="bg-primary text-primary-foreground text-[10px] px-1.5 py-0">
                           {t('billing.mostPopular')}
                         </Badge>
                       </div>
                     )}
                     
                     {isCurrent && (
-                      <div className="absolute -top-3 right-4">
-                        <Badge variant="secondary" className={isTrialing ? "bg-amber-100 text-amber-800" : ""}>
-                          {isTrialing ? (isPt ? 'Trial' : 'Trial') : t('billing.yourPlan')}
+                      <div className="absolute -top-2 right-2">
+                        <Badge variant="secondary" className={`text-[10px] px-1.5 py-0 ${isTrialing ? "bg-amber-100 text-amber-800" : ""}`}>
+                          {isTrialing ? 'Trial' : t('billing.yourPlan')}
                         </Badge>
                       </div>
                     )}
 
-                    <CardHeader className="text-center pb-2">
-                      <div className={`mx-auto mb-3 p-3 rounded-full ${
+                    <CardHeader className="text-center p-3 pb-1">
+                      <div className={`mx-auto mb-2 p-2 rounded-full ${
                         isPopular ? 'bg-primary/10 text-primary' : 'bg-muted text-muted-foreground'
                       }`}>
                         {getPlanIcon(planId)}
                       </div>
-                      <CardTitle>{getPlanName(plan, isPt)}</CardTitle>
-                      <div className="mt-2">
-                        <span className="text-3xl font-bold">
+                      <CardTitle className="text-sm">{getPlanName(plan, isPt)}</CardTitle>
+                      <div className="mt-1">
+                        <span className="text-xl font-bold">
                           {formatPrice(plan.price)}
                         </span>
-                        <span className="text-muted-foreground">
+                        <span className="text-xs text-muted-foreground">
                           /{getIntervalText(plan)}
                         </span>
                       </div>
                       {plan.savings && (
-                        <Badge variant="outline" className="mt-2 text-green-600 border-green-600">
-                          {t('billing.save')} {plan.savings}%
+                        <Badge variant="outline" className="mt-1 text-[10px] text-green-600 border-green-600 px-1.5 py-0">
+                          -{plan.savings}%
                         </Badge>
                       )}
                     </CardHeader>
 
-                    <CardContent className="flex-1">
-                      <p className="text-sm text-muted-foreground text-center mb-4">
-                        {getPlanDescription(plan, isPt)}
-                      </p>
-                      <ul className="space-y-2">
-                        {features.map((feature) => (
-                          <li key={feature} className="flex items-center gap-2 text-sm">
-                            <Check className="h-4 w-4 text-green-500 flex-shrink-0" />
-                            {feature}
-                          </li>
-                        ))}
+                    <CardContent className="flex-1 p-3 pt-1">
+                      <ul className="space-y-1 text-xs">
+                        <li className="flex items-center gap-1.5">
+                          <Check className="h-3 w-3 text-green-500 flex-shrink-0" />
+                          {isPt ? '∞ empresas' : '∞ companies'}
+                        </li>
+                        <li className="flex items-center gap-1.5">
+                          <Check className="h-3 w-3 text-green-500 flex-shrink-0" />
+                          {isPt ? '∞ documentos' : '∞ documents'}
+                        </li>
+                        <li className="flex items-center gap-1.5">
+                          <Check className="h-3 w-3 text-green-500 flex-shrink-0" />
+                          {isPt ? '∞ transações' : '∞ transactions'}
+                        </li>
+                        <li className="flex items-center gap-1.5">
+                          <Check className="h-3 w-3 text-green-500 flex-shrink-0" />
+                          GodMode IA
+                        </li>
+                        <li className="flex items-center gap-1.5">
+                          <Check className="h-3 w-3 text-green-500 flex-shrink-0" />
+                          {isPt ? 'Scanner + Import' : 'Scanner + Import'}
+                        </li>
                       </ul>
                     </CardContent>
 
-                    <CardFooter>
+                    <CardFooter className="p-3 pt-0">
                       {isCurrent ? (
-                        <Button className="w-full" variant="outline" disabled>
-                          <Check className="h-4 w-4 mr-2" />
+                        <Button className="w-full h-8 text-xs" variant="outline" disabled>
+                          <Check className="h-3 w-3 mr-1" />
                           {t('billing.currentPlan')}
                         </Button>
                       ) : subscription?.subscribed ? (
                         <Button 
-                          className="w-full" 
+                          className="w-full h-8 text-xs" 
                           variant="outline"
                           onClick={handleManageSubscription}
                           disabled={portalLoading}
                         >
-                          {portalLoading ? (
-                            <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                          ) : null}
+                          {portalLoading && <Loader2 className="h-3 w-3 animate-spin mr-1" />}
                           {t('billing.changePlan')}
                         </Button>
                       ) : (
-                        <div className="space-y-2 w-full">
+                        <div className="space-y-1 w-full">
                           <Button
-                            className="w-full"
+                            className="w-full h-8 text-xs"
                             variant={isPopular ? 'default' : 'outline'}
                             onClick={() => handleCheckout(planId)}
                             disabled={!!checkoutLoading}
                           >
-                            {checkoutLoading === planId ? (
-                              <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                            ) : null}
+                            {checkoutLoading === planId && <Loader2 className="h-3 w-3 animate-spin mr-1" />}
                             {t('billing.subscribeNow')}
                           </Button>
-                          <p className="text-xs text-center text-primary font-medium">
+                          <p className="text-[10px] text-center text-primary font-medium">
                             {isPt ? '✨ 7 dias grátis!' : '✨ 7 days free!'}
                           </p>
                         </div>
@@ -379,34 +362,9 @@ export default function Billing() {
             })}
           </div>
 
-          {/* Trial CTA Banner for non-subscribers */}
-          {!subscription?.subscribed && (
-            <Card className="mt-8 border-primary/30 bg-gradient-to-r from-primary/5 to-primary/10">
-              <CardContent className="py-6">
-                <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 bg-primary/10 rounded-full">
-                      <Sparkles className="h-6 w-6 text-primary" />
-                    </div>
-                    <div>
-                      <h3 className="font-semibold">{isPt ? '🚀 Comece seu trial grátis hoje!' : '🚀 Start your free trial today!'}</h3>
-                      <p className="text-sm text-muted-foreground">
-                        {isPt ? 'Experimente todos os recursos por 7 dias sem compromisso' : 'Try all features for 7 days with no commitment'}
-                      </p>
-                    </div>
-                  </div>
-                  <Button onClick={() => handleCheckout('annual')} className="shrink-0">
-                    <Sparkles className="h-4 w-4 mr-2" />
-                    {isPt ? 'Começar Trial Grátis' : 'Start Free Trial'}
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Payment Methods Info */}
-          <div className="mt-10 text-center">
-            <p className="text-sm text-muted-foreground mb-4">
+          {/* Secure Payment Info - Compact */}
+          <div className="mt-4 text-center">
+            <p className="text-xs text-muted-foreground">
               {t('billing.securePayment')}
             </p>
             <div className="flex justify-center items-center gap-3 flex-wrap">
