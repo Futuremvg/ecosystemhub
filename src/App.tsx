@@ -9,6 +9,7 @@ import { TenantProvider } from "@/contexts/TenantContext";
 import { OnboardingWizard } from "@/components/onboarding/OnboardingWizard";
 import { PageTransition } from "@/components/layout/PageTransition";
 import { AnimatePresence } from "framer-motion";
+import Landing from "./pages/Landing";
 import Home from "./pages/Home";
 import Auth from "./pages/Auth";
 import Empresas from "./pages/Empresas";
@@ -18,6 +19,7 @@ import Configuracoes from "./pages/Configuracoes";
 import Ajuda from "./pages/Ajuda";
 import AdminTenants from "./pages/AdminTenants";
 import Billing from "./pages/Billing";
+import Assistente from "./pages/Assistente";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -28,13 +30,15 @@ function AnimatedRoutes() {
   return (
     <AnimatePresence mode="wait" initial={false}>
       <Routes location={location} key={location.pathname}>
-        <Route path="/" element={<PageTransition><Home /></PageTransition>} />
+        <Route path="/" element={<PageTransition><Landing /></PageTransition>} />
+        <Route path="/home" element={<PageTransition><Home /></PageTransition>} />
         <Route path="/auth" element={<PageTransition><Auth /></PageTransition>} />
         <Route path="/empresas" element={<PageTransition><Empresas /></PageTransition>} />
         <Route path="/dinheiro" element={<PageTransition><Dinheiro /></PageTransition>} />
         <Route path="/documentos" element={<PageTransition><Documentos /></PageTransition>} />
         <Route path="/configuracoes" element={<PageTransition><Configuracoes /></PageTransition>} />
         <Route path="/ajuda" element={<PageTransition><Ajuda /></PageTransition>} />
+        <Route path="/assistente" element={<PageTransition><Assistente /></PageTransition>} />
         <Route path="/admin/tenants" element={<PageTransition><AdminTenants /></PageTransition>} />
         <Route path="/billing" element={<PageTransition><Billing /></PageTransition>} />
         {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
