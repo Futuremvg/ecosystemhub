@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
-import { Send, Mic, MicOff, X, Sparkles, Edit3, Plus, Paperclip, FileSpreadsheet, Image, File, History, MessageSquare, ChevronLeft } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Send, Mic, MicOff, X, Sparkles, Edit3, Plus, Paperclip, FileSpreadsheet, Image, File, History, MessageSquare, ChevronLeft, Maximize2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Textarea } from "@/components/ui/textarea";
@@ -55,6 +56,7 @@ export function FloatingChat({
   onNewConversation,
   currentConversationId,
 }: FloatingChatProps) {
+  const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
   const [input, setInput] = useState("");
@@ -285,6 +287,16 @@ export function FloatingChat({
             </div>
           </div>
           <div className="flex items-center gap-1">
+            {/* Fullscreen button */}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 text-muted-foreground hover:text-primary"
+              onClick={() => navigate("/godmode")}
+              title="God Mode Fullscreen"
+            >
+              <Maximize2 className="w-4 h-4" />
+            </Button>
             {/* History button */}
             {conversations.length > 0 && (
               <Button
