@@ -2,10 +2,12 @@ import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Camera, Upload, Loader2, Check, X, ImageIcon } from "lucide-react";
+import { Camera, Upload, Loader2, Check, X, ImageIcon, Crown } from "lucide-react";
 import { useAppSettings } from "@/contexts/AppSettingsContext";
+import { useSubscriptionLimits } from "@/hooks/useSubscriptionLimits";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 
 interface ExtractedData {
   total: number;
@@ -22,11 +24,39 @@ interface ReceiptScannerProps {
 }
 
 export function ReceiptScanner({ onDataExtracted, onCancel }: ReceiptScannerProps) {
-  const { t } = useAppSettings();
+  const { t, language } = useAppSettings();
+  const { canUseFeature } = useSubscriptionLimits();
+  const navigate = useNavigate();
+  const isPt = language.startsWith('pt');
+  
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [extractedData, setExtractedData] = useState<ExtractedData | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Check if user can use this feature
+  if (!canUseFeature('receiptScanner')) {
+    return (
+      <div className="space-y-4 text-center py-6">
+        <div className="w-16 h-16 mx-auto rounded-full bg-primary/10 flex items-center justify-center">
+          <Crown className="w-8 h-8 text-primary" />
+        </div>
+        <div>
+          <h3 className="font-semibold">{isPt ? 'Scanner de Recibos Premium' : 'Premium Receipt Scanner'}</h3>
+          <p className="text-sm text-muted-foreground mt-1">
+            {isPt ? 'Faça upgrade para escanear recibos automaticamente com IA.' : 'Upgrade to automatically scan receipts with AI.'}
+          </p>
+        </div>
+        <Button onClick={() => navigate('/billing')} className="w-full">
+          <Crown className="w-4 h-4 mr-2" />
+          {isPt ? 'Fazer Upgrade • 7 dias grátis' : 'Upgrade • 7 days free'}
+        </Button>
+        <Button variant="ghost" onClick={onCancel} className="w-full">
+          {isPt ? 'Voltar' : 'Back'}
+        </Button>
+      </div>
+    );
+  }
 
   const compressImage = (file: File, maxWidth = 1024): Promise<string> => {
     return new Promise((resolve, reject) => {
