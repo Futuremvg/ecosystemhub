@@ -12,7 +12,7 @@ import {
   Play, ChevronRight, Heart, Award, Target, Layers,
   Languages, MonitorSmartphone, ChevronLeft
 } from "lucide-react";
-import { SUBSCRIPTION_PLANS, formatPrice } from "@/lib/stripe-config";
+import { SUBSCRIPTION_PLANS, formatPriceUSD } from "@/lib/stripe-config";
 import { Logo } from "@/components/ui/Logo";
 import dashboardMockup from "@/assets/dashboard-mockup.png";
 import companiesMockup from "@/assets/companies-mockup.png";
@@ -330,8 +330,7 @@ export default function Landing() {
                     <p className="text-xs text-muted-foreground">{isPt ? "Janeiro 15, 2026" : "January 15, 2026"}</p>
                   </div>
                   <div className="flex items-center gap-1.5">
-                    <Badge variant="outline" className="text-[10px]">💰 BRL</Badge>
-                    <Badge variant="outline" className="text-[10px]">🇧🇷</Badge>
+                    <Badge variant="outline" className="text-[10px]">💰 USD</Badge>
                   </div>
                 </div>
                 
@@ -340,7 +339,7 @@ export default function Landing() {
                   <Card className="bg-gradient-to-br from-primary/10 to-primary/5 border-0">
                     <CardContent className="p-3 md:p-4">
                       <p className="text-[10px] md:text-xs text-muted-foreground">{isPt ? "Receita" : "Revenue"}</p>
-                      <p className="text-lg md:text-2xl font-bold text-primary">R$ 45.3k</p>
+                      <p className="text-lg md:text-2xl font-bold text-primary">$45.3k</p>
                       <p className="text-[10px] text-green-600">↑ 12%</p>
                     </CardContent>
                   </Card>
@@ -348,7 +347,7 @@ export default function Landing() {
                   <Card className="bg-gradient-to-br from-destructive/10 to-destructive/5 border-0">
                     <CardContent className="p-3 md:p-4">
                       <p className="text-[10px] md:text-xs text-muted-foreground">{isPt ? "Despesas" : "Expenses"}</p>
-                      <p className="text-lg md:text-2xl font-bold text-destructive">R$ 18.4k</p>
+                      <p className="text-lg md:text-2xl font-bold text-destructive">$18.4k</p>
                       <p className="text-[10px] text-muted-foreground">↓ 5%</p>
                     </CardContent>
                   </Card>
@@ -356,7 +355,7 @@ export default function Landing() {
                   <Card className="bg-gradient-to-br from-green-500/10 to-green-500/5 border-0">
                     <CardContent className="p-3 md:p-4">
                       <p className="text-[10px] md:text-xs text-muted-foreground">{isPt ? "Lucro" : "Profit"}</p>
-                      <p className="text-lg md:text-2xl font-bold text-green-600">R$ 26.9k</p>
+                      <p className="text-lg md:text-2xl font-bold text-green-600">$26.9k</p>
                       <p className="text-[10px] text-green-600">↑ 18%</p>
                     </CardContent>
                   </Card>
@@ -377,7 +376,7 @@ export default function Landing() {
                         </div>
                         <div className="min-w-0 flex-1">
                           <p className="font-medium truncate text-[10px] md:text-xs">{company.name}</p>
-                          <p className="text-[10px] text-green-600">R$ {company.amount}</p>
+                          <p className="text-[10px] text-green-600">${company.amount}</p>
                         </div>
                       </CardContent>
                     </Card>
@@ -844,7 +843,7 @@ export default function Landing() {
                       <div className="bg-muted rounded-2xl rounded-bl-none px-3 py-1.5 max-w-[85%]">
                         <p className="text-xs">
                           {isPt 
-                            ? "📊 Seu lucro em janeiro foi R$ 26.870 (+18%)! Tech Solutions lidera com R$ 15k."
+                            ? "📊 Seu lucro em janeiro foi $26.870 (+18%)! Tech Solutions lidera com $15k."
                             : "📊 Your January profit was $26,870 (+18%)! Tech Solutions leads with $15k."}
                         </p>
                       </div>
@@ -886,7 +885,7 @@ export default function Landing() {
                 <CardContent className="p-4 md:p-5 flex flex-col h-full">
                   <div className="flex-1">
                     <h3 className="text-lg font-semibold mb-1">{isPt ? "Gratuito" : "Free"}</h3>
-                    <p className="text-3xl font-bold mb-1">R$ 0</p>
+                    <p className="text-3xl font-bold mb-1">$0</p>
                     <p className="text-xs text-muted-foreground mb-4">{isPt ? "Para sempre" : "Forever"}</p>
                     <ul className="space-y-2 text-xs">
                       <li className="flex items-center gap-2"><Check className="w-3 h-3 text-primary" /> 1 {isPt ? "empresa" : "company"}</li>
@@ -925,7 +924,7 @@ export default function Landing() {
                   <CardContent className="p-4 md:p-5 flex flex-col h-full">
                     <div className="flex-1">
                       <h3 className="text-lg font-semibold mb-1">{isPt ? plan.name_pt : plan.name_en}</h3>
-                      <p className="text-3xl font-bold mb-1">{formatPrice(plan.price)}</p>
+                      <p className="text-3xl font-bold mb-1">{formatPriceUSD(plan.price)}</p>
                       <p className="text-xs text-muted-foreground mb-1">
                         /{plan.interval === 'year' ? (isPt ? 'ano' : 'year') : (isPt ? `${plan.interval_count}m` : `${plan.interval_count}mo`)}
                       </p>
