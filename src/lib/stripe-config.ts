@@ -62,6 +62,13 @@ export function formatPrice(price: number, currency: string = 'CAD') {
   }).format(price);
 }
 
+export function formatPriceUSD(price: number) {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+  }).format(price);
+}
+
 export function getPlanName(plan: Plan, isPt: boolean) {
   return isPt ? plan.name_pt : plan.name_en;
 }
