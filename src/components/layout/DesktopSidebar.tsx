@@ -1,6 +1,6 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Home, Building2, DollarSign, FileText, Settings, ChevronLeft, ChevronRight, X, Shield, HelpCircle, CreditCard } from "lucide-react";
+import { Home, Building2, DollarSign, FileText, Settings, ChevronLeft, ChevronRight, X, Shield, HelpCircle, CreditCard, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAppSettings } from "@/contexts/AppSettingsContext";
 import { useTenant } from "@/contexts/TenantContext";
@@ -34,6 +34,7 @@ interface DesktopSidebarProps {
 
 export function DesktopSidebar({ collapsed = false, onToggle, isMobileSheet = false }: DesktopSidebarProps) {
   const location = useLocation();
+  const navigate = useNavigate();
   const { t, language } = useAppSettings();
   const { isSuperAdmin, tenant } = useTenant();
   const navItems = getNavItems(t, isSuperAdmin);
@@ -183,9 +184,48 @@ export function DesktopSidebar({ collapsed = false, onToggle, isMobileSheet = fa
           })}
         </nav>
 
+        {/* God Mode Fullscreen Button */}
+        <div className={cn(
+          "border-t border-border/30 shrink-0",
+          collapsed ? "p-2" : "p-3"
+        )}>
+          {collapsed ? (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => {
+                    if (isMobileSheet) onToggle?.();
+                    navigate("/godmode");
+                  }}
+                  className="w-full h-10 bg-gradient-to-r from-primary/20 to-accent/20 hover:from-primary/30 hover:to-accent/30 text-primary"
+                >
+                  <Sparkles className="w-4 h-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="right" className="text-xs">
+                God Mode Fullscreen
+              </TooltipContent>
+            </Tooltip>
+          ) : (
+            <Button
+              variant="ghost"
+              onClick={() => {
+                if (isMobileSheet) onToggle?.();
+                navigate("/godmode");
+              }}
+              className="w-full justify-start gap-3 h-10 bg-gradient-to-r from-primary/10 to-accent/10 hover:from-primary/20 hover:to-accent/20 text-primary"
+            >
+              <Sparkles className="w-4 h-4" />
+              <span className="text-sm font-medium">God Mode</span>
+            </Button>
+          )}
+        </div>
+
         {/* Footer */}
         {!collapsed && (
-          <div className="p-4 border-t border-border/30 shrink-0">
+          <div className="px-4 pb-3 shrink-0">
             <p className="text-[10px] text-sidebar-foreground/30 text-center uppercase tracking-wider">
               {footerText}
             </p>
