@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Check, CreditCard, Loader2, RefreshCw, ExternalLink, Sparkles, Crown, Zap } from 'lucide-react';
+import { Check, CreditCard, Loader2, RefreshCw, ExternalLink, Sparkles, Crown, Zap, X, Building2, FileText, Receipt, FileSpreadsheet } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -188,8 +188,88 @@ export default function Billing() {
             </Card>
           )}
 
-          {/* Plans Grid */}
-          <div className="grid md:grid-cols-3 gap-6">
+          {/* Plans Grid - Including Free Plan */}
+          <div className="grid md:grid-cols-4 gap-6">
+            {/* Free Plan Card */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              <Card className={`relative h-full flex flex-col transition-all duration-300 hover:border-primary hover:shadow-lg hover:scale-[1.02] ${
+                !subscription?.subscribed ? 'ring-2 ring-muted-foreground/30' : ''
+              }`}>
+                {!subscription?.subscribed && (
+                  <div className="absolute -top-3 right-4">
+                    <Badge variant="secondary">
+                      {isPt ? 'Seu Plano' : 'Your Plan'}
+                    </Badge>
+                  </div>
+                )}
+
+                <CardHeader className="text-center pb-2">
+                  <div className="mx-auto mb-3 p-3 rounded-full bg-muted text-muted-foreground">
+                    <Zap className="h-6 w-6" />
+                  </div>
+                  <CardTitle>{isPt ? 'Gratuito' : 'Free'}</CardTitle>
+                  <div className="mt-2">
+                    <span className="text-3xl font-bold">
+                      {isPt ? 'R$ 0' : '$0'}
+                    </span>
+                    <span className="text-muted-foreground">
+                      /{isPt ? 'sempre' : 'forever'}
+                    </span>
+                  </div>
+                </CardHeader>
+
+                <CardContent className="flex-1">
+                  <p className="text-sm text-muted-foreground text-center mb-4">
+                    {isPt ? 'Para começar a organizar suas finanças' : 'To start organizing your finances'}
+                  </p>
+                  <ul className="space-y-2">
+                    <li className="flex items-center gap-2 text-sm">
+                      <Check className="h-4 w-4 text-green-500 flex-shrink-0" />
+                      {isPt ? '1 empresa' : '1 company'}
+                    </li>
+                    <li className="flex items-center gap-2 text-sm">
+                      <Check className="h-4 w-4 text-green-500 flex-shrink-0" />
+                      {isPt ? '5 documentos' : '5 documents'}
+                    </li>
+                    <li className="flex items-center gap-2 text-sm">
+                      <Check className="h-4 w-4 text-green-500 flex-shrink-0" />
+                      {isPt ? '20 transações/mês' : '20 transactions/month'}
+                    </li>
+                    <li className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <X className="h-4 w-4 text-destructive/50 flex-shrink-0" />
+                      {isPt ? 'Sem GodMode' : 'No GodMode'}
+                    </li>
+                    <li className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <X className="h-4 w-4 text-destructive/50 flex-shrink-0" />
+                      {isPt ? 'Sem scanner de recibos' : 'No receipt scanner'}
+                    </li>
+                    <li className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <X className="h-4 w-4 text-destructive/50 flex-shrink-0" />
+                      {isPt ? 'Sem importação de extratos' : 'No statement import'}
+                    </li>
+                  </ul>
+                </CardContent>
+
+                <CardFooter>
+                  {!subscription?.subscribed ? (
+                    <Button className="w-full" variant="outline" disabled>
+                      <Check className="h-4 w-4 mr-2" />
+                      {isPt ? 'Plano Atual' : 'Current Plan'}
+                    </Button>
+                  ) : (
+                    <Button className="w-full" variant="ghost" disabled>
+                      {isPt ? 'Plano Gratuito' : 'Free Plan'}
+                    </Button>
+                  )}
+                </CardFooter>
+              </Card>
+            </motion.div>
+
+            {/* Premium Plans */}
             {(Object.entries(SUBSCRIPTION_PLANS) as [PlanId, typeof SUBSCRIPTION_PLANS[PlanId]][]).map(([planId, plan], index) => {
               const isCurrent = isCurrentPlan(planId);
               const isPopular = planId === 'annual';
