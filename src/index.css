@@ -301,3 +301,100 @@
 ::-webkit-scrollbar-thumb:hover {
   background: hsl(var(--muted-foreground) / 0.35);
 }
+
+/* Siri-like animations for God Mode */
+@keyframes siri-morph {
+  0%, 100% {
+    border-radius: 50%;
+    transform: scale(1) rotate(0deg);
+  }
+  25% {
+    border-radius: 47% 53% 52% 48% / 48% 45% 55% 52%;
+    transform: scale(1.02) rotate(2deg);
+  }
+  50% {
+    border-radius: 53% 47% 45% 55% / 52% 53% 47% 48%;
+    transform: scale(0.98) rotate(-1deg);
+  }
+  75% {
+    border-radius: 48% 52% 55% 45% / 45% 48% 52% 55%;
+    transform: scale(1.01) rotate(1deg);
+  }
+}
+
+@keyframes siri-pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.9;
+  }
+}
+
+@keyframes siri-breathe {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.5;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.3;
+  }
+}
+
+@keyframes siri-float {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+    opacity: 0.6;
+  }
+  25% {
+    transform: translateY(-15px) scale(1.1);
+    opacity: 0.8;
+  }
+  50% {
+    transform: translateY(-5px) scale(0.9);
+    opacity: 0.5;
+  }
+  75% {
+    transform: translateY(-20px) scale(1.05);
+    opacity: 0.7;
+  }
+}
+
+@keyframes siri-orbit-0 {
+  0% {
+    transform: rotate(0deg) translateX(100px) rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg) translateX(100px) rotate(-360deg);
+  }
+}
+
+@keyframes siri-orbit-1 {
+  0% {
+    transform: rotate(90deg) translateX(120px) rotate(-90deg);
+  }
+  100% {
+    transform: rotate(450deg) translateX(120px) rotate(-450deg);
+  }
+}
+
+@keyframes siri-orbit-2 {
+  0% {
+    transform: rotate(180deg) translateX(140px) rotate(-180deg);
+  }
+  100% {
+    transform: rotate(540deg) translateX(140px) rotate(-540deg);
+  }
+}
+
+@keyframes siri-orbit-3 {
+  0% {
+    transform: rotate(270deg) translateX(160px) rotate(-270deg);
+  }
+  100% {
+    transform: rotate(630deg) translateX(160px) rotate(-630deg);
+  }
+}
