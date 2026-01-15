@@ -532,60 +532,88 @@ export default function Landing() {
             </motion.div>
 
             {/* Paid Plans */}
-            {Object.values(SUBSCRIPTION_PLANS).map((plan, i) => (
-              <motion.div
-                key={plan.id}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: (i + 1) * 0.1 }}
-              >
-                <Card className={`h-full flex flex-col ${plan.id === 'annual' ? 'border-primary shadow-md' : 'border-border/50'}`}>
-                  <CardContent className="p-5 flex flex-col flex-1">
-                    <div className="flex items-center justify-between mb-1">
-                      <h3 className="font-bold text-lg">{isPt ? plan.name_pt : plan.name_en}</h3>
-                      <Badge variant="secondary" className="text-xs">
-                        {isPt ? "7 dias grátis" : "7 days free"}
+            {Object.values(SUBSCRIPTION_PLANS).map((plan, i) => {
+              const isPopular = plan.id === 'quarterly';
+              const isBestValue = plan.id === 'annual';
+              
+              return (
+                <motion.div
+                  key={plan.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: (i + 1) * 0.1 }}
+                  className="relative"
+                >
+                  {/* Highlight badge */}
+                  {(isPopular || isBestValue) && (
+                    <div className={`absolute -top-3 left-1/2 -translate-x-1/2 z-10`}>
+                      <Badge className={`text-xs px-3 py-1 ${
+                        isBestValue 
+                          ? 'bg-primary text-primary-foreground' 
+                          : 'bg-amber-500 text-white'
+                      }`}>
+                        {isBestValue 
+                          ? (isPt ? '🏆 Melhor Valor' : '🏆 Best Value')
+                          : (isPt ? '⭐ Mais Popular' : '⭐ Most Popular')
+                        }
                       </Badge>
                     </div>
-                    <p className="text-3xl font-bold mb-1">
-                      {formatPriceUSD(plan.price)}
-                      <span className="text-sm font-normal text-muted-foreground">
-                        /{plan.id === 'monthly' ? (isPt ? 'mês' : 'mo') : 
-                          plan.id === 'quarterly' ? (isPt ? 'trim' : 'qtr') : 
-                          (isPt ? 'ano' : 'yr')}
-                      </span>
-                    </p>
-                    {plan.savings && (
-                      <p className="text-xs text-primary font-medium mb-4">{isPt ? `Economize ${plan.savings}%` : `Save ${plan.savings}%`}</p>
-                    )}
-                    {!plan.savings && <div className="mb-4" />}
-                    <ul className="space-y-2 mb-6 flex-1">
-                      {[
-                        isPt ? "Empresas ilimitadas" : "Unlimited companies",
-                        isPt ? "Transações ilimitadas" : "Unlimited transactions",
-                        isPt ? "Documentos ilimitados" : "Unlimited documents",
-                        "GodMode AI",
-                        isPt ? "Scanner de recibos" : "Receipt scanner",
-                        isPt ? "Import. de extratos" : "Bank import"
-                      ].map((feature, j) => (
-                        <li key={j} className="flex items-center gap-2 text-sm">
-                          <Check className="w-4 h-4 text-primary shrink-0" />
-                          {feature}
-                        </li>
-                      ))}
-                    </ul>
-                    <Button 
-                      className="w-full" 
-                      variant={plan.id === 'annual' ? 'default' : 'outline'}
-                      onClick={() => navigate("/auth")}
-                    >
-                      {isPt ? "Começar Teste" : "Start Trial"}
-                    </Button>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))}
+                  )}
+                  
+                  <Card className={`h-full flex flex-col ${
+                    isBestValue 
+                      ? 'border-primary border-2 shadow-lg' 
+                      : isPopular 
+                        ? 'border-amber-500 border-2 shadow-md' 
+                        : 'border-border/50'
+                  }`}>
+                    <CardContent className="p-5 flex flex-col flex-1">
+                      <div className="flex items-center justify-between mb-1">
+                        <h3 className="font-bold text-lg">{isPt ? plan.name_pt : plan.name_en}</h3>
+                        <Badge variant="secondary" className="text-xs">
+                          {isPt ? "7 dias grátis" : "7 days free"}
+                        </Badge>
+                      </div>
+                      <p className="text-3xl font-bold mb-1">
+                        {formatPriceUSD(plan.price)}
+                        <span className="text-sm font-normal text-muted-foreground">
+                          /{plan.id === 'monthly' ? (isPt ? 'mês' : 'mo') : 
+                            plan.id === 'quarterly' ? (isPt ? 'trim' : 'qtr') : 
+                            (isPt ? 'ano' : 'yr')}
+                        </span>
+                      </p>
+                      {plan.savings && (
+                        <p className="text-xs text-primary font-medium mb-4">{isPt ? `Economize ${plan.savings}%` : `Save ${plan.savings}%`}</p>
+                      )}
+                      {!plan.savings && <div className="mb-4" />}
+                      <ul className="space-y-2 mb-6 flex-1">
+                        {[
+                          isPt ? "Empresas ilimitadas" : "Unlimited companies",
+                          isPt ? "Transações ilimitadas" : "Unlimited transactions",
+                          isPt ? "Documentos ilimitados" : "Unlimited documents",
+                          "GodMode AI",
+                          isPt ? "Scanner de recibos" : "Receipt scanner",
+                          isPt ? "Import. de extratos" : "Bank import"
+                        ].map((feature, j) => (
+                          <li key={j} className="flex items-center gap-2 text-sm">
+                            <Check className="w-4 h-4 text-primary shrink-0" />
+                            {feature}
+                          </li>
+                        ))}
+                      </ul>
+                      <Button 
+                        className="w-full" 
+                        variant={isBestValue ? 'default' : 'outline'}
+                        onClick={() => navigate("/auth")}
+                      >
+                        {isPt ? "Começar Teste" : "Start Trial"}
+                      </Button>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              );
+            })}
           </div>
         </div>
       </section>
