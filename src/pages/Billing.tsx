@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Check, CreditCard, Loader2, RefreshCw, ExternalLink, Sparkles, Crown, Zap, X, Building2, FileText, Receipt, FileSpreadsheet } from 'lucide-react';
+import { Check, CreditCard, Loader2, RefreshCw, ExternalLink, Sparkles, Crown, Zap, X, Building2, FileText, Receipt, FileSpreadsheet, Shield } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -10,18 +10,27 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useSubscription } from '@/hooks/useSubscription';
 import { useAppSettings } from '@/contexts/AppSettingsContext';
+import { useTenant } from '@/contexts/TenantContext';
 import { SUBSCRIPTION_PLANS, formatPrice, PlanId, getPlanName, getPlanDescription } from '@/lib/stripe-config';
 import { AppLayout } from '@/components/layout/AppLayout';
+
+// Detect if user is on mobile
+const isMobileDevice = () => {
+  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+    (window.innerWidth <= 768);
+};
 
 export default function Billing() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { subscription, currentPlan, loading: subLoading, refetch } = useSubscription();
+  const { isSuperAdmin } = useTenant();
   const { t, language } = useAppSettings();
   
   const [checkoutLoading, setCheckoutLoading] = useState<PlanId | null>(null);
   const [portalLoading, setPortalLoading] = useState(false);
+  const [devModeActive, setDevModeActive] = useState(false);
 
   const isPt = language.startsWith("pt");
 
@@ -57,7 +66,13 @@ export default function Billing() {
       if (data.error) throw new Error(data.error);
 
       if (data.url) {
-        window.open(data.url, '_blank');
+        // On mobile, use location.href to avoid popup blockers
+        // On desktop, open in new tab for better UX
+        if (isMobileDevice()) {
+          window.location.href = data.url;
+        } else {
+          window.open(data.url, '_blank');
+        }
       }
     } catch (err) {
       const message = err instanceof Error ? err.message : t('billing.checkoutError');
@@ -82,7 +97,12 @@ export default function Billing() {
       if (data.error) throw new Error(data.error);
 
       if (data.url) {
-        window.open(data.url, '_blank');
+        // On mobile, use location.href to avoid popup blockers
+        if (isMobileDevice()) {
+          window.location.href = data.url;
+        } else {
+          window.open(data.url, '_blank');
+        }
       }
     } catch (err) {
       const message = err instanceof Error ? err.message : t('billing.portalError');
@@ -91,6 +111,39 @@ export default function Billing() {
       setPortalLoading(false);
     }
   };
+
+  // Toggle dev mode for super admins to bypass subscription
+  const handleToggleDevMode = () => {
+    if (!isSuperAdmin) {
+      toast.error(isPt ? 'Apenas administradores podem usar o modo dev' : 'Only admins can use dev mode');
+      return;
+    }
+    
+    const newState = !devModeActive;
+    setDevModeActive(newState);
+    
+    // Store in localStorage so it persists
+    localStorage.setItem('devModeActive', JSON.stringify(newState));
+    
+    toast.success(
+      newState 
+        ? (isPt ? '🛠️ Modo Dev ativado! Acesso total liberado.' : '🛠️ Dev Mode activated! Full access granted.')
+        : (isPt ? 'Modo Dev desativado' : 'Dev Mode deactivated')
+    );
+    
+    // Trigger a refetch to update subscription state
+    refetch();
+  };
+
+  // Load dev mode state from localStorage
+  useEffect(() => {
+    if (isSuperAdmin) {
+      const saved = localStorage.getItem('devModeActive');
+      if (saved) {
+        setDevModeActive(JSON.parse(saved));
+      }
+    }
+  }, [isSuperAdmin]);
 
   const getPlanIcon = (planId: PlanId) => {
     switch (planId) {
@@ -140,6 +193,43 @@ export default function Billing() {
               {t('billing.subtitle')}
             </p>
           </div>
+
+          {/* Dev Mode Panel - Only for Super Admins */}
+          {isSuperAdmin && (
+            <Card className={`mb-4 border-2 ${devModeActive ? 'border-amber-500 bg-amber-500/10' : 'border-dashed border-muted-foreground/30'}`}>
+              <CardContent className="py-3 px-4">
+                <div className="flex items-center justify-between flex-wrap gap-2">
+                  <div className="flex items-center gap-3">
+                    <Shield className={`h-5 w-5 ${devModeActive ? 'text-amber-500' : 'text-muted-foreground'}`} />
+                    <div>
+                      <p className="font-medium text-sm flex items-center gap-2">
+                        {isPt ? 'Modo Desenvolvedor' : 'Developer Mode'}
+                        {devModeActive && (
+                          <Badge className="bg-amber-500 text-white text-[10px]">
+                            {isPt ? 'ATIVO' : 'ACTIVE'}
+                          </Badge>
+                        )}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {devModeActive 
+                          ? (isPt ? 'Acesso total liberado para testes' : 'Full access granted for testing')
+                          : (isPt ? 'Ative para testar sem precisar pagar' : 'Enable to test without paying')}
+                      </p>
+                    </div>
+                  </div>
+                  <Button
+                    variant={devModeActive ? "destructive" : "outline"}
+                    size="sm"
+                    onClick={handleToggleDevMode}
+                  >
+                    {devModeActive 
+                      ? (isPt ? 'Desativar' : 'Disable')
+                      : (isPt ? 'Ativar Dev Mode' : 'Enable Dev Mode')}
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
           {/* Current Subscription Status - Compact */}
           {subscription?.subscribed && currentPlan && (
