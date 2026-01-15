@@ -45,43 +45,12 @@ const currencies = [
 ];
 
 const languages = [
-  { value: "en-CA", label: "English (Canada)", flag: "🇨🇦" },
-  { value: "fr-CA", label: "Français (Canada)", flag: "🇨🇦" },
-  { value: "en-US", label: "English (US)", flag: "🇺🇸" },
+  { value: "en-US", label: "English", flag: "🇺🇸" },
   { value: "pt-BR", label: "Português (Brasil)", flag: "🇧🇷" },
-  { value: "es-ES", label: "Español", flag: "🇪🇸" },
 ];
 
 const getBusinessTypes = (t: (key: string) => string, lang: string) => {
   const isEnglish = lang.startsWith("en");
-  const isFrench = lang.startsWith("fr");
-  const isSpanish = lang.startsWith("es");
-  
-  if (isFrench) {
-    return [
-      { value: "cleaning", label: "🧹 Nettoyage" },
-      { value: "restaurant", label: "🍽️ Restaurant" },
-      { value: "construction", label: "🏗️ Construction" },
-      { value: "retail", label: "🛍️ Commerce" },
-      { value: "tech", label: "💻 Technologie" },
-      { value: "health", label: "🏥 Santé" },
-      { value: "education", label: "📚 Éducation" },
-      { value: "other", label: "🏢 Autre" },
-    ];
-  }
-  
-  if (isSpanish) {
-    return [
-      { value: "cleaning", label: "🧹 Limpieza" },
-      { value: "restaurant", label: "🍽️ Restaurante" },
-      { value: "construction", label: "🏗️ Construcción" },
-      { value: "retail", label: "🛍️ Comercio" },
-      { value: "tech", label: "💻 Tecnología" },
-      { value: "health", label: "🏥 Salud" },
-      { value: "education", label: "📚 Educación" },
-      { value: "other", label: "🏢 Otro" },
-    ];
-  }
   
   if (isEnglish) {
     return [

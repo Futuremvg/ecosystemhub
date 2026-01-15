@@ -39,9 +39,7 @@ export function DesktopSidebar({ collapsed = false, onToggle, isMobileSheet = fa
   const navItems = getNavItems(t, isSuperAdmin);
 
   const footerText = tenant?.name || (
-    language.startsWith("pt") ? "God Mode Ativo" : 
-    language.startsWith("fr") ? "God Mode Actif" : 
-    "God Mode Active"
+    language.startsWith("pt") ? "God Mode Ativo" : "God Mode Active"
   );
 
   return (

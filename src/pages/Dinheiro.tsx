@@ -73,7 +73,7 @@ export default function Dinheiro() {
   const { user, loading } = useAuth();
   const { toast } = useToast();
   const { formatCurrency, language, t } = useAppSettings();
-  const months = language.startsWith("pt") ? monthsPT : language.startsWith("fr") ? monthsFR : monthsEN;
+  const months = language.startsWith("pt") ? monthsPT : monthsEN;
   
   const [sources, setSources] = useState<FinancialSource[]>([]);
   const [categories, setCategories] = useState<FinancialCategory[]>([]);

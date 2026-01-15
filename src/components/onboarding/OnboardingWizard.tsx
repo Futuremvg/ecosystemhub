@@ -269,11 +269,8 @@ const currencies = [
 ];
 
 const languages = [
-  { value: "en-CA", label: "English (CA)", flag: "🇨🇦" },
-  { value: "en-US", label: "English (US)", flag: "🇺🇸" },
+  { value: "en-US", label: "English", flag: "🇺🇸" },
   { value: "pt-BR", label: "Português", flag: "🇧🇷" },
-  { value: "es-ES", label: "Español", flag: "🇪🇸" },
-  { value: "fr-CA", label: "Français", flag: "🇨🇦" },
 ];
 
 export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
