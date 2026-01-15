@@ -114,6 +114,7 @@ export default function Home() {
   const [sources, setSources] = useState<FinancialSource[]>([]);
   const [categories, setCategories] = useState<FinancialCategory[]>([]);
   const [totalStats, setTotalStats] = useState({ companies: 0, links: 0, documents: 0 });
+  const [currentMonthTransactionCount, setCurrentMonthTransactionCount] = useState(0);
 
   // Get random motivational quote based on language - must be before any early returns
   const dailyQuote = useMemo(() => {
@@ -168,6 +169,7 @@ export default function Home() {
         links: linksRes.count || 0,
         documents: docsRes.count || 0,
       });
+      setCurrentMonthTransactionCount(entries.length);
 
       // Calculate financials per company
       const financials: CompanyFinancials[] = companiesList.map(company => {
@@ -580,6 +582,7 @@ export default function Home() {
             categories={categories}
             selectedYear={currentYear}
             selectedMonth={currentMonth}
+            currentMonthTransactionCount={currentMonthTransactionCount}
             onAddIncome={handleAddIncome}
             onAddExpense={handleAddExpense}
             onCreateSource={handleCreateSource}

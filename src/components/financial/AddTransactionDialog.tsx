@@ -6,10 +6,11 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { Plus, TrendingUp, TrendingDown, Receipt, Camera, AlertCircle } from "lucide-react";
+import { Plus, TrendingUp, TrendingDown, Receipt, Camera, AlertCircle, Lock } from "lucide-react";
 import { useAppSettings } from "@/contexts/AppSettingsContext";
 import { ReceiptScanner } from "./ReceiptScanner";
-
+import { useSubscriptionLimits } from "@/hooks/useSubscriptionLimits";
+import { UpgradeModal } from "@/components/ui/UpgradeModal";
 interface FinancialSource {
   id: string;
   name: string;
@@ -26,6 +27,7 @@ interface AddTransactionDialogProps {
   categories: FinancialCategory[];
   selectedYear: number;
   selectedMonth: number;
+  currentMonthTransactionCount: number;
   onAddIncome: (sourceId: string, amount: number, month: number, notes?: string) => Promise<void>;
   onAddExpense: (categoryId: string, amount: number, month: number, notes?: string) => Promise<void>;
   onCreateSource: (name: string, taxPercentage?: number) => Promise<string | null>;
@@ -50,17 +52,23 @@ export function AddTransactionDialog({
   categories,
   selectedYear,
   selectedMonth,
+  currentMonthTransactionCount,
   onAddIncome,
   onAddExpense,
   onCreateSource,
   onCreateCategory,
 }: AddTransactionDialogProps) {
   const { t, language } = useAppSettings();
+  const { isSubscribed, canAddMore, getFeatureLimit } = useSubscriptionLimits();
   const months = language.startsWith("pt") ? monthsPT : monthsEN;
   
   const [open, setOpen] = useState(false);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [activeTab, setActiveTab] = useState<"income" | "expense" | "scan">("income");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  const canAddTransaction = canAddMore('transactions', currentMonthTransactionCount);
+  const transactionLimit = getFeatureLimit('transactions');
   
   // Income form
   const [incomeSourceId, setIncomeSourceId] = useState("");
@@ -108,6 +116,12 @@ export function AddTransactionDialog({
   const handleAddIncome = async () => {
     if ((!incomeSourceId && !newSourceName) || !incomeAmount) return;
     
+    // Check subscription limit
+    if (!canAddTransaction) {
+      setShowUpgradeModal(true);
+      return;
+    }
+    
     setIsSubmitting(true);
     try {
       let sourceId = incomeSourceId;
@@ -129,6 +143,12 @@ export function AddTransactionDialog({
 
   const handleAddExpense = async () => {
     if ((!expenseCategoryId && !newCategoryName) || !expenseAmount) return;
+    
+    // Check subscription limit
+    if (!canAddTransaction) {
+      setShowUpgradeModal(true);
+      return;
+    }
     
     setIsSubmitting(true);
     try {
@@ -199,6 +219,7 @@ export function AddTransactionDialog({
   };
 
   return (
+    <>
     <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) resetForm(); }}>
       <DialogTrigger asChild>
         <Button className="w-full sm:w-auto bg-god-gold text-god-gold-dark hover:bg-god-gold-glow">
@@ -438,5 +459,25 @@ export function AddTransactionDialog({
         </Tabs>
       </DialogContent>
     </Dialog>
+
+    {/* Show limit warning if approaching limit */}
+    {!isSubscribed && currentMonthTransactionCount >= transactionLimit - 5 && currentMonthTransactionCount < transactionLimit && (
+      <div className="text-xs text-amber-600 bg-amber-50 dark:bg-amber-900/20 p-2 rounded mt-2">
+        <AlertCircle className="w-3 h-3 inline mr-1" />
+        {language.startsWith("pt") 
+          ? `Você usou ${currentMonthTransactionCount}/${transactionLimit} transações este mês`
+          : `You've used ${currentMonthTransactionCount}/${transactionLimit} transactions this month`
+        }
+      </div>
+    )}
+
+    <UpgradeModal
+      open={showUpgradeModal}
+      onOpenChange={setShowUpgradeModal}
+      feature="transactions"
+      currentCount={currentMonthTransactionCount}
+      limit={transactionLimit}
+    />
+    </>
   );
 }

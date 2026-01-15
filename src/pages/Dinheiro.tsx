@@ -413,6 +413,7 @@ export default function Dinheiro() {
               categories={categories}
               selectedYear={selectedYear}
               selectedMonth={selectedMonth}
+              currentMonthTransactionCount={entries.filter(e => e.month === selectedMonth).length}
               onAddIncome={handleAddIncomeFromDialog}
               onAddExpense={handleAddExpenseFromDialog}
               onCreateSource={handleCreateSourceFromDialog}
