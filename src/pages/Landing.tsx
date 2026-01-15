@@ -10,15 +10,25 @@ import {
   Receipt, FileSpreadsheet, MessageSquare, Globe,
   Star, Users, TrendingUp, Clock, Lock, Smartphone,
   Play, ChevronRight, Heart, Award, Target, Layers,
-  Languages
+  Languages, MonitorSmartphone, ChevronLeft
 } from "lucide-react";
 import { SUBSCRIPTION_PLANS, formatPrice } from "@/lib/stripe-config";
 import { Logo } from "@/components/ui/Logo";
+import dashboardMockup from "@/assets/dashboard-mockup.png";
+import companiesMockup from "@/assets/companies-mockup.png";
+import financesMockup from "@/assets/finances-mockup.png";
 
 export default function Landing() {
   const navigate = useNavigate();
   const [lang, setLang] = useState<"pt" | "en">("pt");
+  const [activeScreenshot, setActiveScreenshot] = useState(0);
   const isPt = lang === "pt";
+  
+  const screenshots = [
+    { src: dashboardMockup, title: isPt ? "Dashboard Principal" : "Main Dashboard", desc: isPt ? "Visão geral de todas suas empresas" : "Overview of all your companies" },
+    { src: companiesMockup, title: isPt ? "Gestão de Empresas" : "Company Management", desc: isPt ? "Organize seu ecossistema hierárquico" : "Organize your hierarchical ecosystem" },
+    { src: financesMockup, title: isPt ? "Controle Financeiro" : "Financial Control", desc: isPt ? "Acompanhe receitas e despesas" : "Track income and expenses" },
+  ];
 
   const features = [
     {
@@ -558,6 +568,117 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* App Showcase - Screenshots Gallery */}
+      <section className="py-16 md:py-24 bg-gradient-to-b from-muted/30 to-background overflow-hidden">
+        <div className="container mx-auto px-4">
+          <motion.div {...fadeInUp} className="text-center mb-12">
+            <Badge variant="secondary" className="mb-3">
+              <MonitorSmartphone className="w-3 h-3 mr-1" />
+              {isPt ? "Veja o Sistema" : "See the App"}
+            </Badge>
+            <h2 className="text-2xl md:text-4xl font-bold mb-2">
+              {isPt ? "Conheça Por Dentro" : "Take a Look Inside"}
+            </h2>
+            <p className="text-sm text-muted-foreground max-w-xl mx-auto">
+              {isPt 
+                ? "Interface moderna e intuitiva para gerenciar todo seu ecossistema de empresas" 
+                : "Modern and intuitive interface to manage your entire company ecosystem"}
+            </p>
+          </motion.div>
+
+          {/* Screenshot Carousel */}
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="relative max-w-5xl mx-auto"
+          >
+            {/* Main Screenshot */}
+            <div className="relative rounded-2xl border border-border bg-card shadow-2xl overflow-hidden">
+              {/* Browser Header */}
+              <div className="flex items-center gap-2 px-4 py-2.5 bg-muted/50 border-b border-border">
+                <div className="flex gap-1.5">
+                  <div className="w-2.5 h-2.5 rounded-full bg-red-400" />
+                  <div className="w-2.5 h-2.5 rounded-full bg-yellow-400" />
+                  <div className="w-2.5 h-2.5 rounded-full bg-green-400" />
+                </div>
+                <div className="flex-1 mx-4">
+                  <div className="bg-background rounded-md px-3 py-1 text-xs text-muted-foreground text-center max-w-[200px] mx-auto">
+                    🔒 ecosystem-hub.app
+                  </div>
+                </div>
+              </div>
+              
+              {/* Screenshot Image */}
+              <motion.img
+                key={activeScreenshot}
+                src={screenshots[activeScreenshot].src}
+                alt={screenshots[activeScreenshot].title}
+                className="w-full h-auto object-cover"
+                initial={{ opacity: 0, scale: 1.02 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.4 }}
+              />
+            </div>
+
+            {/* Navigation Arrows */}
+            <button
+              onClick={() => setActiveScreenshot((prev) => (prev - 1 + screenshots.length) % screenshots.length)}
+              className="absolute left-2 md:-left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-background/90 backdrop-blur border border-border shadow-lg flex items-center justify-center hover:bg-background transition-colors"
+            >
+              <ChevronLeft className="w-5 h-5" />
+            </button>
+            <button
+              onClick={() => setActiveScreenshot((prev) => (prev + 1) % screenshots.length)}
+              className="absolute right-2 md:-right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-background/90 backdrop-blur border border-border shadow-lg flex items-center justify-center hover:bg-background transition-colors"
+            >
+              <ChevronRight className="w-5 h-5" />
+            </button>
+          </motion.div>
+
+          {/* Thumbnail Navigation */}
+          <div className="flex justify-center gap-3 mt-6">
+            {screenshots.map((screenshot, i) => (
+              <motion.button
+                key={i}
+                onClick={() => setActiveScreenshot(i)}
+                className={`relative rounded-lg overflow-hidden border-2 transition-all ${
+                  activeScreenshot === i 
+                    ? 'border-primary shadow-lg scale-105' 
+                    : 'border-border/50 opacity-60 hover:opacity-100'
+                }`}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <img 
+                  src={screenshot.src} 
+                  alt={screenshot.title}
+                  className="w-24 md:w-32 h-14 md:h-20 object-cover"
+                />
+                {activeScreenshot === i && (
+                  <motion.div 
+                    layoutId="activeIndicator"
+                    className="absolute inset-0 bg-primary/10"
+                  />
+                )}
+              </motion.button>
+            ))}
+          </div>
+
+          {/* Screenshot Info */}
+          <motion.div
+            key={`info-${activeScreenshot}`}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-center mt-4"
+          >
+            <h3 className="font-semibold text-lg">{screenshots[activeScreenshot].title}</h3>
+            <p className="text-sm text-muted-foreground">{screenshots[activeScreenshot].desc}</p>
+          </motion.div>
+        </div>
+      </section>
+
       {/* Testimonials */}
       <section className="py-16 md:py-20 bg-muted/30">
         <div className="container mx-auto px-4">
@@ -709,26 +830,29 @@ export default function Landing() {
             </p>
           </motion.div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 max-w-5xl mx-auto">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 max-w-5xl mx-auto items-stretch">
             {/* Free Plan */}
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               whileHover={{ y: -5 }}
+              className="flex"
             >
-              <Card className="h-full border-border/50 hover:shadow-lg transition-all">
-                <CardContent className="p-4 md:p-5">
-                  <h3 className="text-lg font-semibold mb-1">{isPt ? "Gratuito" : "Free"}</h3>
-                  <p className="text-3xl font-bold mb-1">R$ 0</p>
-                  <p className="text-xs text-muted-foreground mb-4">{isPt ? "Para sempre" : "Forever"}</p>
-                  <ul className="space-y-2 mb-6 text-xs">
-                    <li className="flex items-center gap-2"><Check className="w-3 h-3 text-primary" /> 1 {isPt ? "empresa" : "company"}</li>
-                    <li className="flex items-center gap-2"><Check className="w-3 h-3 text-primary" /> 5 docs</li>
-                    <li className="flex items-center gap-2"><Check className="w-3 h-3 text-primary" /> 20 trans/{isPt ? "mês" : "mo"}</li>
-                    <li className="flex items-center gap-2 text-muted-foreground"><Lock className="w-3 h-3" /> GodMode</li>
-                  </ul>
-                  <Button variant="outline" className="w-full text-xs h-9" onClick={() => navigate("/auth")}>
+              <Card className="w-full border-border/50 hover:shadow-lg transition-all flex flex-col">
+                <CardContent className="p-4 md:p-5 flex flex-col h-full">
+                  <div className="flex-1">
+                    <h3 className="text-lg font-semibold mb-1">{isPt ? "Gratuito" : "Free"}</h3>
+                    <p className="text-3xl font-bold mb-1">R$ 0</p>
+                    <p className="text-xs text-muted-foreground mb-4">{isPt ? "Para sempre" : "Forever"}</p>
+                    <ul className="space-y-2 text-xs">
+                      <li className="flex items-center gap-2"><Check className="w-3 h-3 text-primary" /> 1 {isPt ? "empresa" : "company"}</li>
+                      <li className="flex items-center gap-2"><Check className="w-3 h-3 text-primary" /> 5 docs</li>
+                      <li className="flex items-center gap-2"><Check className="w-3 h-3 text-primary" /> 20 trans/{isPt ? "mês" : "mo"}</li>
+                      <li className="flex items-center gap-2 text-muted-foreground"><Lock className="w-3 h-3" /> GodMode</li>
+                    </ul>
+                  </div>
+                  <Button variant="outline" className="w-full text-xs h-9 mt-6" onClick={() => navigate("/auth")}>
                     {isPt ? "Começar Grátis" : "Start Free"}
                   </Button>
                 </CardContent>
@@ -744,8 +868,9 @@ export default function Landing() {
                 viewport={{ once: true }}
                 transition={{ delay: (i + 1) * 0.1 }}
                 whileHover={{ y: -5 }}
+                className="flex"
               >
-                <Card className={`h-full relative ${plan.id === 'annual' ? 'border-primary border-2 shadow-xl' : 'border-border/50 hover:shadow-lg'} transition-all`}>
+                <Card className={`w-full relative flex flex-col ${plan.id === 'annual' ? 'border-primary border-2 shadow-xl' : 'border-border/50 hover:shadow-lg'} transition-all`}>
                   {plan.id === 'annual' && (
                     <div className="absolute -top-3 left-1/2 -translate-x-1/2">
                       <Badge className="bg-primary text-primary-foreground px-3 py-0.5 text-[10px]">
@@ -754,24 +879,26 @@ export default function Landing() {
                       </Badge>
                     </div>
                   )}
-                  <CardContent className="p-4 md:p-5">
-                    <h3 className="text-lg font-semibold mb-1">{isPt ? plan.name_pt : plan.name_en}</h3>
-                    <p className="text-3xl font-bold mb-1">{formatPrice(plan.price)}</p>
-                    <p className="text-xs text-muted-foreground mb-1">
-                      /{plan.interval === 'year' ? (isPt ? 'ano' : 'year') : (isPt ? `${plan.interval_count}m` : `${plan.interval_count}mo`)}
-                    </p>
-                    {plan.savings && (
-                      <Badge variant="secondary" className="mb-3 text-[10px] text-green-600 border-green-600/30">
-                        -{plan.savings}%
-                      </Badge>
-                    )}
-                    <ul className="space-y-2 mb-6 text-xs mt-3">
-                      <li className="flex items-center gap-2"><Check className="w-3 h-3 text-primary" /> ∞ {isPt ? "empresas" : "companies"}</li>
-                      <li className="flex items-center gap-2"><Check className="w-3 h-3 text-primary" /> ∞ docs</li>
-                      <li className="flex items-center gap-2"><Check className="w-3 h-3 text-primary" /> GodMode IA</li>
-                      <li className="flex items-center gap-2"><Check className="w-3 h-3 text-primary" /> Scanner</li>
-                    </ul>
-                    <Button className={`w-full text-xs h-9 ${plan.id === 'annual' ? '' : 'bg-primary/90'}`} onClick={() => navigate("/auth")}>
+                  <CardContent className="p-4 md:p-5 flex flex-col h-full">
+                    <div className="flex-1">
+                      <h3 className="text-lg font-semibold mb-1">{isPt ? plan.name_pt : plan.name_en}</h3>
+                      <p className="text-3xl font-bold mb-1">{formatPrice(plan.price)}</p>
+                      <p className="text-xs text-muted-foreground mb-1">
+                        /{plan.interval === 'year' ? (isPt ? 'ano' : 'year') : (isPt ? `${plan.interval_count}m` : `${plan.interval_count}mo`)}
+                      </p>
+                      {plan.savings && (
+                        <Badge variant="secondary" className="mb-3 text-[10px] text-green-600 border-green-600/30">
+                          -{plan.savings}%
+                        </Badge>
+                      )}
+                      <ul className="space-y-2 text-xs mt-3">
+                        <li className="flex items-center gap-2"><Check className="w-3 h-3 text-primary" /> ∞ {isPt ? "empresas" : "companies"}</li>
+                        <li className="flex items-center gap-2"><Check className="w-3 h-3 text-primary" /> ∞ docs</li>
+                        <li className="flex items-center gap-2"><Check className="w-3 h-3 text-primary" /> GodMode IA</li>
+                        <li className="flex items-center gap-2"><Check className="w-3 h-3 text-primary" /> Scanner</li>
+                      </ul>
+                    </div>
+                    <Button className={`w-full text-xs h-9 mt-6 ${plan.id === 'annual' ? '' : 'bg-primary/90'}`} onClick={() => navigate("/auth")}>
                       {isPt ? "7 Dias Grátis" : "7 Days Free"}
                     </Button>
                   </CardContent>
