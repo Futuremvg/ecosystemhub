@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { 
   Building2, DollarSign, FileText, Sparkles, 
   Check, ArrowRight, Receipt, FileSpreadsheet, MessageSquare,
-  Star, TrendingUp, Clock, Lock, Smartphone, ChevronRight
+  Star, TrendingUp, Clock, Lock, Smartphone, ChevronDown
 } from "lucide-react";
 import { SUBSCRIPTION_PLANS, formatPriceUSD } from "@/lib/stripe-config";
 import { Logo } from "@/components/ui/Logo";
@@ -71,29 +71,29 @@ export default function Landing() {
 
   const benefits = [
     {
-      icon: <Clock className="w-8 h-8" />,
+      icon: <Clock className="w-7 h-7" />,
       title: isPt ? "Economize Tempo" : "Save Time",
       description: isPt 
         ? "Automatize tarefas e foque no que importa"
         : "Automate tasks and focus on what matters"
     },
     {
-      icon: <TrendingUp className="w-8 h-8" />,
+      icon: <TrendingUp className="w-7 h-7" />,
       title: isPt ? "Decisões Melhores" : "Better Decisions",
       description: isPt 
         ? "Visão clara da saúde financeira"
         : "Clear view of financial health"
     },
     {
-      icon: <Lock className="w-8 h-8" />,
+      icon: <Lock className="w-7 h-7" />,
       title: isPt ? "Dados Seguros" : "Secure Data",
       description: isPt 
         ? "Criptografia de ponta"
         : "Cutting-edge encryption"
     },
     {
-      icon: <Smartphone className="w-8 h-8" />,
-      title: isPt ? "Acesse de Qualquer Lugar" : "Access Anywhere",
+      icon: <Smartphone className="w-7 h-7" />,
+      title: isPt ? "Acesso Mobile" : "Mobile Access",
       description: isPt 
         ? "Desktop, tablet ou celular"
         : "Desktop, tablet or mobile"
@@ -107,7 +107,7 @@ export default function Landing() {
       content: isPt 
         ? "Revolucionou a forma como gerencio minhas 5 empresas!"
         : "Revolutionized how I manage my 5 companies!",
-      avatar: "CM"
+      image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face"
     },
     {
       name: "Ana Paula Silva",
@@ -115,7 +115,7 @@ export default function Landing() {
       content: isPt 
         ? "Meus clientes adoram os relatórios!"
         : "My clients love the reports!",
-      avatar: "AP"
+      image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=face"
     },
     {
       name: "Roberto Santos",
@@ -123,220 +123,171 @@ export default function Landing() {
       content: isPt 
         ? "Finalmente um sistema que entende micro-empresas."
         : "Finally a system that understands small businesses.",
-      avatar: "RS"
+      image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face"
     },
   ];
 
   const howItWorks = [
-    { step: "1", title: isPt ? "Crie sua conta" : "Create account", description: isPt ? "2 minutos, sem cartão" : "2 minutes, no card" },
-    { step: "2", title: isPt ? "Configure empresas" : "Set up companies", description: isPt ? "Organize seu ecossistema" : "Organize your ecosystem" },
-    { step: "3", title: isPt ? "Registre transações" : "Record transactions", description: isPt ? "Manual ou automático" : "Manual or automatic" },
-    { step: "4", title: isPt ? "Visualize resultados" : "View results", description: isPt ? "Lucro em tempo real" : "Profit in real-time" },
+    { step: "01", title: isPt ? "Crie sua conta" : "Create account", description: isPt ? "2 minutos, sem cartão" : "2 minutes, no card" },
+    { step: "02", title: isPt ? "Configure empresas" : "Set up companies", description: isPt ? "Organize seu ecossistema" : "Organize your ecosystem" },
+    { step: "03", title: isPt ? "Registre transações" : "Record transactions", description: isPt ? "Manual ou automático" : "Manual or automatic" },
+    { step: "04", title: isPt ? "Visualize resultados" : "View results", description: isPt ? "Lucro em tempo real" : "Profit in real-time" },
   ];
 
+  // Free plan features
+  const freePlanFeatures = isPt 
+    ? ["1 empresa", "20 transações/mês", "5 documentos", "Suporte por email"]
+    : ["1 company", "20 transactions/mo", "5 documents", "Email support"];
+
   const fadeInUp = {
-    initial: { opacity: 0, y: 40 },
+    initial: { opacity: 0, y: 30 },
     whileInView: { opacity: 1, y: 0 },
-    viewport: { once: true, margin: "-100px" },
-    transition: { duration: 0.6 }
+    viewport: { once: true, margin: "-50px" },
+    transition: { duration: 0.5 }
   };
 
   return (
-    <div className="min-h-screen bg-black overflow-x-hidden">
-      {/* Netflix-style Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-b from-black/90 to-transparent">
-        <div className="container mx-auto px-4 md:px-8 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Logo className="w-10 h-10" />
-            <span className="font-black text-xl md:text-2xl text-white tracking-tight">ECOSYSTEM</span>
+    <div className="min-h-screen bg-background overflow-x-hidden">
+      {/* Header */}
+      <header className="sticky top-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border">
+        <div className="container mx-auto px-4 py-3 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Logo className="w-8 h-8" />
+            <span className="font-bold text-lg">Architecta</span>
           </div>
-          <div className="flex items-center gap-3">
-            <div className="flex items-center bg-white/10 rounded-md p-0.5 backdrop-blur">
+          <div className="flex items-center gap-2">
+            <div className="flex items-center bg-muted rounded-full p-0.5 mr-2">
               <button
                 onClick={() => setLang("pt")}
-                className={`px-3 py-1.5 text-xs font-medium rounded transition-all ${
-                  isPt ? "bg-white text-black" : "text-white/70 hover:text-white"
+                className={`px-3 py-1.5 text-xs font-medium rounded-full transition-all ${
+                  isPt ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
                 }`}
               >
-                PT
+                🇧🇷 PT
               </button>
               <button
                 onClick={() => setLang("en")}
-                className={`px-3 py-1.5 text-xs font-medium rounded transition-all ${
-                  !isPt ? "bg-white text-black" : "text-white/70 hover:text-white"
+                className={`px-3 py-1.5 text-xs font-medium rounded-full transition-all ${
+                  !isPt ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
                 }`}
               >
-                EN
+                🇺🇸 EN
               </button>
             </div>
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              onClick={() => navigate("/auth")}
-              className="text-white hover:text-white hover:bg-white/10"
-            >
+            <Button variant="ghost" size="sm" onClick={() => navigate("/auth")}>
               {isPt ? "Entrar" : "Sign In"}
             </Button>
-            <Button 
-              size="sm" 
-              onClick={() => navigate("/auth")} 
-              className="bg-primary hover:bg-primary/90 text-white font-semibold hidden sm:flex"
-            >
-              {isPt ? "Começar" : "Get Started"}
+            <Button size="sm" onClick={() => navigate("/auth")} className="hidden sm:flex">
+              {isPt ? "Começar Grátis" : "Start Free"}
+              <ArrowRight className="w-4 h-4 ml-1" />
             </Button>
           </div>
         </div>
       </header>
 
-      {/* Netflix-style Hero */}
-      <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-black via-zinc-900 to-black" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-primary/20 via-transparent to-transparent" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_var(--tw-gradient-stops))] from-orange-600/10 via-transparent to-transparent" />
+      {/* Hero Section - Clean & Professional */}
+      <section className="relative py-20 md:py-32 overflow-hidden">
+        {/* Subtle gradient background */}
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-background" />
+        <div className="absolute top-0 right-0 w-1/2 h-1/2 bg-gradient-to-bl from-primary/10 to-transparent rounded-full blur-3xl" />
         
-        <div className="absolute inset-0 opacity-[0.03]" style={{
-          backgroundImage: `linear-gradient(rgba(255,255,255,.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.1) 1px, transparent 1px)`,
-          backgroundSize: '50px 50px'
-        }} />
-        
-        <motion.div 
-          className="absolute top-1/4 left-10 w-64 h-64 bg-primary/20 rounded-full blur-[100px]"
-          animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.5, 0.3] }}
-          transition={{ repeat: Infinity, duration: 8, ease: "easeInOut" }}
-        />
-        <motion.div 
-          className="absolute bottom-1/4 right-10 w-80 h-80 bg-orange-500/15 rounded-full blur-[120px]"
-          animate={{ scale: [1.2, 1, 1.2], opacity: [0.4, 0.2, 0.4] }}
-          transition={{ repeat: Infinity, duration: 10, ease: "easeInOut" }}
-        />
-
-        <div className="relative z-10 container mx-auto px-4 md:px-8 pt-20">
+        <div className="relative container mx-auto px-4">
           <motion.div
-            initial={{ opacity: 0, y: 50 }}
+            initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="text-center max-w-5xl mx-auto"
+            transition={{ duration: 0.6 }}
+            className="text-center max-w-4xl mx-auto"
           >
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.2 }}
-            >
-              <Badge className="mb-6 px-4 py-2 bg-white/10 text-white border-white/20 backdrop-blur text-sm">
-                <Sparkles className="w-4 h-4 mr-2 text-primary" />
-                {isPt ? "7 dias grátis" : "7 days free"}
-              </Badge>
-            </motion.div>
+            <Badge variant="secondary" className="mb-6 px-4 py-2">
+              <Sparkles className="w-4 h-4 mr-2 text-primary" />
+              {isPt ? "7 dias grátis para testar" : "7 days free trial"}
+            </Badge>
 
-            <motion.h1
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3, duration: 0.8 }}
-              className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black text-white mb-6 tracking-tight leading-[0.9]"
-            >
-              {isPt ? "GERENCIE" : "MANAGE"}
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-6 leading-tight">
+              {isPt ? "Gerencie Todas as Suas" : "Manage All Your"}
               <br />
-              <span className="bg-gradient-to-r from-primary via-orange-500 to-red-500 bg-clip-text text-transparent">
-                {isPt ? "TUDO" : "EVERYTHING"}
+              <span className="text-primary">
+                {isPt ? "Empresas em Um Só Lugar" : "Companies in One Place"}
               </span>
-            </motion.h1>
+            </h1>
 
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5, duration: 0.6 }}
-              className="text-lg md:text-xl lg:text-2xl text-white/60 mb-10 max-w-2xl mx-auto font-light"
-            >
+            <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
               {isPt 
-                ? "Finanças. Documentos. Empresas. Tudo em um só lugar com IA." 
-                : "Finances. Documents. Companies. All in one place with AI."}
-            </motion.p>
+                ? "Finanças, documentos e operações unificados. Com assistente de IA para decisões estratégicas." 
+                : "Unified finances, documents and operations. With AI assistant for strategic decisions."}
+            </p>
 
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.6, duration: 0.6 }}
-              className="flex flex-col sm:flex-row gap-4 justify-center"
-            >
+            <div className="flex flex-col sm:flex-row gap-3 justify-center mb-8">
               <Button 
                 size="lg" 
                 onClick={() => navigate("/auth")} 
-                className="bg-primary hover:bg-primary/90 text-white text-lg px-10 h-14 font-bold rounded-md shadow-2xl shadow-primary/30"
+                className="text-base px-8 h-12"
               >
-                {isPt ? "Começar Agora" : "Get Started"}
-                <ArrowRight className="w-5 h-5 ml-2" />
+                {isPt ? "Começar Grátis" : "Start Free"}
+                <ArrowRight className="w-4 h-4 ml-2" />
               </Button>
               <Button 
                 size="lg" 
                 variant="outline" 
                 onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })}
-                className="bg-white/10 hover:bg-white/20 text-white border-white/30 text-lg px-10 h-14 font-semibold rounded-md backdrop-blur"
+                className="h-12"
               >
-                {isPt ? "Saiba Mais" : "Learn More"}
+                {isPt ? "Ver Recursos" : "See Features"}
+                <ChevronDown className="w-4 h-4 ml-2" />
               </Button>
-            </motion.div>
+            </div>
 
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.8 }}
-              className="mt-12 flex flex-wrap justify-center gap-8 text-white/40"
-            >
+            <p className="text-sm text-muted-foreground">
+              {isPt ? "✓ Sem cartão de crédito   ✓ Setup em 2 min   ✓ Cancele quando quiser" : "✓ No credit card   ✓ 2 min setup   ✓ Cancel anytime"}
+            </p>
+
+            {/* Stats */}
+            <div className="mt-16 grid grid-cols-4 gap-4 md:gap-8 max-w-2xl mx-auto">
               {stats.map((stat, i) => (
-                <div key={i} className="text-center">
-                  <p className="text-2xl md:text-3xl font-bold text-white">{stat.value}</p>
-                  <p className="text-xs uppercase tracking-wider">{stat.label}</p>
-                </div>
+                <motion.div 
+                  key={i}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.3 + i * 0.1 }}
+                  className="text-center"
+                >
+                  <p className="text-2xl md:text-3xl font-bold text-primary">{stat.value}</p>
+                  <p className="text-xs text-muted-foreground">{stat.label}</p>
+                </motion.div>
               ))}
-            </motion.div>
+            </div>
           </motion.div>
         </div>
-
-        <motion.div
-          className="absolute bottom-8 left-1/2 -translate-x-1/2"
-          animate={{ y: [0, 10, 0] }}
-          transition={{ repeat: Infinity, duration: 2 }}
-        >
-          <div className="w-6 h-10 border-2 border-white/30 rounded-full flex justify-center pt-2">
-            <motion.div 
-              className="w-1.5 h-1.5 bg-white rounded-full"
-              animate={{ y: [0, 12, 0], opacity: [1, 0.3, 1] }}
-              transition={{ repeat: Infinity, duration: 2 }}
-            />
-          </div>
-        </motion.div>
       </section>
 
       {/* Features Section */}
-      <section id="features" className="py-20 md:py-32 bg-gradient-to-b from-black to-zinc-900">
-        <div className="container mx-auto px-4 md:px-8">
-          <motion.div {...fadeInUp} className="text-center mb-16">
-            <h2 className="text-3xl md:text-5xl font-black text-white mb-4">
-              {isPt ? "FUNCIONALIDADES" : "FEATURES"}
+      <section id="features" className="py-16 md:py-24 bg-muted/30">
+        <div className="container mx-auto px-4">
+          <motion.div {...fadeInUp} className="text-center mb-12">
+            <h2 className="text-2xl md:text-4xl font-bold mb-3">
+              {isPt ? "Tudo em Um Só Lugar" : "Everything in One Place"}
             </h2>
-            <p className="text-white/50 text-lg max-w-xl mx-auto">
-              {isPt ? "Tudo para dominar seus negócios" : "Everything to master your businesses"}
+            <p className="text-muted-foreground max-w-xl mx-auto">
+              {isPt ? "Ferramentas poderosas para gerenciar seu ecossistema" : "Powerful tools to manage your ecosystem"}
             </p>
           </motion.div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 max-w-5xl mx-auto">
             {features.map((feature, i) => (
               <motion.div
                 key={i}
-                initial={{ opacity: 0, y: 30 }}
+                initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ delay: i * 0.1, duration: 0.5 }}
-                whileHover={{ scale: 1.02, y: -5 }}
-                className="group"
+                transition={{ delay: i * 0.1 }}
               >
-                <Card className="h-full bg-white/5 border-white/10 hover:border-primary/50 hover:bg-white/10 transition-all">
-                  <CardContent className="p-6">
-                    <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-primary to-orange-500 flex items-center justify-center text-white mb-4 group-hover:scale-110 transition-transform">
+                <Card className="h-full hover:shadow-md transition-shadow border-border/50">
+                  <CardContent className="p-5">
+                    <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary mb-3">
                       {feature.icon}
                     </div>
-                    <h3 className="text-xl font-bold text-white mb-2">{feature.title}</h3>
-                    <p className="text-white/50">{feature.description}</p>
+                    <h3 className="font-semibold mb-1">{feature.title}</h3>
+                    <p className="text-sm text-muted-foreground">{feature.description}</p>
                   </CardContent>
                 </Card>
               </motion.div>
@@ -345,109 +296,102 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Benefits Section */}
-      <section className="py-20 md:py-32 bg-zinc-900">
-        <div className="container mx-auto px-4 md:px-8">
-          <motion.div {...fadeInUp} className="text-center mb-16">
-            <h2 className="text-3xl md:text-5xl font-black text-white mb-4">
-              {isPt ? "POR QUE ESCOLHER?" : "WHY CHOOSE US?"}
+      {/* Benefits */}
+      <section className="py-16 md:py-24">
+        <div className="container mx-auto px-4">
+          <motion.div {...fadeInUp} className="text-center mb-12">
+            <h2 className="text-2xl md:text-4xl font-bold mb-3">
+              {isPt ? "Por Que Escolher?" : "Why Choose Us?"}
             </h2>
           </motion.div>
 
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 md:gap-10">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 max-w-4xl mx-auto">
             {benefits.map((benefit, i) => (
               <motion.div
                 key={i}
-                initial={{ opacity: 0, y: 30 }}
+                initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.1 }}
-                className="text-center group"
+                className="text-center"
               >
-                <motion.div 
-                  className="w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-gradient-to-br from-primary/20 to-orange-500/20 flex items-center justify-center text-primary mx-auto mb-4 group-hover:from-primary group-hover:to-orange-500 group-hover:text-white transition-all"
-                  whileHover={{ scale: 1.1, rotate: 5 }}
-                >
+                <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center text-primary mx-auto mb-3">
                   {benefit.icon}
-                </motion.div>
-                <h3 className="text-lg md:text-xl font-bold text-white mb-2">{benefit.title}</h3>
-                <p className="text-sm text-white/50">{benefit.description}</p>
+                </div>
+                <h3 className="font-semibold mb-1">{benefit.title}</h3>
+                <p className="text-xs text-muted-foreground">{benefit.description}</p>
               </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* How It Works */}
-      <section id="how-it-works" className="py-20 md:py-32 bg-gradient-to-b from-zinc-900 to-black">
-        <div className="container mx-auto px-4 md:px-8">
-          <motion.div {...fadeInUp} className="text-center mb-16">
-            <h2 className="text-3xl md:text-5xl font-black text-white mb-4">
-              {isPt ? "COMO FUNCIONA" : "HOW IT WORKS"}
+      {/* How It Works - Clean cards */}
+      <section className="py-16 md:py-24 bg-muted/30">
+        <div className="container mx-auto px-4">
+          <motion.div {...fadeInUp} className="text-center mb-12">
+            <h2 className="text-2xl md:text-4xl font-bold mb-3">
+              {isPt ? "Como Funciona" : "How It Works"}
             </h2>
           </motion.div>
 
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 max-w-4xl mx-auto">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 max-w-4xl mx-auto">
             {howItWorks.map((step, i) => (
               <motion.div
                 key={i}
-                initial={{ opacity: 0, y: 30 }}
+                initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ delay: i * 0.15 }}
-                className="text-center relative"
+                transition={{ delay: i * 0.1 }}
               >
-                <motion.div 
-                  className="w-14 h-14 md:w-16 md:h-16 rounded-full bg-gradient-to-br from-primary to-orange-500 text-white flex items-center justify-center text-2xl font-black mx-auto mb-4"
-                  whileHover={{ scale: 1.1 }}
-                >
-                  {step.step}
-                </motion.div>
-                {i < howItWorks.length - 1 && (
-                  <ChevronRight className="absolute top-7 -right-1 w-4 h-4 text-white/30 hidden lg:block" />
-                )}
-                <h3 className="text-sm md:text-base font-bold text-white mb-1">{step.title}</h3>
-                <p className="text-xs text-white/50">{step.description}</p>
+                <Card className="h-full text-center border-border/50">
+                  <CardContent className="p-5">
+                    <span className="text-3xl font-bold text-primary/20">{step.step}</span>
+                    <h3 className="font-semibold mt-2 mb-1">{step.title}</h3>
+                    <p className="text-xs text-muted-foreground">{step.description}</p>
+                  </CardContent>
+                </Card>
               </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Testimonials */}
-      <section className="py-20 md:py-32 bg-black">
-        <div className="container mx-auto px-4 md:px-8">
-          <motion.div {...fadeInUp} className="text-center mb-16">
-            <h2 className="text-3xl md:text-5xl font-black text-white mb-4">
-              {isPt ? "DEPOIMENTOS" : "TESTIMONIALS"}
+      {/* Testimonials with real photos */}
+      <section className="py-16 md:py-24">
+        <div className="container mx-auto px-4">
+          <motion.div {...fadeInUp} className="text-center mb-12">
+            <h2 className="text-2xl md:text-4xl font-bold mb-3">
+              {isPt ? "O Que Dizem Nossos Clientes" : "What Our Clients Say"}
             </h2>
           </motion.div>
 
-          <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+          <div className="grid md:grid-cols-3 gap-4 max-w-4xl mx-auto">
             {testimonials.map((testimonial, i) => (
               <motion.div
                 key={i}
-                initial={{ opacity: 0, y: 30 }}
+                initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.1 }}
-                whileHover={{ y: -5 }}
               >
-                <Card className="h-full bg-white/5 border-white/10">
-                  <CardContent className="p-6">
-                    <div className="flex gap-1 mb-4">
+                <Card className="h-full border-border/50">
+                  <CardContent className="p-5">
+                    <div className="flex gap-0.5 mb-3">
                       {[...Array(5)].map((_, j) => (
                         <Star key={j} className="w-4 h-4 fill-primary text-primary" />
                       ))}
                     </div>
-                    <p className="text-white/70 mb-6 italic">"{testimonial.content}"</p>
+                    <p className="text-sm text-muted-foreground mb-4 italic">"{testimonial.content}"</p>
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-orange-500 flex items-center justify-center text-white font-bold text-sm">
-                        {testimonial.avatar}
-                      </div>
+                      <img 
+                        src={testimonial.image} 
+                        alt={testimonial.name}
+                        className="w-10 h-10 rounded-full object-cover"
+                      />
                       <div>
-                        <p className="font-semibold text-white">{testimonial.name}</p>
-                        <p className="text-xs text-white/50">{testimonial.role}</p>
+                        <p className="font-semibold text-sm">{testimonial.name}</p>
+                        <p className="text-xs text-muted-foreground">{testimonial.role}</p>
                       </div>
                     </div>
                   </CardContent>
@@ -458,100 +402,128 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* GodMode Highlight */}
-      <section className="py-20 md:py-32 bg-gradient-to-r from-primary/10 via-orange-500/5 to-transparent overflow-hidden">
-        <div className="container mx-auto px-4 md:px-8">
-          <div className="grid md:grid-cols-2 gap-12 items-center max-w-5xl mx-auto">
+      {/* GodMode - Compact */}
+      <section className="py-12 md:py-16 bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-transparent">
+        <div className="container mx-auto px-4">
+          <div className="flex flex-col md:flex-row items-center gap-8 max-w-4xl mx-auto">
             <motion.div
-              initial={{ opacity: 0, x: -40 }}
+              initial={{ opacity: 0, x: -20 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
+              className="flex-1"
             >
-              <Badge className="mb-4 bg-yellow-500/20 text-yellow-500 border-yellow-500/30">
+              <Badge className="mb-3 bg-amber-500/20 text-amber-600 border-amber-500/30">
                 <Sparkles className="w-3 h-3 mr-1" />
-                {isPt ? "Exclusivo" : "Exclusive"}
+                {isPt ? "Exclusivo Pro" : "Pro Exclusive"}
               </Badge>
-              <h2 className="text-3xl md:text-4xl font-black text-white mb-4">
-                GodMode AI
-              </h2>
-              <p className="text-white/60 mb-6 text-lg">
+              <h3 className="text-xl md:text-2xl font-bold mb-2">GodMode AI</h3>
+              <p className="text-muted-foreground text-sm mb-4">
                 {isPt 
-                  ? "Seu Conselheiro Executivo Operacional. Converse por voz, obtenha insights estratégicos e tome decisões mais inteligentes."
-                  : "Your Operational Executive Advisor. Talk by voice, get strategic insights and make smarter decisions."}
+                  ? "Seu conselheiro executivo por voz. Insights estratégicos em tempo real."
+                  : "Your executive advisor by voice. Real-time strategic insights."}
               </p>
-              <ul className="space-y-3">
+              <ul className="space-y-2">
                 {[
-                  isPt ? "Análise de dados em tempo real" : "Real-time data analysis",
-                  isPt ? "Recomendações personalizadas" : "Personalized recommendations",
+                  isPt ? "Análise de dados" : "Data analysis",
+                  isPt ? "Recomendações" : "Recommendations",
                   isPt ? "Interface por voz" : "Voice interface"
                 ].map((item, i) => (
-                  <li key={i} className="flex items-center gap-3 text-white/80">
-                    <Check className="w-5 h-5 text-primary" />
+                  <li key={i} className="flex items-center gap-2 text-sm">
+                    <Check className="w-4 h-4 text-primary" />
                     {item}
                   </li>
                 ))}
               </ul>
             </motion.div>
             <motion.div
-              initial={{ opacity: 0, x: 40 }}
-              whileInView={{ opacity: 1, x: 0 }}
+              initial={{ opacity: 0, scale: 0.9 }}
+              whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
-              className="relative"
+              className="w-24 h-24 rounded-2xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center shadow-lg"
             >
-              <div className="w-full aspect-square bg-gradient-to-br from-primary/20 to-orange-500/20 rounded-3xl flex items-center justify-center">
-                <motion.div
-                  animate={{ scale: [1, 1.1, 1] }}
-                  transition={{ repeat: Infinity, duration: 3 }}
-                  className="w-32 h-32 rounded-full bg-gradient-to-br from-primary to-orange-500 flex items-center justify-center"
-                >
-                  <Sparkles className="w-16 h-16 text-white" />
-                </motion.div>
-              </div>
+              <Sparkles className="w-10 h-10 text-white" />
             </motion.div>
           </div>
         </div>
       </section>
 
-      {/* Pricing */}
-      <section className="py-20 md:py-32 bg-zinc-900">
-        <div className="container mx-auto px-4 md:px-8">
-          <motion.div {...fadeInUp} className="text-center mb-16">
-            <h2 className="text-3xl md:text-5xl font-black text-white mb-4">
-              {isPt ? "PLANOS" : "PRICING"}
+      {/* Pricing with FREE tier */}
+      <section className="py-16 md:py-24 bg-muted/30">
+        <div className="container mx-auto px-4">
+          <motion.div {...fadeInUp} className="text-center mb-12">
+            <h2 className="text-2xl md:text-4xl font-bold mb-3">
+              {isPt ? "Planos e Preços" : "Plans & Pricing"}
             </h2>
-            <p className="text-white/50 text-lg">
-              {isPt ? "7 dias grátis em qualquer plano" : "7 days free on any plan"}
+            <p className="text-muted-foreground">
+              {isPt ? "Comece grátis, escale quando precisar" : "Start free, scale when you need"}
             </p>
           </motion.div>
 
-          <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+          <div className="grid md:grid-cols-4 gap-4 max-w-5xl mx-auto">
+            {/* FREE Plan */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+            >
+              <Card className="h-full border-border/50">
+                <CardContent className="p-5">
+                  <h3 className="font-bold mb-1">{isPt ? "Grátis" : "Free"}</h3>
+                  <div className="mb-4">
+                    <span className="text-3xl font-bold">$0</span>
+                    <span className="text-muted-foreground text-sm">/{isPt ? "mês" : "mo"}</span>
+                  </div>
+                  <ul className="space-y-2 mb-4">
+                    {freePlanFeatures.map((feature, j) => (
+                      <li key={j} className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <Check className="w-4 h-4 text-primary flex-shrink-0" />
+                        {feature}
+                      </li>
+                    ))}
+                  </ul>
+                  <Button 
+                    onClick={() => navigate("/auth")}
+                    variant="outline"
+                    className="w-full"
+                  >
+                    {isPt ? "Começar" : "Get Started"}
+                  </Button>
+                </CardContent>
+              </Card>
+            </motion.div>
+
+            {/* Paid Plans */}
             {Object.values(SUBSCRIPTION_PLANS).map((plan, i) => (
               <motion.div
                 key={plan.id}
-                initial={{ opacity: 0, y: 30 }}
+                initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
-                whileHover={{ y: -5 }}
+                transition={{ delay: (i + 1) * 0.1 }}
               >
-                <Card className={`h-full ${i === 1 ? 'bg-gradient-to-br from-primary/20 to-orange-500/20 border-primary/50' : 'bg-white/5 border-white/10'}`}>
-                  <CardContent className="p-6">
-                    <h3 className="text-xl font-bold text-white mb-2">{isPt ? plan.name_pt : plan.name_en}</h3>
-                    <div className="mb-6">
-                      <span className="text-4xl font-black text-white">{formatPriceUSD(plan.price)}</span>
-                      <span className="text-white/50 text-sm">/{isPt ? plan.interval === 'year' ? 'ano' : 'mês' : plan.interval === 'year' ? 'yr' : 'mo'}</span>
+                <Card className={`h-full ${i === 1 ? 'border-primary shadow-md' : 'border-border/50'}`}>
+                  <CardContent className="p-5">
+                    {i === 1 && (
+                      <Badge className="mb-2 bg-primary text-primary-foreground">
+                        {isPt ? "Popular" : "Popular"}
+                      </Badge>
+                    )}
+                    <h3 className="font-bold mb-1">{isPt ? plan.name_pt : plan.name_en}</h3>
+                    <div className="mb-4">
+                      <span className="text-3xl font-bold">{formatPriceUSD(plan.price)}</span>
+                      <span className="text-muted-foreground text-sm">/{isPt ? (plan.interval === 'year' ? 'ano' : 'mês') : (plan.interval === 'year' ? 'yr' : 'mo')}</span>
                     </div>
-                    <p className="text-white/60 text-sm mb-6">{isPt ? plan.description_pt : plan.description_en}</p>
+                    <p className="text-xs text-muted-foreground mb-3">{isPt ? plan.description_pt : plan.description_en}</p>
                     {plan.savings && (
-                      <Badge className="mb-4 bg-primary/20 text-primary border-primary/30">
+                      <Badge variant="secondary" className="mb-3">
                         {isPt ? `Economize ${plan.savings}%` : `Save ${plan.savings}%`}
                       </Badge>
                     )}
                     <Button 
                       onClick={() => navigate("/auth")}
-                      className={`w-full ${i === 1 ? 'bg-primary hover:bg-primary/90' : 'bg-white/10 hover:bg-white/20'} text-white`}
+                      className={`w-full ${i === 1 ? '' : 'bg-primary/90'}`}
                     >
-                      {isPt ? "Começar Grátis" : "Start Free"}
+                      {isPt ? "7 Dias Grátis" : "7 Days Free"}
                     </Button>
                   </CardContent>
                 </Card>
@@ -562,43 +534,39 @@ export default function Landing() {
       </section>
 
       {/* Final CTA */}
-      <section className="py-20 md:py-32 bg-gradient-to-t from-primary/20 to-black">
-        <div className="container mx-auto px-4 md:px-8 text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-          >
-            <h2 className="text-4xl md:text-6xl font-black text-white mb-6">
-              {isPt ? "COMECE AGORA" : "START NOW"}
+      <section className="py-16 md:py-24">
+        <div className="container mx-auto px-4 text-center">
+          <motion.div {...fadeInUp}>
+            <h2 className="text-2xl md:text-4xl font-bold mb-4">
+              {isPt ? "Pronto para Começar?" : "Ready to Get Started?"}
             </h2>
-            <p className="text-white/60 text-xl mb-10 max-w-xl mx-auto">
+            <p className="text-muted-foreground mb-8 max-w-lg mx-auto">
               {isPt 
-                ? "Junte-se a milhares de empreendedores que já transformaram seus negócios"
-                : "Join thousands of entrepreneurs who have already transformed their businesses"}
+                ? "Junte-se a empreendedores que já transformaram seus negócios"
+                : "Join entrepreneurs who have already transformed their businesses"}
             </p>
             <Button 
               size="lg" 
               onClick={() => navigate("/auth")} 
-              className="bg-primary hover:bg-primary/90 text-white text-xl px-12 h-16 font-bold rounded-md shadow-2xl shadow-primary/30"
+              className="px-8 h-12"
             >
               {isPt ? "Criar Conta Grátis" : "Create Free Account"}
-              <ArrowRight className="w-6 h-6 ml-3" />
+              <ArrowRight className="w-4 h-4 ml-2" />
             </Button>
           </motion.div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="py-8 bg-black border-t border-white/10">
-        <div className="container mx-auto px-4 md:px-8">
+      <footer className="py-6 border-t border-border">
+        <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-2">
               <Logo className="w-6 h-6" />
-              <span className="font-bold text-white">ECOSYSTEM</span>
+              <span className="font-semibold">Architecta</span>
             </div>
-            <p className="text-white/40 text-sm">
-              © 2026 Ecosystem Hub. {isPt ? "Todos os direitos reservados." : "All rights reserved."}
+            <p className="text-muted-foreground text-sm">
+              © 2026 Architecta. {isPt ? "Todos os direitos reservados." : "All rights reserved."}
             </p>
           </div>
         </div>
