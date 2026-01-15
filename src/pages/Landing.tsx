@@ -182,7 +182,7 @@ export default function Landing() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background via-background to-muted/30 overflow-x-hidden">
+    <div className="min-h-screen bg-gradient-to-b from-background via-background to-muted/30 overflow-x-hidden overflow-y-auto">
       {/* Header with Language Toggle */}
       <header className="sticky top-0 z-50 backdrop-blur-xl bg-background/80 border-b border-border/40">
         <div className="container mx-auto px-4 py-3 flex items-center justify-between">
