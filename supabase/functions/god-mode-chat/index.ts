@@ -695,18 +695,19 @@ serve(async (req) => {
             
             case "navigate_to": {
               const pageMap: Record<string, string> = {
-                home: "/",
+                home: "/home",
                 empresas: "/empresas",
                 dinheiro: "/dinheiro",
                 documentos: "/documentos",
                 assistente: "/assistente",
                 configuracoes: "/configuracoes",
                 admin: "/admin/tenants",
+                billing: "/billing",
               };
               result = { 
                 success: true, 
                 message: `Navigating to ${args.page}...`,
-                navigate: pageMap[args.page] || "/"
+                navigate: pageMap[args.page] || "/home"
               };
               executedActions.push({ type: "navigate", path: pageMap[args.page] });
               break;

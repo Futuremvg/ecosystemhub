@@ -55,7 +55,7 @@ export default function Auth() {
   useEffect(() => {
     // Don't redirect if in reset mode (user needs to set new password)
     if (user && !loading && !isResetMode) {
-      navigate("/");
+      navigate("/home");
     }
   }, [user, loading, navigate, isResetMode]);
 
@@ -181,7 +181,7 @@ export default function Auth() {
     try {
       const result = await updatePassword(newPassword);
       if (result.success) {
-        navigate("/");
+        navigate("/home");
       }
     } finally {
       setIsSubmitting(false);

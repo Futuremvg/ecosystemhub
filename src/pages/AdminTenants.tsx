@@ -113,7 +113,7 @@ export default function AdminTenants() {
   useEffect(() => {
     if (!tenantLoading && !isSuperAdmin && user) {
       toast.error(t("admin.accessDenied"));
-      navigate("/");
+      navigate("/home");
     }
   }, [isSuperAdmin, tenantLoading, navigate, user, t]);
 
