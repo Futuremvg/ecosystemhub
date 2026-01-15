@@ -180,41 +180,53 @@ export function SettingsPanel() {
           </TooltipContent>
         </Tooltip>
 
-        {/* Currency Selector */}
-        <div className="flex items-center gap-1">
-          <Coins className="w-3 h-3 text-muted-foreground hidden sm:block" />
-          <Select value={currency} onValueChange={setCurrency}>
-            <SelectTrigger className="w-[55px] sm:w-[90px] h-7 sm:h-8 text-[10px] sm:text-xs px-1.5 sm:px-2">
-              <span className="hidden sm:inline">{language.startsWith("pt") ? "Moeda: " : "Currency: "}</span>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent className="bg-popover">
-              {currencies.map((c) => (
-                <SelectItem key={c.value} value={c.value}>
-                  {c.value}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+        {/* Currency Selector - Icon only with tooltip */}
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <div className="flex items-center">
+              <Select value={currency} onValueChange={setCurrency}>
+                <SelectTrigger className="w-[60px] sm:w-[70px] h-7 sm:h-8 text-[10px] sm:text-xs px-1.5 sm:px-2 gap-1">
+                  <Coins className="w-3 h-3 text-muted-foreground shrink-0" />
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-popover">
+                  {currencies.map((c) => (
+                    <SelectItem key={c.value} value={c.value}>
+                      {c.symbol} {c.value}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>{language.startsWith("pt") ? "Moeda" : "Currency"}</p>
+          </TooltipContent>
+        </Tooltip>
 
-        {/* Language Selector */}
-        <div className="flex items-center gap-1">
-          <Globe className="w-3 h-3 text-muted-foreground hidden sm:block" />
-          <Select value={language} onValueChange={setLanguage}>
-            <SelectTrigger className="w-[65px] sm:w-[95px] h-7 sm:h-8 text-[10px] sm:text-xs px-1.5 sm:px-2">
-              <span className="hidden sm:inline">{language.startsWith("pt") ? "Idioma: " : "Lang: "}</span>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent className="bg-popover">
-              {languages.map((l) => (
-                <SelectItem key={l.value} value={l.value}>
-                  {l.flag} {l.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+        {/* Language Selector - Icon only with tooltip */}
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <div className="flex items-center">
+              <Select value={language} onValueChange={setLanguage}>
+                <SelectTrigger className="w-[55px] sm:w-[65px] h-7 sm:h-8 text-[10px] sm:text-xs px-1.5 sm:px-2 gap-1">
+                  <Globe className="w-3 h-3 text-muted-foreground shrink-0" />
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-popover">
+                  {languages.map((l) => (
+                    <SelectItem key={l.value} value={l.value}>
+                      {l.flag} {l.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>{language.startsWith("pt") ? "Idioma" : "Language"}</p>
+          </TooltipContent>
+        </Tooltip>
       </div>
 
       {/* Confirmation Dialog */}

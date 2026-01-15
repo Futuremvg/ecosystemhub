@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { Send, Mic, MicOff, X, Sparkles, Edit3, Plus, Paperclip, FileSpreadsheet, Image, File } from "lucide-react";
+import { Send, Mic, MicOff, X, Sparkles, Edit3, Plus, Paperclip, FileSpreadsheet, Image, File, History, MessageSquare, ChevronLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Textarea } from "@/components/ui/textarea";
@@ -15,6 +15,13 @@ interface Message {
   timestamp: Date;
 }
 
+interface Conversation {
+  id: string;
+  title: string;
+  lastMessage: Date;
+  messageCount: number;
+}
+
 interface FloatingChatProps {
   messages: Message[];
   isLoading: boolean;
@@ -26,6 +33,10 @@ interface FloatingChatProps {
   transcription?: string;
   onClearTranscription?: () => void;
   onClearHistory?: () => void;
+  conversations?: Conversation[];
+  onSelectConversation?: (id: string) => void;
+  onNewConversation?: () => void;
+  currentConversationId?: string;
 }
 
 export function FloatingChat({
@@ -39,8 +50,13 @@ export function FloatingChat({
   transcription,
   onClearTranscription,
   onClearHistory,
+  conversations = [],
+  onSelectConversation,
+  onNewConversation,
+  currentConversationId,
 }: FloatingChatProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [showHistory, setShowHistory] = useState(false);
   const [input, setInput] = useState("");
   const [attachedFile, setAttachedFile] = useState<File | null>(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -269,14 +285,29 @@ export function FloatingChat({
             </div>
           </div>
           <div className="flex items-center gap-1">
-            {/* New conversation button */}
-            {messages.length > 0 && onClearHistory && (
+            {/* History button */}
+            {conversations.length > 0 && (
               <Button
                 variant="ghost"
                 size="icon"
                 className="h-8 w-8 text-muted-foreground hover:text-foreground"
-                onClick={onClearHistory}
-                title={t("common.newConversation")}
+                onClick={() => setShowHistory(!showHistory)}
+                title={t("common.history") || "History"}
+              >
+                <History className="w-4 h-4" />
+              </Button>
+            )}
+            {/* New conversation button */}
+            {onNewConversation && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                onClick={() => {
+                  onNewConversation();
+                  setShowHistory(false);
+                }}
+                title={t("common.newConversation") || "New conversation"}
               >
                 <Plus className="w-4 h-4" />
               </Button>
@@ -291,6 +322,47 @@ export function FloatingChat({
             </Button>
           </div>
         </div>
+
+        {/* History Panel - Slide-over style */}
+        {showHistory && conversations.length > 0 && (
+          <div className="absolute inset-0 z-40 bg-card flex flex-col animate-fade-in">
+            <div className="flex items-center gap-2 p-4 border-b border-border">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8"
+                onClick={() => setShowHistory(false)}
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </Button>
+              <h3 className="font-semibold text-sm">{t("common.history") || "Conversations"}</h3>
+            </div>
+            <div className="flex-1 overflow-y-auto p-2">
+              {conversations.map((conv) => (
+                <button
+                  key={conv.id}
+                  onClick={() => {
+                    onSelectConversation?.(conv.id);
+                    setShowHistory(false);
+                  }}
+                  className={cn(
+                    "w-full flex items-start gap-3 p-3 rounded-lg text-left transition-colors",
+                    "hover:bg-muted/50",
+                    currentConversationId === conv.id && "bg-muted"
+                  )}
+                >
+                  <MessageSquare className="w-4 h-4 text-muted-foreground shrink-0 mt-0.5" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-foreground truncate">{conv.title}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {conv.messageCount} {t("common.messages") || "messages"} • {conv.lastMessage.toLocaleDateString()}
+                    </p>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Drag overlay */}
         {isDragging && (

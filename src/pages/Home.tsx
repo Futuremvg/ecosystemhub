@@ -428,7 +428,7 @@ export default function Home() {
             {t("home.profitLoss") || "Profit & Loss"}
           </h2>
           
-          <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
+          <div className="grid gap-3 grid-cols-1 sm:grid-cols-3">
             {/* Monthly Income Card */}
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
