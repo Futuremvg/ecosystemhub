@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback, useLayoutEffect } from "react";
 import { Send, Mic, MicOff, Volume2, VolumeX } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -62,17 +62,32 @@ export function GodChat({
     }
   }, [transcription, onClearTranscription]);
 
-  // Auto-scroll to bottom when new messages arrive
-  useEffect(() => {
-    setTimeout(() => {
+  // Auto-scroll function - more reliable approach
+  const scrollToBottom = useCallback((behavior: ScrollBehavior = 'smooth') => {
+    requestAnimationFrame(() => {
       if (scrollRef.current) {
         scrollRef.current.scrollTo({
           top: scrollRef.current.scrollHeight,
-          behavior: 'smooth'
+          behavior
         });
       }
-    }, 100);
-  }, [messages, isLoading]);
+    });
+  }, []);
+
+  // Auto-scroll when messages change
+  useLayoutEffect(() => {
+    if (messages.length > 0) {
+      const timer = setTimeout(() => scrollToBottom('smooth'), 150);
+      return () => clearTimeout(timer);
+    }
+  }, [messages.length, scrollToBottom]);
+
+  // Also scroll when loading state changes
+  useEffect(() => {
+    if (isLoading) {
+      scrollToBottom('smooth');
+    }
+  }, [isLoading, scrollToBottom]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -104,10 +119,13 @@ export function GodChat({
       {/* Messages - use native scrollable div for reliable scrolling */}
       <div 
         ref={scrollRef}
-        className="flex-1 px-4 overflow-y-auto"
-        style={{ overscrollBehavior: 'contain' }}
+        className="flex-1 px-4 overflow-y-auto scroll-smooth"
+        style={{ 
+          overscrollBehavior: 'contain',
+          WebkitOverflowScrolling: 'touch'
+        }}
       >
-        <div className="space-y-4 pb-4">
+        <div className="space-y-4 pb-4 pt-2">
           {messages.length === 0 ? (
             <div className="text-center py-8">
               <p className="text-muted-foreground text-sm">
@@ -154,6 +172,9 @@ export function GodChat({
               </div>
             </div>
           )}
+          
+          {/* Invisible anchor for scroll */}
+          <div aria-hidden="true" className="h-1" />
         </div>
       </div>
 
