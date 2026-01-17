@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback, useLayoutEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Send, Mic, MicOff, X, Sparkles, Edit3, Plus, Paperclip, FileSpreadsheet, Image, File, History, MessageSquare, ChevronLeft, Maximize2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -87,17 +87,32 @@ export function FloatingChat({
     }
   }, [transcription, onClearTranscription]);
 
-  // Auto-scroll to bottom when new messages arrive
-  useEffect(() => {
-    setTimeout(() => {
+  // Auto-scroll function - more reliable approach
+  const scrollToBottom = useCallback((behavior: ScrollBehavior = 'smooth') => {
+    requestAnimationFrame(() => {
       if (scrollRef.current) {
         scrollRef.current.scrollTo({
           top: scrollRef.current.scrollHeight,
-          behavior: 'smooth'
+          behavior
         });
       }
-    }, 100);
-  }, [messages, isLoading]);
+    });
+  }, []);
+
+  // Auto-scroll when messages change
+  useLayoutEffect(() => {
+    if (messages.length > 0) {
+      const timer = setTimeout(() => scrollToBottom('smooth'), 150);
+      return () => clearTimeout(timer);
+    }
+  }, [messages.length, scrollToBottom]);
+
+  // Also scroll when loading state changes
+  useEffect(() => {
+    if (isLoading) {
+      scrollToBottom('smooth');
+    }
+  }, [isLoading, scrollToBottom]);
 
   useEffect(() => {
     if (isOpen && textareaRef.current) {
@@ -390,8 +405,11 @@ export function FloatingChat({
         {/* Messages - use native scrollable div for reliable scrolling */}
         <div 
           ref={scrollRef}
-          className="flex-1 p-4 overflow-y-auto"
-          style={{ overscrollBehavior: 'contain' }}
+          className="flex-1 p-4 overflow-y-auto scroll-smooth"
+          style={{ 
+            overscrollBehavior: 'contain',
+            WebkitOverflowScrolling: 'touch'
+          }}
         >
           <div className="space-y-4">
             {messages.length === 0 ? (
@@ -446,6 +464,9 @@ export function FloatingChat({
                 </div>
               </div>
             )}
+            
+            {/* Invisible anchor for scroll */}
+            <div aria-hidden="true" className="h-1" />
           </div>
         </div>
 

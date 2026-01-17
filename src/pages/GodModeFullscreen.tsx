@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback, useLayoutEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useGodMode } from "@/hooks/useGodMode";
@@ -93,17 +93,35 @@ export default function GodModeFullscreen() {
     }
   }, [transcription, clearTranscription]);
 
-  // Auto-scroll
-  useEffect(() => {
-    setTimeout(() => {
+  // Auto-scroll function - more reliable approach
+  const scrollToBottom = useCallback((behavior: ScrollBehavior = 'smooth') => {
+    // Use requestAnimationFrame to ensure DOM is updated before scrolling
+    requestAnimationFrame(() => {
       if (scrollRef.current) {
-        scrollRef.current.scrollTo({
-          top: scrollRef.current.scrollHeight,
-          behavior: 'smooth'
+        const scrollElement = scrollRef.current;
+        scrollElement.scrollTo({
+          top: scrollElement.scrollHeight,
+          behavior
         });
       }
-    }, 100);
-  }, [messages, isLoading]);
+    });
+  }, []);
+
+  // Auto-scroll when messages change
+  useLayoutEffect(() => {
+    if (messages.length > 0) {
+      // Small delay to account for framer-motion animation
+      const timer = setTimeout(() => scrollToBottom('smooth'), 150);
+      return () => clearTimeout(timer);
+    }
+  }, [messages.length, scrollToBottom]);
+
+  // Also scroll when loading state changes (for typing indicator)
+  useEffect(() => {
+    if (isLoading) {
+      scrollToBottom('smooth');
+    }
+  }, [isLoading, scrollToBottom]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -321,15 +339,28 @@ export default function GodModeFullscreen() {
             {/* Messages */}
             <div 
               ref={scrollRef}
-              className="flex-1 overflow-y-auto px-4"
-              style={{ overscrollBehavior: 'contain' }}
+              className="flex-1 overflow-y-auto px-4 scroll-smooth"
+              style={{ 
+                overscrollBehavior: 'contain',
+                WebkitOverflowScrolling: 'touch'
+              }}
             >
-              <div className="max-w-2xl mx-auto space-y-4 pb-4">
-                {messages.map((message) => (
+              <div className="max-w-2xl mx-auto space-y-4 pb-6 pt-2">
+                {messages.map((message, index) => (
                   <motion.div
                     key={message.id}
-                    initial={{ opacity: 0, y: 20 }}
+                    initial={{ opacity: 0, y: 15 }}
                     animate={{ opacity: 1, y: 0 }}
+                    transition={{ 
+                      duration: 0.25,
+                      delay: index === messages.length - 1 ? 0.05 : 0
+                    }}
+                    onAnimationComplete={() => {
+                      // Ensure scroll after animation completes for the last message
+                      if (index === messages.length - 1) {
+                        scrollToBottom('smooth');
+                      }
+                    }}
                     className={cn(
                       "flex gap-3",
                       message.role === "user" ? "justify-end" : "justify-start"
@@ -337,14 +368,14 @@ export default function GodModeFullscreen() {
                   >
                     <div
                       className={cn(
-                        "max-w-[85%] rounded-2xl px-4 py-3",
+                        "max-w-[85%] rounded-2xl px-4 py-3 shadow-sm",
                         message.role === "user"
                           ? "bg-primary text-primary-foreground"
-                          : "bg-white/10 text-white"
+                          : "bg-white/10 text-white backdrop-blur-sm"
                       )}
                     >
-                      <p className="text-sm whitespace-pre-wrap">{message.content}</p>
-                      <p className="text-[10px] opacity-50 mt-1">
+                      <p className="text-sm whitespace-pre-wrap leading-relaxed">{message.content}</p>
+                      <p className="text-[10px] opacity-50 mt-1.5">
                         {new Date(message.timestamp).toLocaleTimeString(language, {
                           hour: "2-digit",
                           minute: "2-digit",
@@ -355,16 +386,23 @@ export default function GodModeFullscreen() {
                 ))}
 
                 {isLoading && (
-                  <div className="flex justify-start">
-                    <div className="bg-white/10 rounded-2xl px-4 py-3">
+                  <motion.div 
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="flex justify-start"
+                  >
+                    <div className="bg-white/10 rounded-2xl px-4 py-3 backdrop-blur-sm">
                       <div className="flex gap-1.5">
                         <div className="w-2 h-2 rounded-full bg-primary animate-bounce" />
-                        <div className="w-2 h-2 rounded-full bg-primary animate-bounce [animation-delay:0.2s]" />
-                        <div className="w-2 h-2 rounded-full bg-primary animate-bounce [animation-delay:0.4s]" />
+                        <div className="w-2 h-2 rounded-full bg-primary animate-bounce [animation-delay:0.15s]" />
+                        <div className="w-2 h-2 rounded-full bg-primary animate-bounce [animation-delay:0.3s]" />
                       </div>
                     </div>
-                  </div>
+                  </motion.div>
                 )}
+                
+                {/* Invisible anchor element for reliable scroll-to-bottom */}
+                <div aria-hidden="true" className="h-1" />
               </div>
             </div>
           </div>
