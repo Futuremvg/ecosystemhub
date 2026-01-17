@@ -267,8 +267,8 @@ export default function GodModeFullscreen() {
         )}
       </AnimatePresence>
 
-      {/* Main Content */}
-      <div className="relative z-10 flex-1 flex flex-col">
+      {/* Main Content - min-h-0 allows flex children to scroll properly */}
+      <div className="relative z-10 flex-1 flex flex-col min-h-0">
         {/* Radio Waves Visual - Center when no messages */}
         {messages.length === 0 ? (
           <div className="flex-1 flex flex-col items-center justify-center">
@@ -316,9 +316,9 @@ export default function GodModeFullscreen() {
           </div>
         ) : (
           /* Chat Messages */
-          <div className="flex-1 flex flex-col">
-            {/* Compact Radio Waves Header */}
-            <div className="flex flex-col items-center py-4">
+          <div className="flex-1 flex flex-col min-h-0">
+            {/* Compact Radio Waves Header - shrink-0 to prevent it from growing */}
+            <div className="flex flex-col items-center py-4 shrink-0">
               <button
                 onClick={handleVoiceClick}
                 className="relative cursor-pointer transition-transform hover:scale-105 active:scale-95"
@@ -336,10 +336,10 @@ export default function GodModeFullscreen() {
               )}
             </div>
 
-            {/* Messages */}
+            {/* Messages - min-h-0 is critical for flex scroll to work */}
             <div 
               ref={scrollRef}
-              className="flex-1 overflow-y-auto px-4 scroll-smooth"
+              className="flex-1 min-h-0 overflow-y-auto px-4 scroll-smooth"
               style={{ 
                 overscrollBehavior: 'contain',
                 WebkitOverflowScrolling: 'touch'
@@ -408,8 +408,8 @@ export default function GodModeFullscreen() {
           </div>
         )}
 
-        {/* Input Area */}
-        <div className="p-4 border-t border-white/10 bg-sidebar/80 backdrop-blur-xl">
+        {/* Input Area - shrink-0 prevents compression */}
+        <div className="shrink-0 p-4 border-t border-white/10 bg-sidebar/80 backdrop-blur-xl">
           <form onSubmit={handleSubmit} className="flex gap-2 max-w-2xl mx-auto">
             <Button
               type="button"
