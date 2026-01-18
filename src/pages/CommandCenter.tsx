@@ -1,193 +1,125 @@
-import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { useAgents } from '@/hooks/useAgents';
 import { 
-  Zap, 
-  AlertTriangle, 
+  Shield, 
   Activity, 
-  CheckSquare, 
-  TrendingUp, 
-  Rocket,
-  PauseCircle,
-  PlayCircle,
-  Settings,
-  Bell,
-  RefreshCw
+  Cpu, 
+  Lock, 
+  Zap,
+  ChevronLeft
 } from 'lucide-react';
-import { useAuth } from '@/hooks/useAuth';
-import { Button } from '@/components/ui/button';
-import { BriefingWidget } from '@/components/command-center/BriefingWidget';
-import { AlertsWidget } from '@/components/command-center/AlertsWidget';
-import { TimelineWidget } from '@/components/command-center/TimelineWidget';
-import { TasksWidget } from '@/components/command-center/TasksWidget';
-import { CashFlowChart } from '@/components/command-center/CashFlowChart';
-import { QuickActionsWidget } from '@/components/command-center/QuickActionsWidget';
-import { supabase } from '@/integrations/supabase/client';
+import { useNavigate } from 'react-router-dom';
 
 export default function CommandCenter() {
+  const { healthScore, lastActivity, isProcessing } = useAgents();
   const navigate = useNavigate();
-  const { user, loading } = useAuth();
-  const [automationPaused, setAutomationPaused] = useState(false);
-  const [isRefreshing, setIsRefreshing] = useState(false);
-
-  useEffect(() => {
-    if (!loading && !user) {
-      navigate('/auth');
-    }
-  }, [user, loading, navigate]);
-
-  const handleToggleAutomation = async () => {
-    setAutomationPaused(!automationPaused);
-    // TODO: Update tenant automation_paused in database
-  };
-
-  const handleRefresh = async () => {
-    setIsRefreshing(true);
-    // Simulate refresh
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    setIsRefreshing(false);
-  };
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-sidebar flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-neon-cyan" />
-      </div>
-    );
-  }
-
-  if (!user) return null;
 
   return (
-    <div className="min-h-screen bg-sidebar text-sidebar-foreground">
+    <div className="min-h-screen w-full flex flex-col bg-transparent text-white font-light">
       {/* Header */}
-      <header className="sticky top-0 z-50 border-b border-white/10 bg-sidebar/95 backdrop-blur-xl">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <motion.div
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                className="relative"
-              >
-                <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-neon-cyan via-neon-purple to-neon-rose flex items-center justify-center">
-                  <Zap className="w-5 h-5 text-white" />
-                </div>
-                <div className="absolute -top-1 -right-1 w-3 h-3 bg-neon-cyan rounded-full animate-pulse" />
-              </motion.div>
-              <div>
-                <h1 className="text-xl font-bold bg-gradient-to-r from-neon-cyan via-white to-neon-rose bg-clip-text text-transparent">
-                  Command Center
-                </h1>
-                <p className="text-xs text-muted-foreground">Mission Control • Autonomous Operations</p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleRefresh}
-                className="text-muted-foreground hover:text-neon-cyan"
-              >
-                <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-muted-foreground hover:text-neon-amber"
-              >
-                <Bell className="w-4 h-4" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => navigate('/configuracoes')}
-                className="text-muted-foreground hover:text-white"
-              >
-                <Settings className="w-4 h-4" />
-              </Button>
-              <Button
-                variant={automationPaused ? "outline" : "ghost"}
-                size="sm"
-                onClick={handleToggleAutomation}
-                className={automationPaused 
-                  ? "border-neon-rose/50 text-neon-rose hover:bg-neon-rose/10" 
-                  : "text-neon-cyan hover:bg-neon-cyan/10"
-                }
-              >
-                {automationPaused ? (
-                  <>
-                    <PlayCircle className="w-4 h-4 mr-1" />
-                    Resume
-                  </>
-                ) : (
-                  <>
-                    <PauseCircle className="w-4 h-4 mr-1" />
-                    Pause AI
-                  </>
-                )}
-              </Button>
-            </div>
+      <header className="z-50 flex items-center justify-between px-8 py-6 border-b border-white/5 backdrop-blur-md">
+        <div className="flex items-center gap-4">
+          <button 
+            onClick={() => navigate('/')}
+            className="p-2 hover:bg-white/5 rounded-full transition-colors"
+          >
+            <ChevronLeft className="w-5 h-5 opacity-50" />
+          </button>
+          <div className="flex items-center gap-3">
+            <Cpu className="w-5 h-5 text-primary" />
+            <h1 className="text-sm uppercase tracking-[0.3em]">Core Operations</h1>
+          </div>
+        </div>
+        
+        <div className="flex items-center gap-6">
+          <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20">
+            <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+            <span className="text-[10px] uppercase tracking-widest text-primary">Live Engine</span>
           </div>
         </div>
       </header>
 
-      {/* Main Grid */}
-      <main className="container mx-auto px-4 py-6">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-          {/* Left Column - Briefing + Timeline */}
-          <div className="lg:col-span-2 space-y-4">
-            <BriefingWidget />
-            <TimelineWidget />
-          </div>
+      {/* Grid Layout */}
+      <main className="flex-1 p-8 grid grid-cols-12 gap-6">
+        {/* Left Column: System Status */}
+        <div className="col-span-12 lg:col-span-4 space-y-6">
+          <div className="glass-panel p-6 rounded-2xl space-y-8">
+            <div className="flex items-center justify-between">
+              <span className="text-xs uppercase tracking-widest opacity-40">System Integrity</span>
+              <Shield className="w-4 h-4 text-primary opacity-50" />
+            </div>
+            
+            <div className="flex flex-col items-center py-4">
+              <div className="text-5xl font-extralight tracking-tighter mb-2">{healthScore}%</div>
+              <div className="w-full h-1 bg-white/5 rounded-full overflow-hidden">
+                <motion.div 
+                  initial={{ width: 0 }}
+                  animate={{ width: `${healthScore}%` }}
+                  className="h-full bg-primary"
+                />
+              </div>
+            </div>
 
-          {/* Right Column - Alerts */}
-          <div className="space-y-4">
-            <AlertsWidget />
-          </div>
-
-          {/* Bottom Row - Tasks + Cash Flow + Quick Actions */}
-          <div className="lg:col-span-2">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <TasksWidget />
-              <CashFlowChart />
+            <div className="space-y-4">
+              {[
+                { label: 'Encryption', status: 'AES-256', icon: Lock },
+                { label: 'Agent Sync', status: 'Optimal', icon: Activity },
+                { label: 'Latency', status: '12ms', icon: Zap }
+              ].map((stat) => (
+                <div key={stat.label} className="flex items-center justify-between py-2 border-b border-white/5">
+                  <div className="flex items-center gap-3 opacity-40">
+                    <stat.icon className="w-3 h-3" />
+                    <span className="text-[10px] uppercase tracking-widest">{stat.label}</span>
+                  </div>
+                  <span className="text-xs">{stat.status}</span>
+                </div>
+              ))}
             </div>
           </div>
+        </div>
 
-          <div>
-            <QuickActionsWidget />
+        {/* Right Column: Agent Activity Feed */}
+        <div className="col-span-12 lg:col-span-8">
+          <div className="glass-panel h-full rounded-2xl flex flex-col overflow-hidden">
+            <div className="p-6 border-b border-white/5 flex items-center justify-between">
+              <span className="text-xs uppercase tracking-widest opacity-40">Active Agent Briefing</span>
+              {isProcessing && <Activity className="w-4 h-4 text-primary animate-spin" />}
+            </div>
+            
+            <div className="flex-1 p-6 space-y-6 overflow-y-auto">
+              <motion.div 
+                key={lastActivity.timestamp.getTime()}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="p-4 rounded-xl bg-white/5 border border-white/10"
+              >
+                <div className="flex items-center gap-3 mb-2">
+                  <span className="text-[10px] uppercase tracking-widest text-primary">{lastActivity.agent}</span>
+                  <span className="text-[10px] opacity-30">{lastActivity.timestamp.toLocaleTimeString()}</span>
+                </div>
+                <p className="text-sm opacity-80 leading-relaxed">
+                  {lastActivity.status}. The system is currently performing background optimization and cross-referencing all data nodes.
+                </p>
+              </motion.div>
+
+              {/* Placeholder for history */}
+              <div className="opacity-20 space-y-6">
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="p-4 rounded-xl border border-white/5">
+                    <div className="h-2 w-24 bg-white/20 rounded mb-3" />
+                    <div className="h-2 w-full bg-white/10 rounded" />
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </main>
 
-      {/* Status Bar */}
-      <footer className="fixed bottom-0 left-0 right-0 border-t border-white/10 bg-sidebar/95 backdrop-blur-xl py-2 px-4">
-        <div className="container mx-auto flex items-center justify-between text-xs">
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-1.5">
-              <div className={`w-2 h-2 rounded-full ${automationPaused ? 'bg-neon-rose' : 'bg-neon-cyan animate-pulse'}`} />
-              <span className="text-muted-foreground">
-                {automationPaused ? 'Automations Paused' : 'Autopilot Active'}
-              </span>
-            </div>
-            <div className="flex items-center gap-1.5 text-muted-foreground">
-              <Activity className="w-3 h-3" />
-              <span>3 agents running</span>
-            </div>
-          </div>
-          <div className="flex items-center gap-4 text-muted-foreground">
-            <span>Last sync: 2 min ago</span>
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              className="h-6 text-xs text-neon-cyan hover:text-neon-cyan/80"
-              onClick={() => navigate('/home')}
-            >
-              ← Back to Dashboard
-            </Button>
-          </div>
-        </div>
+      {/* Footer Status */}
+      <footer className="px-8 py-4 border-t border-white/5 text-[10px] uppercase tracking-[0.2em] opacity-30 flex justify-between">
+        <span>Architecta God Mode Engine v2.0</span>
+        <span>All agents operational</span>
       </footer>
     </div>
   );
