@@ -62,6 +62,12 @@ export default {
           "gold-glow": "hsl(var(--god-gold-glow))",
           "gold-dark": "hsl(var(--god-gold-dark))",
         },
+        neon: {
+          cyan: "hsl(var(--neon-cyan))",
+          amber: "hsl(var(--neon-amber))",
+          rose: "hsl(var(--neon-rose))",
+          purple: "hsl(var(--neon-purple))",
+        },
         priority: {
           critical: "hsl(var(--priority-critical))",
           high: "hsl(var(--priority-high))",

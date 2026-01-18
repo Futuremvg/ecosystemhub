@@ -37,14 +37,20 @@
     --god-gold-glow: 45 95% 55%;
     --god-gold-dark: 40 85% 38%;
     
+    /* Command Center Neon Colors */
+    --neon-cyan: 187 100% 50%;
+    --neon-amber: 38 92% 50%;
+    --neon-rose: 350 89% 60%;
+    --neon-purple: 270 91% 65%;
+    
     /* Priority colors */
-    --priority-critical: 0 72% 51%;
-    --priority-high: 25 95% 53%;
+    --priority-critical: 350 89% 60%;
+    --priority-high: 38 92% 50%;
     --priority-medium: 45 90% 48%;
-    --priority-low: 142 71% 45%;
+    --priority-low: 187 100% 50%;
 
     /* Financial colors */
-    --financial-positive: 142 71% 45%;
+    --financial-positive: 187 100% 50%;
     --financial-negative: 0 72% 51%;
 
     --destructive: 0 72% 51%;
