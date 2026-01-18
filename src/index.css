@@ -2,129 +2,53 @@
 @tailwind components;
 @tailwind utilities;
 
-/* QuickBooks-Inspired Clean Design */
+/* Clean God Mode - Elite & Minimalist Design */
 
 @layer base {
-  /* Light theme (default) - QuickBooks style */
   :root {
-    /* Clean white backgrounds */
-    --background: 0 0% 98%;
-    --foreground: 210 20% 16%;
+    /* Deep Slate/Black Aesthetic */
+    --background: 222 47% 4%;
+    --foreground: 210 40% 98%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 210 20% 16%;
+    --card: 222 47% 6%;
+    --card-foreground: 210 40% 98%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 210 20% 16%;
+    --popover: 222 47% 5%;
+    --popover-foreground: 210 40% 98%;
 
-    /* Primary - QuickBooks Green #2CA01C */
-    --primary: 113 75% 37%;
-    --primary-foreground: 0 0% 100%;
+    /* Primary - Sophisticated Cyan */
+    --primary: 187 100% 50%;
+    --primary-foreground: 222 47% 4%;
 
-    /* Secondary - Light gray */
-    --secondary: 210 15% 95%;
-    --secondary-foreground: 210 20% 16%;
+    /* Secondary - Muted Slate */
+    --secondary: 217 32% 17%;
+    --secondary-foreground: 210 40% 98%;
 
-    --muted: 210 12% 93%;
-    --muted-foreground: 210 10% 45%;
+    --muted: 217 32% 12%;
+    --muted-foreground: 215 20% 65%;
 
-    /* Accent - QuickBooks Green */
-    --accent: 113 75% 37%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 187 100% 50%;
+    --accent-foreground: 222 47% 4%;
 
-    /* God Mode - keeping gold for special emphasis */
-    --god-gold: 45 90% 48%;
-    --god-gold-glow: 45 95% 55%;
-    --god-gold-dark: 40 85% 38%;
-    
-    /* Command Center Neon Colors */
-    --neon-cyan: 187 100% 50%;
-    --neon-amber: 38 92% 50%;
-    --neon-rose: 350 89% 60%;
-    --neon-purple: 270 91% 65%;
-    
-    /* Priority colors */
-    --priority-critical: 350 89% 60%;
-    --priority-high: 38 92% 50%;
-    --priority-medium: 45 90% 48%;
-    --priority-low: 187 100% 50%;
+    --destructive: 0 62% 30%;
+    --destructive-foreground: 210 40% 98%;
 
-    /* Financial colors */
-    --financial-positive: 187 100% 50%;
-    --financial-negative: 0 72% 51%;
+    /* Glassmorphism Borders */
+    --border: 217 32% 17% / 0.4;
+    --input: 217 32% 17% / 0.4;
+    --ring: 187 100% 50% / 0.3;
 
-    --destructive: 0 72% 51%;
-    --destructive-foreground: 0 0% 100%;
+    --radius: 0.75rem;
 
-    --border: 210 15% 89%;
-    --input: 210 15% 89%;
-    --ring: 113 75% 37%;
-
-    --radius: 0.5rem;
-
-    /* Sidebar - Dark contrast like QuickBooks */
-    --sidebar-background: 210 25% 12%;
-    --sidebar-foreground: 0 0% 96%;
-    --sidebar-primary: 113 75% 50%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 210 20% 18%;
-    --sidebar-accent-foreground: 0 0% 96%;
-    --sidebar-border: 210 20% 20%;
-    --sidebar-ring: 113 75% 50%;
-
-    /* Clean shadows */
-    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.07);
-    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.08);
-    --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1);
-    --shadow-glow: 0 0 20px hsl(113 75% 37% / 0.15);
-    --shadow-god: 0 0 24px hsl(45 90% 48% / 0.25);
-  }
-
-  /* Dark theme */
-  .dark {
-    --background: 210 20% 10%;
-    --foreground: 0 0% 96%;
-
-    --card: 210 18% 13%;
-    --card-foreground: 0 0% 96%;
-
-    --popover: 210 18% 13%;
-    --popover-foreground: 0 0% 96%;
-
-    --primary: 113 75% 50%;
-    --primary-foreground: 210 20% 10%;
-
-    --secondary: 210 15% 18%;
-    --secondary-foreground: 0 0% 94%;
-
-    --muted: 210 12% 16%;
-    --muted-foreground: 210 8% 55%;
-
-    --accent: 113 75% 50%;
-    --accent-foreground: 210 20% 10%;
-
-    --destructive: 0 65% 50%;
-    --destructive-foreground: 0 0% 100%;
-
-    --border: 210 12% 20%;
-    --input: 210 12% 20%;
-    --ring: 113 75% 50%;
-
-    --sidebar-background: 210 22% 8%;
-    --sidebar-foreground: 0 0% 96%;
-    --sidebar-primary: 113 75% 50%;
-    --sidebar-primary-foreground: 210 20% 10%;
-    --sidebar-accent: 210 18% 14%;
-    --sidebar-accent-foreground: 0 0% 96%;
-    --sidebar-border: 210 15% 15%;
-    --sidebar-ring: 113 75% 50%;
-
-    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
-    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.4);
-    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.4);
-    --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.5);
-    --shadow-glow: 0 0 20px hsl(113 75% 50% / 0.2);
+    /* Sidebar */
+    --sidebar-background: 222 47% 2%;
+    --sidebar-foreground: 210 40% 98%;
+    --sidebar-primary: 187 100% 50%;
+    --sidebar-primary-foreground: 222 47% 4%;
+    --sidebar-accent: 217 32% 12%;
+    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-border: 217 32% 17% / 0.3;
+    --sidebar-ring: 187 100% 50% / 0.3;
   }
 }
 
@@ -134,165 +58,74 @@
     box-sizing: border-box;
   }
 
-  html {
-    overflow-x: hidden;
+  html, body, #root {
     width: 100%;
     height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
   }
 
   body {
     @apply bg-background text-foreground antialiased;
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
-    overflow-x: hidden;
-    width: 100%;
-    height: 100%;
-    padding-bottom: env(safe-area-inset-bottom);
+    /* Typography: Inter or SF Pro, weight 300 (Extra Light) */
+    font-family: 'Inter', 'SF Pro Display', system-ui, -apple-system, sans-serif;
+    font-weight: 300;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    background-image: 
+      radial-gradient(circle at 50% 50%, rgba(10, 20, 30, 0.8) 0%, rgba(2, 4, 6, 1) 100%),
+      url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072&auto=format&fit=crop');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    background-blend-mode: overlay;
   }
 
-  #root {
-    width: 100%;
-    min-height: 100%;
-    overflow-x: hidden;
-    overflow-y: auto;
+  /* Force thin weights for all text */
+  h1, h2, h3, h4, h5, h6 {
+    font-weight: 300 !important;
+    letter-spacing: -0.02em;
   }
 
-  /* Prevent iOS zoom on input focus */
-  input, textarea, select {
-    font-size: 16px;
+  b, strong {
+    font-weight: 400 !important;
   }
 }
 
 @layer components {
-  /* God Mode animations */
-  @keyframes god-pulse {
-    0%, 100% {
-      box-shadow: 0 0 16px hsl(45 90% 48% / 0.3);
-      transform: scale(1);
-    }
-    50% {
-      box-shadow: 0 0 28px hsl(45 90% 48% / 0.5);
-      transform: scale(1.01);
-    }
+  /* Glassmorphism Utility */
+  .glass-panel {
+    @apply bg-card/40 backdrop-blur-xl border border-white/10;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
   }
 
-  @keyframes god-listening {
-    0%, 100% { box-shadow: 0 0 20px hsl(45 90% 48% / 0.4); }
-    50% { box-shadow: 0 0 36px hsl(45 90% 48% / 0.7); }
+  .glass-card {
+    @apply bg-white/5 backdrop-blur-md border border-white/10 rounded-xl transition-all duration-300;
   }
 
-  @keyframes god-processing {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-  }
-  
-  @keyframes float-particle {
-    0%, 100% { 
-      transform: translateY(0) scale(1); 
-      opacity: 0.4;
-    }
-    50% { 
-      transform: translateY(-20px) scale(1.2); 
-      opacity: 0.8;
-    }
-  }
-  
-  @keyframes ping-slow {
-    0% {
-      transform: scale(1);
-      opacity: 0.6;
-    }
-    75%, 100% {
-      transform: scale(1.8);
-      opacity: 0;
-    }
-  }
-  
-  .animate-ping-slow {
-    animation: ping-slow 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+  .glass-card:hover {
+    @apply bg-white/10 border-white/20;
+    transform: translateY(-2px);
   }
 
-  .god-eye {
-    @apply relative rounded-full;
-    animation: god-pulse 3s ease-in-out infinite;
+  /* Silent Feed Animation */
+  @keyframes fade-in-out {
+    0% { opacity: 0; transform: translateY(10px); }
+    10% { opacity: 1; transform: translateY(0); }
+    90% { opacity: 1; transform: translateY(0); }
+    100% { opacity: 0; transform: translateY(-10px); }
   }
 
-  .god-eye-listening {
-    animation: god-listening 1.5s ease-in-out infinite;
-  }
-
-  .god-eye-processing::after {
-    content: '';
-    @apply absolute inset-0 rounded-full border-2 border-transparent;
-    border-top-color: hsl(45 90% 48%);
-    animation: god-processing 1s linear infinite;
-  }
-
-  /* Material Cards - QuickBooks clean style */
-  .material-card {
-    @apply bg-card rounded-lg transition-all duration-200;
-    box-shadow: var(--shadow-sm);
-    border: 1px solid hsl(var(--border));
-  }
-
-  .material-card:hover {
-    box-shadow: var(--shadow-md);
-    border-color: hsl(var(--primary) / 0.3);
-  }
-
-  .material-card-elevated {
-    @apply bg-card rounded-lg;
-    box-shadow: var(--shadow-md);
-    border: 1px solid hsl(var(--border) / 0.8);
-  }
-
-  /* QuickBooks-style badges */
-  .badge-critical {
-    @apply text-[11px] font-semibold px-2.5 py-1 rounded-md;
-    background: hsl(0 72% 51% / 0.1);
-    color: hsl(0 72% 45%);
-    border: 1px solid hsl(0 72% 51% / 0.2);
-  }
-
-  .badge-high {
-    @apply text-[11px] font-semibold px-2.5 py-1 rounded-md;
-    background: hsl(25 95% 53% / 0.1);
-    color: hsl(25 95% 45%);
-    border: 1px solid hsl(25 95% 53% / 0.2);
-  }
-
-  .badge-medium {
-    @apply text-[11px] font-semibold px-2.5 py-1 rounded-md;
-    background: hsl(45 90% 48% / 0.1);
-    color: hsl(45 90% 40%);
-    border: 1px solid hsl(45 90% 48% / 0.2);
-  }
-
-  .badge-low {
-    @apply text-[11px] font-semibold px-2.5 py-1 rounded-md;
-    background: hsl(142 71% 45% / 0.1);
-    color: hsl(142 71% 35%);
-    border: 1px solid hsl(142 71% 45% / 0.2);
-  }
-
-  /* QuickBooks-style buttons */
-  .btn-primary {
-    @apply bg-primary text-primary-foreground font-semibold rounded-md px-4 py-2;
-    @apply hover:bg-primary/90 transition-colors;
-    @apply shadow-sm;
-  }
-
-  .btn-secondary {
-    @apply bg-secondary text-secondary-foreground font-medium rounded-md px-4 py-2;
-    @apply hover:bg-secondary/80 transition-colors border border-border;
+  .animate-silent-feed {
+    animation: fade-in-out 5s ease-in-out infinite;
   }
 }
 
-/* Scrollbar - minimal */
+/* Minimal Scrollbar */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 4px;
+  height: 4px;
 }
 
 ::-webkit-scrollbar-track {
@@ -300,107 +133,10 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background: hsl(var(--muted-foreground) / 0.2);
-  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: hsl(var(--muted-foreground) / 0.35);
-}
-
-/* Siri-like animations for God Mode */
-@keyframes siri-morph {
-  0%, 100% {
-    border-radius: 50%;
-    transform: scale(1) rotate(0deg);
-  }
-  25% {
-    border-radius: 47% 53% 52% 48% / 48% 45% 55% 52%;
-    transform: scale(1.02) rotate(2deg);
-  }
-  50% {
-    border-radius: 53% 47% 45% 55% / 52% 53% 47% 48%;
-    transform: scale(0.98) rotate(-1deg);
-  }
-  75% {
-    border-radius: 48% 52% 55% 45% / 45% 48% 52% 55%;
-    transform: scale(1.01) rotate(1deg);
-  }
-}
-
-@keyframes siri-pulse {
-  0%, 100% {
-    transform: scale(1);
-    opacity: 1;
-  }
-  50% {
-    transform: scale(1.05);
-    opacity: 0.9;
-  }
-}
-
-@keyframes siri-breathe {
-  0%, 100% {
-    transform: scale(1);
-    opacity: 0.5;
-  }
-  50% {
-    transform: scale(1.1);
-    opacity: 0.3;
-  }
-}
-
-@keyframes siri-float {
-  0%, 100% {
-    transform: translateY(0) scale(1);
-    opacity: 0.6;
-  }
-  25% {
-    transform: translateY(-15px) scale(1.1);
-    opacity: 0.8;
-  }
-  50% {
-    transform: translateY(-5px) scale(0.9);
-    opacity: 0.5;
-  }
-  75% {
-    transform: translateY(-20px) scale(1.05);
-    opacity: 0.7;
-  }
-}
-
-@keyframes siri-orbit-0 {
-  0% {
-    transform: rotate(0deg) translateX(100px) rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg) translateX(100px) rotate(-360deg);
-  }
-}
-
-@keyframes siri-orbit-1 {
-  0% {
-    transform: rotate(90deg) translateX(120px) rotate(-90deg);
-  }
-  100% {
-    transform: rotate(450deg) translateX(120px) rotate(-450deg);
-  }
-}
-
-@keyframes siri-orbit-2 {
-  0% {
-    transform: rotate(180deg) translateX(140px) rotate(-180deg);
-  }
-  100% {
-    transform: rotate(540deg) translateX(140px) rotate(-540deg);
-  }
-}
-
-@keyframes siri-orbit-3 {
-  0% {
-    transform: rotate(270deg) translateX(160px) rotate(-270deg);
-  }
-  100% {
-    transform: rotate(630deg) translateX(160px) rotate(-630deg);
-  }
+  background: rgba(255, 255, 255, 0.2);
 }
