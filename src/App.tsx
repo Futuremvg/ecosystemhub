@@ -7,6 +7,7 @@ import { AppSettingsProvider } from "@/contexts/AppSettingsContext";
 import { OnboardingProvider } from "@/contexts/OnboardingContext";
 import { TenantProvider } from "@/contexts/TenantContext";
 import { AppLayout } from "@/components/layout/AppLayout";
+import Landing from "./pages/Landing";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import CommandCenter from "./pages/CommandCenter";
@@ -29,9 +30,14 @@ const App = () => (
             <BrowserRouter>
               <AppLayout>
                 <Routes>
-                  {/* Core Experience */}
-                  <Route path="/" element={<Index />} />
+                  {/* Public Landing Page */}
+                  <Route path="/" element={<Landing />} />
+                  
+                  {/* Auth & Checkout Flow */}
                   <Route path="/auth" element={<Auth />} />
+                  
+                  {/* Protected App Experience */}
+                  <Route path="/dashboard" element={<Index />} />
                   <Route path="/command-center" element={<CommandCenter />} />
                   
                   {/* Modules */}
@@ -41,7 +47,7 @@ const App = () => (
                   <Route path="/configuracoes" element={<Configuracoes />} />
                   
                   {/* Redirects & Fallbacks */}
-                  <Route path="/home" element={<Navigate to="/" replace />} />
+                  <Route path="/home" element={<Navigate to="/dashboard" replace />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </AppLayout>

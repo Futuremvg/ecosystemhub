@@ -7,7 +7,6 @@ import {
   FileText, 
   TrendingUp, 
   Settings,
-  ArrowUpRight,
   Globe
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
