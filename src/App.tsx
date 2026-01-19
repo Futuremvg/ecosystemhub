@@ -11,6 +11,8 @@ import Landing from "./pages/Landing";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import CommandCenter from "./pages/CommandCenter";
+import GodModeFullscreen from "./pages/GodModeFullscreen";
+import Billing from "./pages/Billing";
 import Empresas from "./pages/Empresas";
 import Dinheiro from "./pages/Dinheiro";
 import Documentos from "./pages/Documentos";
@@ -39,12 +41,14 @@ const App = () => (
                   {/* Protected App Experience */}
                   <Route path="/dashboard" element={<Index />} />
                   <Route path="/command-center" element={<CommandCenter />} />
+                  <Route path="/godmode" element={<GodModeFullscreen />} />
                   
                   {/* Modules */}
                   <Route path="/empresas" element={<Empresas />} />
                   <Route path="/dinheiro" element={<Dinheiro />} />
                   <Route path="/documentos" element={<Documentos />} />
                   <Route path="/configuracoes" element={<Configuracoes />} />
+                  <Route path="/billing" element={<Billing />} />
                   
                   {/* Redirects & Fallbacks */}
                   <Route path="/home" element={<Navigate to="/dashboard" replace />} />
