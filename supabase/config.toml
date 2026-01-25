@@ -1,1 +1,28 @@
 project_id = "yatooocomhkyybmpymaf"
+
+[functions.event-bus]
+verify_jwt = false
+
+[functions.agent-normalization]
+verify_jwt = false
+
+[functions.agent-deduplication]
+verify_jwt = false
+
+[functions.agent-classification]
+verify_jwt = false
+
+[functions.agent-policy]
+verify_jwt = false
+
+[functions.agent-anomaly]
+verify_jwt = false
+
+[functions.agent-action]
+verify_jwt = false
+
+[functions.agent-briefing]
+verify_jwt = false
+
+[functions.agent-growth]
+verify_jwt = false
