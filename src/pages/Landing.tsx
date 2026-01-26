@@ -2,40 +2,132 @@ import { motion } from 'framer-motion';
 import { Shield, Zap, Cpu, ArrowRight, Globe, Check } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { SUBSCRIPTION_PLANS, formatPrice } from '@/lib/stripe-config';
+import { useAppSettings } from '@/contexts/AppSettingsContext';
+import { Button } from '@/components/ui/button';
 
 export default function Landing() {
   const navigate = useNavigate();
+  const { language, setLanguage, t } = useAppSettings();
+  const isPt = language === 'pt-BR';
 
-  // Sincronização exata com os planos do repositório
+  // Traduções locais para a landing page
+  const content = {
+    badge: isPt ? 'A Revolução Silenciosa' : 'The Silent Revolution',
+    headline: 'Architecta',
+    tagline: isPt 
+      ? 'O primeiro ecossistema de gestão autônoma. 8 agentes invisíveis trabalhando para que você nunca mais precise olhar para o back-office.'
+      : 'The first autonomous management ecosystem. 8 invisible agents working so you never have to look at the back-office again.',
+    ctaPrimary: isPt ? 'Iniciar Agora' : 'Get Started',
+    ctaSecondary: isPt ? 'Ver Planos de Acesso' : 'View Access Plans',
+    scroll: isPt ? 'Role para explorar' : 'Scroll to explore',
+    pricing: {
+      title: isPt ? 'Escolha seu Nível de Acesso' : 'Choose Your Access Level',
+      subtitle: isPt ? 'Transparência total em CAD' : 'Full transparency in CAD',
+      popular: isPt ? 'Popular' : 'Popular',
+      startNow: isPt ? 'Começar Agora' : 'Start Now',
+      select: isPt ? 'Selecionar' : 'Select',
+    },
+    features: [
+      {
+        title: 'Silent Engine',
+        desc: isPt 
+          ? '8 agentes de IA que processam, classificam e otimizam sua empresa em tempo real.'
+          : '8 AI agents that process, classify and optimize your business in real-time.',
+        icon: Cpu
+      },
+      {
+        title: 'God Mode UI',
+        desc: isPt 
+          ? 'Uma interface desenhada para o executivo moderno. Sem ruído, apenas clareza.'
+          : 'An interface designed for the modern executive. No noise, just clarity.',
+        icon: Shield
+      },
+      {
+        title: 'CAD Financial',
+        desc: isPt 
+          ? 'Motor financeiro nativo em CAD, pronto para o mercado global.'
+          : 'Native CAD financial engine, ready for the global market.',
+        icon: Globe
+      }
+    ]
+  };
+
+  // Planos com traduções
   const plans = [
     {
       id: 'free',
-      name_pt: 'Gratuito',
+      name: isPt ? 'Gratuito' : 'Free',
       price: 0,
       currency: 'CAD',
       interval: 'month',
-      features: ["Acesso ao Dashboard", "1 Agente Básico", "Relatórios Semanais"],
+      features: isPt 
+        ? ["Acesso ao Dashboard", "1 Agente Básico", "Relatórios Semanais"]
+        : ["Dashboard Access", "1 Basic Agent", "Weekly Reports"],
       highlight: false
     },
     {
       ...SUBSCRIPTION_PLANS.monthly,
-      features: ["8 Agentes Silenciosos", "Dashboard God Mode", "Suporte Standard"],
+      name: isPt ? SUBSCRIPTION_PLANS.monthly.name_pt : SUBSCRIPTION_PLANS.monthly.name_en,
+      features: isPt 
+        ? ["8 Agentes Silenciosos", "Dashboard God Mode", "Suporte Standard"]
+        : ["8 Silent Agents", "God Mode Dashboard", "Standard Support"],
       highlight: false
     },
     {
       ...SUBSCRIPTION_PLANS.quarterly,
-      features: ["Tudo do Mensal", "Economia de 12%", "Análise de Anomalias"],
+      name: isPt ? SUBSCRIPTION_PLANS.quarterly.name_pt : SUBSCRIPTION_PLANS.quarterly.name_en,
+      features: isPt 
+        ? ["Tudo do Mensal", "Economia de 12%", "Análise de Anomalias"]
+        : ["Everything in Monthly", "Save 12%", "Anomaly Analysis"],
       highlight: true
     },
     {
       ...SUBSCRIPTION_PLANS.annual,
-      features: ["Tudo do Trimestral", "Economia de 32%", "Suporte Prioritário", "Motor CAD Full"],
+      name: isPt ? SUBSCRIPTION_PLANS.annual.name_pt : SUBSCRIPTION_PLANS.annual.name_en,
+      features: isPt 
+        ? ["Tudo do Trimestral", "Economia de 32%", "Suporte Prioritário", "Motor CAD Full"]
+        : ["Everything in Quarterly", "Save 32%", "Priority Support", "Full CAD Engine"],
       highlight: false
     }
   ];
 
+  const getIntervalLabel = (plan: any) => {
+    if (plan.price === 0) return '';
+    if (plan.interval === 'year') return isPt ? 'ano' : 'year';
+    if (plan.id === 'quarterly') return isPt ? '3 meses' : '3 months';
+    return isPt ? 'mês' : 'month';
+  };
+
   return (
     <div className="min-h-screen w-full bg-transparent text-white font-light overflow-x-hidden">
+      {/* Language Selector - Fixed Top Right */}
+      <div className="fixed top-6 right-6 z-50 flex items-center gap-2">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => setLanguage('en-US')}
+          className={`text-xs px-3 py-1 rounded-full transition-all ${
+            language === 'en-US' 
+              ? 'bg-primary/20 text-primary border border-primary/30' 
+              : 'text-white/50 hover:text-white hover:bg-white/5'
+          }`}
+        >
+          🇺🇸 EN
+        </Button>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => setLanguage('pt-BR')}
+          className={`text-xs px-3 py-1 rounded-full transition-all ${
+            language === 'pt-BR' 
+              ? 'bg-primary/20 text-primary border border-primary/30' 
+              : 'text-white/50 hover:text-white hover:bg-white/5'
+          }`}
+        >
+          🇧🇷 PT
+        </Button>
+      </div>
+
       {/* Hero Section */}
       <section className="relative h-screen flex flex-col items-center justify-center px-4">
         <motion.div 
@@ -46,16 +138,16 @@ export default function Landing() {
         >
           <div className="flex justify-center mb-6">
             <div className="px-4 py-1 rounded-full border border-primary/20 bg-primary/5 backdrop-blur-md">
-              <span className="text-[10px] uppercase tracking-[0.4em] text-primary">The Silent Revolution</span>
+              <span className="text-[10px] uppercase tracking-[0.4em] text-primary">{content.badge}</span>
             </div>
           </div>
           
           <h1 className="text-6xl md:text-8xl font-extralight tracking-tighter leading-none">
-            Architecta <span className="text-primary">HUB</span>
+            {content.headline} <span className="text-primary">HUB</span>
           </h1>
           
           <p className="text-lg md:text-xl opacity-40 max-w-2xl mx-auto leading-relaxed font-extralight">
-            O primeiro ecossistema de gestão autônoma. 8 agentes invisíveis trabalhando para que você nunca mais precise olhar para o back-office.
+            {content.tagline}
           </p>
 
           <div className="flex flex-col md:flex-row items-center justify-center gap-6 pt-8">
@@ -64,7 +156,7 @@ export default function Landing() {
               className="group relative px-8 py-4 bg-primary text-black text-xs uppercase tracking-[0.2em] font-medium rounded-full overflow-hidden transition-all hover:scale-105"
             >
               <span className="relative z-10 flex items-center gap-2">
-                Iniciar Transfusão <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                {content.ctaPrimary} <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </span>
             </button>
             <button 
@@ -74,14 +166,14 @@ export default function Landing() {
               }}
               className="text-xs uppercase tracking-[0.2em] opacity-40 hover:opacity-100 transition-opacity"
             >
-              Ver Planos de Acesso
+              {content.ctaSecondary}
             </button>
           </div>
         </motion.div>
 
         <div className="absolute bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center gap-4 opacity-20">
           <div className="w-[1px] h-12 bg-gradient-to-b from-primary to-transparent" />
-          <span className="text-[10px] uppercase tracking-[0.3em]">Scroll to explore</span>
+          <span className="text-[10px] uppercase tracking-[0.3em]">{content.scroll}</span>
         </div>
       </section>
 
@@ -89,23 +181,7 @@ export default function Landing() {
       <section id="features" className="py-32 px-8 bg-black/20 backdrop-blur-sm">
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-            {[
-              {
-                title: "Silent Engine",
-                desc: "8 agentes de IA que processam, classificam e otimizam sua empresa em tempo real.",
-                icon: Cpu
-              },
-              {
-                title: "God Mode UI",
-                desc: "Uma interface desenhada para o executivo moderno. Sem ruído, apenas clareza.",
-                icon: Shield
-              },
-              {
-                title: "CAD Financial",
-                desc: "Motor financeiro nativo em CAD, pronto para o mercado global.",
-                icon: Globe
-              }
-            ].map((feature, i) => (
+            {content.features.map((feature, i) => (
               <motion.div 
                 key={feature.title}
                 initial={{ opacity: 0, y: 20 }}
@@ -122,12 +198,12 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Pricing Section - Corrigido com os 4 planos reais */}
+      {/* Pricing Section */}
       <section id="pricing" className="py-32 px-8 relative">
         <div className="max-w-7xl mx-auto text-center space-y-16">
           <div className="space-y-4">
-            <h2 className="text-4xl font-extralight tracking-tight">Escolha seu Nível de Acesso</h2>
-            <p className="text-sm opacity-40 uppercase tracking-widest">Transparência total em CAD</p>
+            <h2 className="text-4xl font-extralight tracking-tight">{content.pricing.title}</h2>
+            <p className="text-sm opacity-40 uppercase tracking-widest">{content.pricing.subtitle}</p>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -138,19 +214,19 @@ export default function Landing() {
               >
                 {plan.highlight && (
                   <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1 bg-primary text-black text-[10px] font-bold uppercase tracking-widest rounded-full">
-                    Popular
+                    {content.pricing.popular}
                   </div>
                 )}
                 
                 <div className="mb-8">
-                  <h3 className="text-lg font-light mb-2">{plan.name_pt}</h3>
+                  <h3 className="text-lg font-light mb-2">{plan.name}</h3>
                   <div className="flex items-baseline gap-1">
                     <span className="text-3xl font-extralight tracking-tighter">
-                      {plan.price === 0 ? 'Grátis' : formatPrice(plan.price, plan.currency)}
+                      {plan.price === 0 ? (isPt ? 'Grátis' : 'Free') : formatPrice(plan.price, plan.currency)}
                     </span>
                     {plan.price > 0 && (
                       <span className="text-[10px] opacity-30 uppercase tracking-widest">
-                        / {plan.interval === 'year' ? 'ano' : plan.id === 'quarterly' ? '3 meses' : 'mês'}
+                        / {getIntervalLabel(plan)}
                       </span>
                     )}
                   </div>
@@ -173,7 +249,7 @@ export default function Landing() {
                     : 'bg-white/5 text-white hover:bg-white/10'
                   }`}
                 >
-                  {plan.price === 0 ? 'Começar Agora' : 'Selecionar'}
+                  {plan.price === 0 ? content.pricing.startNow : content.pricing.select}
                 </button>
               </div>
             ))}
