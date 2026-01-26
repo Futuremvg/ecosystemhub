@@ -2,9 +2,9 @@ import { useState, useCallback, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
+import { useAppSettings } from "@/contexts/AppSettingsContext";
 import { GodModeState } from "@/components/god-mode/GodEye";
 import { supabase } from "@/integrations/supabase/client";
-
 // Web Speech API types
 interface SpeechRecognitionEvent extends Event {
   results: SpeechRecognitionResultList;
@@ -69,6 +69,7 @@ export function useGodMode() {
   const [transcription, setTranscription] = useState("");
   const { toast } = useToast();
   const { user } = useAuth();
+  const { language } = useAppSettings();
   const navigate = useNavigate();
   
   const recognitionRef = useRef<SpeechRecognitionInstance | null>(null);
@@ -243,7 +244,7 @@ export function useGodMode() {
     sendMessageRef.current = sendMessageInternal;
   });
 
-  // Initialize Speech Recognition with multi-language support and natural pause detection
+  // Initialize Speech Recognition with dynamic language from settings
   useEffect(() => {
     if (typeof window !== "undefined") {
       const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -251,9 +252,8 @@ export function useGodMode() {
         const recognition = new SpeechRecognitionAPI();
         recognition.continuous = true;
         recognition.interimResults = true;
-        // Use Portuguese as primary language with multi-language support
-        // Most browsers support multiple languages - pt-BR will also pick up English
-        recognition.lang = "pt-BR";
+        // Use language from user settings
+        recognition.lang = language;
         
         recognitionRef.current = recognition;
 
@@ -300,8 +300,9 @@ export function useGodMode() {
           }
         };
 
+        const isPt = language === 'pt-BR';
         recognition.onstart = () => {
-          console.log("🎤 Speech recognition started - listening in Portuguese/English");
+          console.log(`🎤 Speech recognition started - listening in ${language}`);
           accumulatedTranscript = "";
           finalTranscript = "";
           lastResultTime = Date.now();
@@ -309,8 +310,10 @@ export function useGodMode() {
           hasStartedSpeaking = false;
           
           toast({
-            title: "🎤 Ouvindo...",
-            description: "Fale naturalmente. Vou entender quando você terminar.",
+            title: isPt ? "🎤 Ouvindo..." : "🎤 Listening...",
+            description: isPt 
+              ? "Fale naturalmente. Vou entender quando você terminar."
+              : "Speak naturally. I'll understand when you're done.",
           });
           
           // Smart pause detection - wait for natural pauses
@@ -358,8 +361,8 @@ export function useGodMode() {
                 pauseCheckInterval = null;
               }
               toast({
-                title: "Nenhuma fala detectada",
-                description: "Tente novamente e fale algo.",
+                title: isPt ? "Nenhuma fala detectada" : "No speech detected",
+                description: isPt ? "Tente novamente e fale algo." : "Please try again and say something.",
               });
             }
           }, 200); // Check frequently for smooth detection
@@ -374,8 +377,10 @@ export function useGodMode() {
           
           if (event.error === "not-allowed") {
             toast({
-              title: "Permissão negada",
-              description: "Por favor, permita acesso ao microfone nas configurações do navegador.",
+              title: isPt ? "Permissão negada" : "Permission denied",
+              description: isPt 
+                ? "Por favor, permita acesso ao microfone nas configurações do navegador."
+                : "Please allow microphone access in your browser settings.",
               variant: "destructive",
             });
           } else if (event.error !== "no-speech" && event.error !== "aborted") {
@@ -416,7 +421,7 @@ export function useGodMode() {
         recognitionRef.current.abort();
       }
     };
-  }, [toast]);
+  }, [toast, language]);
 
   // Speak response using Web Speech API with language detection
   const speakResponse = useCallback((text: string) => {
@@ -454,6 +459,7 @@ export function useGodMode() {
   }, [isSpeaking]);
 
   const startVoice = useCallback(() => {
+    const isPt = language === 'pt-BR';
     if (recognitionRef.current) {
       try {
         recognitionRef.current.start();
@@ -462,19 +468,23 @@ export function useGodMode() {
       } catch (error) {
         console.error("Error starting recognition:", error);
         toast({
-          title: "Erro ao iniciar microfone",
-          description: "Verifique se seu navegador permite acesso ao microfone.",
+          title: isPt ? "Erro ao iniciar microfone" : "Error starting microphone",
+          description: isPt 
+            ? "Verifique se seu navegador permite acesso ao microfone."
+            : "Check if your browser allows microphone access.",
           variant: "destructive",
         });
       }
     } else {
       toast({
-        title: "Reconhecimento de voz não suportado",
-        description: "Seu navegador não suporta reconhecimento de voz. Use o chat de texto.",
+        title: isPt ? "Reconhecimento de voz não suportado" : "Voice recognition not supported",
+        description: isPt 
+          ? "Seu navegador não suporta reconhecimento de voz. Use o chat de texto."
+          : "Your browser doesn't support voice recognition. Use the text chat.",
         variant: "destructive",
       });
     }
-  }, [toast]);
+  }, [toast, language]);
 
   const stopVoice = useCallback(() => {
     if (recognitionRef.current) {

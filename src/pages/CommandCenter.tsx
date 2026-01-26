@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { useAgents } from '@/hooks/useAgents';
+import { useAppSettings } from '@/contexts/AppSettingsContext';
 import { 
   Shield, 
   Activity, 
@@ -12,7 +13,32 @@ import { useNavigate } from 'react-router-dom';
 
 export default function CommandCenter() {
   const { healthScore, lastActivity, isProcessing } = useAgents();
+  const { t, language } = useAppSettings();
   const navigate = useNavigate();
+  const isPt = language === 'pt-BR';
+
+  // Traduções locais para o Command Center
+  const content = {
+    title: isPt ? 'Operações Centrais' : 'Core Operations',
+    liveEngine: isPt ? 'Motor Ativo' : 'Live Engine',
+    systemIntegrity: isPt ? 'Integridade do Sistema' : 'System Integrity',
+    encryption: isPt ? 'Criptografia' : 'Encryption',
+    agentSync: isPt ? 'Sincronização' : 'Agent Sync',
+    optimal: isPt ? 'Ótimo' : 'Optimal',
+    latency: isPt ? 'Latência' : 'Latency',
+    activeBriefing: isPt ? 'Briefing do Agente Ativo' : 'Active Agent Briefing',
+    systemOptimizing: isPt 
+      ? 'O sistema está realizando otimização em segundo plano e cruzando referências de todos os nós de dados.'
+      : 'The system is currently performing background optimization and cross-referencing all data nodes.',
+    engineVersion: isPt ? 'Architecta God Mode Engine v2.0' : 'Architecta God Mode Engine v2.0',
+    allOperational: isPt ? 'Todos os agentes operacionais' : 'All agents operational',
+  };
+
+  const stats = [
+    { label: content.encryption, status: 'AES-256', icon: Lock },
+    { label: content.agentSync, status: content.optimal, icon: Activity },
+    { label: content.latency, status: '12ms', icon: Zap }
+  ];
 
   return (
     <div className="min-h-screen w-full flex flex-col bg-transparent text-white font-light">
@@ -27,14 +53,14 @@ export default function CommandCenter() {
           </button>
           <div className="flex items-center gap-3">
             <Cpu className="w-5 h-5 text-primary" />
-            <h1 className="text-sm uppercase tracking-[0.3em]">Core Operations</h1>
+            <h1 className="text-sm uppercase tracking-[0.3em]">{content.title}</h1>
           </div>
         </div>
         
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20">
             <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-            <span className="text-[10px] uppercase tracking-widest text-primary">Live Engine</span>
+            <span className="text-[10px] uppercase tracking-widest text-primary">{content.liveEngine}</span>
           </div>
         </div>
       </header>
@@ -45,7 +71,7 @@ export default function CommandCenter() {
         <div className="col-span-12 lg:col-span-4 space-y-6">
           <div className="glass-panel p-6 rounded-2xl space-y-8">
             <div className="flex items-center justify-between">
-              <span className="text-xs uppercase tracking-widest opacity-40">System Integrity</span>
+              <span className="text-xs uppercase tracking-widest opacity-40">{content.systemIntegrity}</span>
               <Shield className="w-4 h-4 text-primary opacity-50" />
             </div>
             
@@ -61,11 +87,7 @@ export default function CommandCenter() {
             </div>
 
             <div className="space-y-4">
-              {[
-                { label: 'Encryption', status: 'AES-256', icon: Lock },
-                { label: 'Agent Sync', status: 'Optimal', icon: Activity },
-                { label: 'Latency', status: '12ms', icon: Zap }
-              ].map((stat) => (
+              {stats.map((stat) => (
                 <div key={stat.label} className="flex items-center justify-between py-2 border-b border-white/5">
                   <div className="flex items-center gap-3 opacity-40">
                     <stat.icon className="w-3 h-3" />
@@ -82,7 +104,7 @@ export default function CommandCenter() {
         <div className="col-span-12 lg:col-span-8">
           <div className="glass-panel h-full rounded-2xl flex flex-col overflow-hidden">
             <div className="p-6 border-b border-white/5 flex items-center justify-between">
-              <span className="text-xs uppercase tracking-widest opacity-40">Active Agent Briefing</span>
+              <span className="text-xs uppercase tracking-widest opacity-40">{content.activeBriefing}</span>
               {isProcessing && <Activity className="w-4 h-4 text-primary animate-spin" />}
             </div>
             
@@ -95,10 +117,15 @@ export default function CommandCenter() {
               >
                 <div className="flex items-center gap-3 mb-2">
                   <span className="text-[10px] uppercase tracking-widest text-primary">{lastActivity.agent}</span>
-                  <span className="text-[10px] opacity-30">{lastActivity.timestamp.toLocaleTimeString()}</span>
+                  <span className="text-[10px] opacity-30">
+                    {lastActivity.timestamp.toLocaleTimeString(language, {
+                      hour: '2-digit',
+                      minute: '2-digit'
+                    })}
+                  </span>
                 </div>
                 <p className="text-sm opacity-80 leading-relaxed">
-                  {lastActivity.status}. The system is currently performing background optimization and cross-referencing all data nodes.
+                  {lastActivity.status}. {content.systemOptimizing}
                 </p>
               </motion.div>
 
@@ -118,8 +145,8 @@ export default function CommandCenter() {
 
       {/* Footer Status */}
       <footer className="px-8 py-4 border-t border-white/5 text-[10px] uppercase tracking-[0.2em] opacity-30 flex justify-between">
-        <span>Architecta God Mode Engine v2.0</span>
-        <span>All agents operational</span>
+        <span>{content.engineVersion}</span>
+        <span>{content.allOperational}</span>
       </footer>
     </div>
   );
