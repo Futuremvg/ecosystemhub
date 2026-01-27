@@ -10,6 +10,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Logo } from "@/components/ui/Logo";
 import { z } from "zod";
 import { cn } from "@/lib/utils";
+import { useAppSettings } from "@/contexts/AppSettingsContext";
 
 const emailSchema = z.string().email("Email inválido");
 
@@ -33,6 +34,8 @@ export default function Auth() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { user, loading, signInWithEmail, signUpWithEmail, resetPassword, updatePassword } = useAuth();
+  const { language } = useAppSettings();
+  const isPt = language === 'pt-BR';
   
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [loginEmail, setLoginEmail] = useState("");
@@ -51,6 +54,28 @@ export default function Auth() {
   
   // Check if user is resetting password (came from email link)
   const isResetMode = searchParams.get("mode") === "reset";
+
+  // Translations
+  const t = {
+    title: 'Architecta',
+    subtitle: isPt ? 'Seu sistema operacional empresarial com God Mode' : 'Your enterprise operating system with God Mode',
+    login: isPt ? 'Entrar' : 'Login',
+    signup: isPt ? 'Criar Conta' : 'Sign Up',
+    email: 'Email',
+    password: isPt ? 'Senha' : 'Password',
+    name: isPt ? 'Nome' : 'Name',
+    forgotPassword: isPt ? 'Esqueceu a senha?' : 'Forgot password?',
+    loading: isPt ? 'Carregando...' : 'Loading...',
+    newPassword: isPt ? 'Nova Senha' : 'New Password',
+    confirmPassword: isPt ? 'Confirmar Senha' : 'Confirm Password',
+    save: isPt ? 'Salvar Nova Senha' : 'Save New Password',
+    backToLogin: isPt ? 'Voltar ao Login' : 'Back to Login',
+    emailSent: isPt ? 'Email Enviado!' : 'Email Sent!',
+    checkInbox: isPt ? 'Verifique sua caixa de entrada' : 'Check your inbox',
+    sendLink: isPt ? 'Enviar Link de Recuperação' : 'Send Recovery Link',
+    recoverPassword: isPt ? 'Recuperar Senha' : 'Recover Password',
+    enterEmail: isPt ? 'Digite seu email para receber o link de recuperação' : 'Enter your email to receive the recovery link',
+  };
 
   useEffect(() => {
     // Don't redirect if in reset mode (user needs to set new password)
@@ -432,24 +457,24 @@ export default function Auth() {
       </div>
 
       <Card className="w-full max-w-md relative z-10 border-border/50 bg-card/80 backdrop-blur">
-        <CardHeader className="text-center pb-2">
+        <CardHeader className="text-center pb-2 px-4 sm:px-6">
           {/* Logo */}
           <div className="flex justify-center mb-4">
             <Logo size="lg" showText={false} />
           </div>
-          <CardTitle className="text-2xl font-bold text-foreground">Architecta</CardTitle>
-          <CardDescription className="text-muted-foreground">
-            Seu sistema operacional empresarial com God Mode
+          <CardTitle className="text-xl sm:text-2xl font-bold text-foreground">{t.title}</CardTitle>
+          <CardDescription className="text-sm text-muted-foreground">
+            {t.subtitle}
           </CardDescription>
         </CardHeader>
 
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-4 px-4 sm:px-6">
 
           {/* Email/Password Tabs */}
           <Tabs defaultValue="login" className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="login">Entrar</TabsTrigger>
-              <TabsTrigger value="signup">Criar Conta</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-2 h-11">
+              <TabsTrigger value="login" className="min-h-[40px]">{t.login}</TabsTrigger>
+              <TabsTrigger value="signup" className="min-h-[40px]">{t.signup}</TabsTrigger>
             </TabsList>
 
             <TabsContent value="login" className="space-y-4 mt-4">

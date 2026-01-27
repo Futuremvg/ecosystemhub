@@ -1,15 +1,26 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useAuth } from "@/hooks/useAuth";
 import { FloatingChat } from "@/components/god-mode/FloatingChat";
 import { useGodMode } from "@/hooks/useGodMode";
+import { useIsMobileOrTablet } from "@/hooks/use-mobile";
+import { DesktopSidebar } from "@/components/layout/DesktopSidebar";
+import { MobileHeader } from "@/components/layout/MobileNav";
+import { useLocation } from 'react-router-dom';
 
 interface AppLayoutProps {
   children: React.ReactNode;
 }
 
+// Routes that should NOT show the sidebar/nav (public pages)
+const PUBLIC_ROUTES = ['/', '/auth'];
+
 export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   const { user } = useAuth();
+  const location = useLocation();
+  const isMobileOrTablet = useIsMobileOrTablet();
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  
   const {
     messages,
     isLoading,
@@ -27,20 +38,40 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
     currentConversationId,
   } = useGodMode();
 
+  // Check if current route is public (no nav needed)
+  const isPublicRoute = PUBLIC_ROUTES.includes(location.pathname);
+  const showNav = user && !isPublicRoute;
+
   return (
     <div className="relative min-h-screen w-full bg-background text-foreground overflow-x-hidden">
       {/* Background Overlay for depth */}
       <div className="fixed inset-0 bg-black/40 pointer-events-none z-0" />
       
-      {/* Main Content Area */}
-      <motion.main 
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.5 }}
-        className="relative z-10 w-full min-h-screen"
-      >
-        {children}
-      </motion.main>
+      <div className="relative z-10 flex min-h-screen w-full">
+        {/* Desktop Sidebar - Only show on large screens when authenticated */}
+        {showNav && !isMobileOrTablet && (
+          <DesktopSidebar 
+            collapsed={sidebarCollapsed} 
+            onToggle={() => setSidebarCollapsed(!sidebarCollapsed)} 
+          />
+        )}
+
+        {/* Main Content Area */}
+        <div className="flex-1 flex flex-col min-w-0">
+          {/* Mobile Header - Only show on mobile/tablet when authenticated */}
+          {showNav && isMobileOrTablet && <MobileHeader />}
+
+          {/* Page Content */}
+          <motion.main 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.3 }}
+            className="flex-1 w-full"
+          >
+            {children}
+          </motion.main>
+        </div>
+      </div>
 
       {/* Global Floating Chat - Kept for accessibility but minimal */}
       {user && (
