@@ -14,6 +14,60 @@ export type Database = {
   }
   public: {
     Tables: {
+      action_logs: {
+        Row: {
+          action_type: string
+          agent_name: string
+          company_id: string
+          created_at: string
+          error_message: string | null
+          id: string
+          payload: Json | null
+          result_status: string
+          source_event_id: string | null
+          user_id: string
+        }
+        Insert: {
+          action_type: string
+          agent_name: string
+          company_id: string
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          payload?: Json | null
+          result_status?: string
+          source_event_id?: string | null
+          user_id: string
+        }
+        Update: {
+          action_type?: string
+          agent_name?: string
+          company_id?: string
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          payload?: Json | null
+          result_status?: string
+          source_event_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "action_logs_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "action_logs_source_event_id_fkey"
+            columns: ["source_event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       agent_logs: {
         Row: {
           action_type: string
@@ -1001,6 +1055,50 @@ export type Database = {
           },
         ]
       }
+      integrations: {
+        Row: {
+          company_id: string
+          config: Json | null
+          created_at: string
+          credentials: Json | null
+          id: string
+          integration_type: string
+          last_sync_at: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          company_id: string
+          config?: Json | null
+          created_at?: string
+          credentials?: Json | null
+          id?: string
+          integration_type: string
+          last_sync_at?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          company_id?: string
+          config?: Json | null
+          created_at?: string
+          credentials?: Json | null
+          id?: string
+          integration_type?: string
+          last_sync_at?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "integrations_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       master_operations: {
         Row: {
           amount: number
@@ -1113,6 +1211,44 @@ export type Database = {
             columns: ["master_operation_id"]
             isOneToOne: false
             referencedRelation: "master_operations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      permissions: {
+        Row: {
+          action_level: string
+          action_type: string
+          company_id: string
+          created_at: string
+          id: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          action_level?: string
+          action_type: string
+          company_id: string
+          created_at?: string
+          id?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          action_level?: string
+          action_type?: string
+          company_id?: string
+          created_at?: string
+          id?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "permissions_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
             referencedColumns: ["id"]
           },
         ]
