@@ -1,5 +1,8 @@
 project_id = "yatooocomhkyybmpymaf"
 
+[functions.events-ingest]
+verify_jwt = false
+
 [functions.event-bus]
 verify_jwt = false
 
@@ -25,4 +28,25 @@ verify_jwt = false
 verify_jwt = false
 
 [functions.agent-growth]
+verify_jwt = false
+
+[functions.stripe-webhook]
+verify_jwt = false
+
+[functions.create-checkout]
+verify_jwt = false
+
+[functions.check-subscription]
+verify_jwt = false
+
+[functions.customer-portal]
+verify_jwt = false
+
+[functions.god-mode-chat]
+verify_jwt = false
+
+[functions.scan-receipt]
+verify_jwt = false
+
+[functions.parse-bank-statement]
 verify_jwt = false
