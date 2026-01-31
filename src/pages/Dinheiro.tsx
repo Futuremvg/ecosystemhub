@@ -1,6 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { AppLayout } from "@/components/layout/AppLayout";
 import { useAuth } from "@/hooks/useAuth";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -366,10 +365,8 @@ export default function Dinheiro() {
 
   const incomeCategories = categories.filter(c => c.type === "income");
   const expenseCategories = categories.filter(c => c.type === "expense");
-
   return (
-    <AppLayout>
-      <div className="space-y-6 w-full">
+    <div className="space-y-6 w-full p-4 lg:p-6">
         {/* Header */}
         <div className="flex flex-col gap-4">
           <div className="flex items-center justify-between gap-3">
@@ -834,7 +831,6 @@ export default function Dinheiro() {
             </Card>
           </TabsContent>
         </Tabs>
-      </div>
-    </AppLayout>
+    </div>
   );
 }

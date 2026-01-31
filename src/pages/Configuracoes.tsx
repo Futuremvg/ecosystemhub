@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { AppLayout } from "@/components/layout/AppLayout";
 import { useAuth } from "@/hooks/useAuth";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -235,10 +234,8 @@ export default function Configuracoes() {
   }
 
   if (!user) return null;
-
   return (
-    <AppLayout>
-      <div className="space-y-5 w-full">
+    <div className="space-y-5 w-full p-4 lg:p-6">
         {/* Header */}
         <div>
           <h1 className="text-xl sm:text-2xl font-bold text-foreground">
@@ -526,9 +523,8 @@ export default function Configuracoes() {
             {t("settings.saveChanges")}
           </Button>
         </div>
-      </div>
 
-      {/* Confirmation Dialog */}
+        {/* Confirmation Dialog */}
       <AlertDialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
         <AlertDialogContent className="bg-card border-border">
           <AlertDialogHeader>
@@ -548,6 +544,6 @@ export default function Configuracoes() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </AppLayout>
+    </div>
   );
 }
