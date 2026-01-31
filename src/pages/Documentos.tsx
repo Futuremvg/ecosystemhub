@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { AppLayout } from "@/components/layout/AppLayout";
 import { useAuth } from "@/hooks/useAuth";
 import { useSubscriptionLimits } from "@/hooks/useSubscriptionLimits";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -281,10 +280,8 @@ export default function Documentos() {
   }
 
   if (!user) return null;
-
   return (
-    <AppLayout>
-      <div className="space-y-6 w-full max-w-full overflow-hidden box-border">
+    <div className="space-y-6 w-full max-w-full overflow-hidden box-border p-4 lg:p-6">
         {/* Header */}
         <div className="flex flex-col gap-4">
           <div className="flex items-start justify-between gap-2">
@@ -591,7 +588,6 @@ export default function Documentos() {
           currentCount={documents.length}
           limit={getFeatureLimit('documents')}
         />
-      </div>
-    </AppLayout>
+    </div>
   );
 }
