@@ -21,6 +21,7 @@ import { useAppSettings } from "@/contexts/AppSettingsContext";
 import { FinancialSettingsPanel } from "@/components/financial/FinancialSettingsPanel";
 import { AddTransactionDialog } from "@/components/financial/AddTransactionDialog";
 import { BankStatementImport } from "@/components/financial/BankStatementImport";
+import { DataImport } from "@/components/financial/DataImport";
 
 interface FinancialSource {
   id: string;
@@ -404,7 +405,7 @@ export default function Dinheiro() {
           </div>
           
           {/* Action Buttons Row */}
-          <div className="flex flex-col sm:flex-row gap-2">
+          <div className="flex flex-wrap gap-2">
             <AddTransactionDialog
               sources={sources}
               categories={categories}
@@ -417,6 +418,12 @@ export default function Dinheiro() {
               onCreateCategory={handleCreateCategoryFromDialog}
             />
             <BankStatementImport
+              sources={sources}
+              categories={categories}
+              selectedYear={selectedYear}
+              onImportComplete={loadData}
+            />
+            <DataImport
               sources={sources}
               categories={categories}
               selectedYear={selectedYear}

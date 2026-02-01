@@ -10,7 +10,7 @@ import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/comp
 
 const getNavItems = (t: (key: string) => string, isSuperAdmin: boolean) => {
   const items = [
-    { icon: Home, label: t("nav.home"), path: "/home" },
+    { icon: Home, label: t("nav.home"), path: "/dashboard" },
     { icon: Building2, label: t("nav.companies"), path: "/empresas" },
     { icon: DollarSign, label: t("nav.money"), path: "/dinheiro" },
     { icon: FileText, label: t("nav.documents"), path: "/documentos" },
@@ -131,7 +131,7 @@ export function DesktopSidebar({ collapsed = false, onToggle, isMobileSheet = fa
         )}>
           {navItems.map((item) => {
             const isActive = location.pathname === item.path || 
-              (item.path === "/home" && location.pathname === "/") ||
+              (item.path === "/dashboard" && (location.pathname === "/" || location.pathname === "/dashboard")) ||
               (item.path === "/admin/tenants" && location.pathname.startsWith("/admin"));
             const Icon = item.icon;
             const isAdmin = item.path.startsWith("/admin");
