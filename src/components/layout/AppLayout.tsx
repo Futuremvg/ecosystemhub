@@ -43,11 +43,11 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   const showNav = user && !isPublicRoute;
 
   return (
-    <div className="relative min-h-screen w-full bg-background text-foreground overflow-x-hidden">
+    <div className="relative h-screen w-full bg-background text-foreground overflow-hidden flex flex-col">
       {/* Background Overlay for depth */}
       <div className="fixed inset-0 bg-black/40 pointer-events-none z-0" />
       
-      <div className="relative z-10 flex min-h-screen w-full">
+      <div className="relative z-10 flex flex-1 min-h-0 w-full">
         {/* Desktop Sidebar - Only show on large screens when authenticated */}
         {showNav && !isMobileOrTablet && (
           <DesktopSidebar 
@@ -57,16 +57,16 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
         )}
 
         {/* Main Content Area */}
-        <div className="flex-1 flex flex-col min-w-0">
+        <div className="flex-1 flex flex-col min-w-0 min-h-0">
           {/* Mobile Header - Only show on mobile/tablet when authenticated */}
           {showNav && isMobileOrTablet && <MobileHeader />}
 
-          {/* Page Content */}
+          {/* Page Content - Single scroll container */}
           <motion.main 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.3 }}
-            className="flex-1 w-full"
+            className="flex-1 w-full overflow-y-auto overflow-x-hidden"
           >
             {children}
           </motion.main>

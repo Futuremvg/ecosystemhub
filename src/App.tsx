@@ -18,6 +18,7 @@ import Dinheiro from "./pages/Dinheiro";
 import Documentos from "./pages/Documentos";
 import Configuracoes from "./pages/Configuracoes";
 import NotFound from "./pages/NotFound";
+import ComingSoon from "./pages/ComingSoon";
 
 const queryClient = new QueryClient();
 
@@ -49,6 +50,10 @@ const App = () => (
                   <Route path="/documentos" element={<Documentos />} />
                   <Route path="/configuracoes" element={<Configuracoes />} />
                   <Route path="/billing" element={<Billing />} />
+                  
+                  {/* Coming Soon / Placeholder */}
+                  <Route path="/ajuda" element={<ComingSoon />} />
+                  <Route path="/admin/*" element={<ComingSoon />} />
                   
                   {/* Redirects & Fallbacks */}
                   <Route path="/home" element={<Navigate to="/dashboard" replace />} />
