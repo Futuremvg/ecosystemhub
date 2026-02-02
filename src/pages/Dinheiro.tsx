@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -296,37 +296,88 @@ export default function Dinheiro() {
     }
   };
 
-  const getEntryValue = (sourceId: string | null, categoryId: string | null, month: number): number => {
+  // Memoized calculations to prevent re-renders on scroll
+  const getEntryValue = useCallback((sourceId: string | null, categoryId: string | null, month: number): number => {
     const entry = entries.find(
       e => e.source_id === sourceId && 
            e.category_id === categoryId && 
            e.month === month
     );
     return entry?.amount || 0;
-  };
+  }, [entries]);
 
-  const getMonthlyTotal = (month: number, type: "income" | "expense" | "all"): number => {
-    if (type === "all" || type === "income") {
-      return entries
-        .filter(e => e.month === month && e.source_id !== null)
+  // Memoized monthly totals for income
+  const monthlyIncomeTotals = useMemo(() => {
+    const totals: number[] = [];
+    for (let m = 1; m <= 12; m++) {
+      const total = entries
+        .filter(e => e.month === m && e.source_id !== null)
         .reduce((sum, e) => sum + Number(e.amount), 0);
+      totals.push(total);
     }
-    return entries
-      .filter(e => e.month === month && e.category_id !== null)
-      .reduce((sum, e) => sum + Number(e.amount), 0);
-  };
+    return totals;
+  }, [entries]);
 
-  const getSourceMonthlyTotal = (sourceId: string, month: number): number => {
-    return entries
-      .filter(e => e.source_id === sourceId && e.month === month)
-      .reduce((sum, e) => sum + Number(e.amount), 0);
-  };
+  // Memoized monthly totals for expenses
+  const monthlyExpenseTotals = useMemo(() => {
+    const totals: number[] = [];
+    for (let m = 1; m <= 12; m++) {
+      const total = entries
+        .filter(e => e.month === m && e.category_id !== null)
+        .reduce((sum, e) => sum + Number(e.amount), 0);
+      totals.push(total);
+    }
+    return totals;
+  }, [entries]);
 
-  const getCategoryMonthlyTotal = (categoryId: string, month: number): number => {
-    return entries
-      .filter(e => e.category_id === categoryId && e.month === month)
-      .reduce((sum, e) => sum + Number(e.amount), 0);
-  };
+  // Memoized annual totals
+  const annualTotals = useMemo(() => {
+    const totalIncome = monthlyIncomeTotals.reduce((a, b) => a + b, 0);
+    const totalExpense = monthlyExpenseTotals.reduce((a, b) => a + b, 0);
+    return {
+      income: totalIncome,
+      expense: totalExpense,
+      balance: totalIncome - totalExpense,
+    };
+  }, [monthlyIncomeTotals, monthlyExpenseTotals]);
+
+  // Memoized source monthly totals
+  const sourceMonthlyTotals = useMemo(() => {
+    const totals: Record<string, number[]> = {};
+    sources.forEach(source => {
+      totals[source.id] = [];
+      for (let m = 1; m <= 12; m++) {
+        const total = entries
+          .filter(e => e.source_id === source.id && e.month === m)
+          .reduce((sum, e) => sum + Number(e.amount), 0);
+        totals[source.id].push(total);
+      }
+    });
+    return totals;
+  }, [entries, sources]);
+
+  // Memoized category monthly totals
+  const categoryMonthlyTotals = useMemo(() => {
+    const totals: Record<string, number[]> = {};
+    categories.forEach(cat => {
+      totals[cat.id] = [];
+      for (let m = 1; m <= 12; m++) {
+        const total = entries
+          .filter(e => e.category_id === cat.id && e.month === m)
+          .reduce((sum, e) => sum + Number(e.amount), 0);
+        totals[cat.id].push(total);
+      }
+    });
+    return totals;
+  }, [entries, categories]);
+
+  const getSourceMonthlyTotal = useCallback((sourceId: string, month: number): number => {
+    return sourceMonthlyTotals[sourceId]?.[month - 1] || 0;
+  }, [sourceMonthlyTotals]);
+
+  const getCategoryMonthlyTotal = useCallback((categoryId: string, month: number): number => {
+    return categoryMonthlyTotals[categoryId]?.[month - 1] || 0;
+  }, [categoryMonthlyTotals]);
 
   const formatCurrencyValue = (value: number): string => {
     return formatCurrency(value);
@@ -354,6 +405,16 @@ export default function Dinheiro() {
     a.click();
   };
 
+  const expenseCategories = useMemo(() => 
+    categories.filter(c => c.type === "expense"), 
+    [categories]
+  );
+
+  const incomeCategories = useMemo(() => 
+    categories.filter(c => c.type === "income"), 
+    [categories]
+  );
+
   if (loading || isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -364,8 +425,6 @@ export default function Dinheiro() {
 
   if (!user) return null;
 
-  const incomeCategories = categories.filter(c => c.type === "income");
-  const expenseCategories = categories.filter(c => c.type === "expense");
   return (
     <div className="space-y-6 w-full p-4 lg:p-6">
         {/* Header */}
@@ -448,9 +507,7 @@ export default function Dinheiro() {
                 <div className="min-w-0 flex-1">
                   <p className="text-sm font-medium text-foreground/80">{t("money.income")}</p>
                   <p className="text-xl sm:text-lg font-bold text-foreground">
-                    {formatCurrency(
-                      months.reduce((sum, _, i) => sum + getMonthlyTotal(i + 1, "income"), 0)
-                    )}
+                    {formatCurrency(annualTotals.income)}
                   </p>
                 </div>
               </div>
@@ -467,54 +524,43 @@ export default function Dinheiro() {
                 <div className="min-w-0 flex-1">
                   <p className="text-sm font-medium text-foreground/80">{t("money.expenses")}</p>
                   <p className="text-xl sm:text-lg font-bold text-foreground">
-                    {formatCurrency(
-                      entries
-                        .filter(e => e.category_id !== null)
-                        .reduce((sum, e) => sum + Number(e.amount), 0)
-                    )}
+                    {formatCurrency(annualTotals.expense)}
                   </p>
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          {(() => {
-            const balance = months.reduce((sum, _, i) => sum + getMonthlyTotal(i + 1, "income"), 0) -
-              entries.filter(e => e.category_id !== null).reduce((sum, e) => sum + Number(e.amount), 0);
-            const isPositive = balance >= 0;
-            return (
-              <Card className={cn(
-                "relative overflow-hidden border-0 shadow-sm",
-                isPositive
-                  ? "bg-gradient-to-br from-primary/15 to-primary/5" 
-                  : "bg-gradient-to-br from-destructive/15 to-destructive/5"
-              )}>
+          <Card className={cn(
+            "relative overflow-hidden border-0 shadow-sm",
+            annualTotals.balance >= 0
+              ? "bg-gradient-to-br from-primary/15 to-primary/5" 
+              : "bg-gradient-to-br from-destructive/15 to-destructive/5"
+          )}>
+            <div className={cn(
+              "absolute top-0 right-0 w-20 h-20 rounded-full -translate-y-8 translate-x-8",
+              annualTotals.balance >= 0 ? "bg-primary/15" : "bg-destructive/15"
+            )} />
+            <CardContent className="p-4">
+              <div className="flex items-center gap-3">
                 <div className={cn(
-                  "absolute top-0 right-0 w-20 h-20 rounded-full -translate-y-8 translate-x-8",
-                  isPositive ? "bg-primary/15" : "bg-destructive/15"
-                )} />
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-3">
-                    <div className={cn(
-                      "p-2.5 rounded-lg shrink-0",
-                      isPositive ? "bg-primary/20" : "bg-destructive/20"
-                    )}>
-                      <Wallet className={cn("w-5 h-5", isPositive ? "text-primary" : "text-destructive")} />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="text-sm font-medium text-foreground/80">{t("common.result")}</p>
-                      <p className={cn(
-                        "text-xl sm:text-lg font-bold",
-                        isPositive ? "text-primary" : "text-destructive"
-                      )}>
-                        {formatCurrency(balance)}
-                      </p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            );
-          })()}
+                  "p-2.5 rounded-lg shrink-0",
+                  annualTotals.balance >= 0 ? "bg-primary/20" : "bg-destructive/20"
+                )}>
+                  <Wallet className={cn("w-5 h-5", annualTotals.balance >= 0 ? "text-primary" : "text-destructive")} />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-medium text-foreground/80">{t("common.result")}</p>
+                  <p className={cn(
+                    "text-xl sm:text-lg font-bold",
+                    annualTotals.balance >= 0 ? "text-primary" : "text-destructive"
+                  )}>
+                    {formatCurrency(annualTotals.balance)}
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Tabs */}
@@ -608,7 +654,7 @@ export default function Dinheiro() {
                             })}
                             <TableCell className="text-center font-bold text-financial-positive">
                               {formatCurrency(
-                                months.reduce((sum, _, i) => sum + getSourceMonthlyTotal(source.id, i + 1), 0)
+                                (sourceMonthlyTotals[source.id] || []).reduce((a, b) => a + b, 0)
                               )}
                             </TableCell>
                           </TableRow>
@@ -619,13 +665,11 @@ export default function Dinheiro() {
                           <TableCell>{t("common.total")}</TableCell>
                           {months.map((_, i) => (
                             <TableCell key={i} className="text-center text-financial-positive">
-                              {formatCurrency(getMonthlyTotal(i + 1, "income"))}
+                              {formatCurrency(monthlyIncomeTotals[i])}
                             </TableCell>
                           ))}
                           <TableCell className="text-center text-financial-positive">
-                            {formatCurrency(
-                              months.reduce((sum, _, i) => sum + getMonthlyTotal(i + 1, "income"), 0)
-                            )}
+                            {formatCurrency(annualTotals.income)}
                           </TableCell>
                         </TableRow>
                       )}
@@ -723,7 +767,7 @@ export default function Dinheiro() {
                             })}
                             <TableCell className="text-center font-bold text-financial-negative">
                               {formatCurrency(
-                                months.reduce((sum, _, i) => sum + getCategoryMonthlyTotal(cat.id, i + 1), 0)
+                                (categoryMonthlyTotals[cat.id] || []).reduce((a, b) => a + b, 0)
                               )}
                             </TableCell>
                           </TableRow>
@@ -736,7 +780,7 @@ export default function Dinheiro() {
             </Card>
           </TabsContent>
 
-          {/* Report Tab */}
+          {/* Report Tab - Memoized to prevent scroll issues */}
           <TabsContent value="report" className="mt-4">
             <Card className="material-card">
               <CardHeader>
@@ -758,41 +802,30 @@ export default function Dinheiro() {
                     <TableBody>
                       <TableRow>
                         <TableCell className="font-medium">{t("money.income")}</TableCell>
-                        {months.map((_, i) => (
+                        {monthlyIncomeTotals.map((total, i) => (
                           <TableCell key={i} className="text-center text-financial-positive">
-                            {formatCurrency(getMonthlyTotal(i + 1, "income"))}
+                            {formatCurrency(total)}
                           </TableCell>
                         ))}
                         <TableCell className="text-center font-bold text-financial-positive">
-                          {formatCurrency(months.reduce((sum, _, i) => sum + getMonthlyTotal(i + 1, "income"), 0))}
+                          {formatCurrency(annualTotals.income)}
                         </TableCell>
                       </TableRow>
                       <TableRow>
                         <TableCell className="font-medium">{t("money.expenses")}</TableCell>
-                        {months.map((_, i) => {
-                          const total = entries
-                            .filter(e => e.month === i + 1 && e.category_id !== null)
-                            .reduce((sum, e) => sum + Number(e.amount), 0);
-                          return (
-                            <TableCell key={i} className="text-center text-financial-negative">
-                              {formatCurrency(total)}
-                            </TableCell>
-                          );
-                        })}
+                        {monthlyExpenseTotals.map((total, i) => (
+                          <TableCell key={i} className="text-center text-financial-negative">
+                            {formatCurrency(total)}
+                          </TableCell>
+                        ))}
                         <TableCell className="text-center font-bold text-financial-negative">
-                          {formatCurrency(
-                            entries.filter(e => e.category_id !== null).reduce((sum, e) => sum + Number(e.amount), 0)
-                          )}
+                          {formatCurrency(annualTotals.expense)}
                         </TableCell>
                       </TableRow>
                       <TableRow className="bg-muted/50">
                         <TableCell className="font-bold">{t("common.result")}</TableCell>
                         {months.map((_, i) => {
-                          const income = getMonthlyTotal(i + 1, "income");
-                          const expense = entries
-                            .filter(e => e.month === i + 1 && e.category_id !== null)
-                            .reduce((sum, e) => sum + Number(e.amount), 0);
-                          const result = income - expense;
+                          const result = monthlyIncomeTotals[i] - monthlyExpenseTotals[i];
                           return (
                             <TableCell 
                               key={i} 
@@ -806,10 +839,7 @@ export default function Dinheiro() {
                           );
                         })}
                         <TableCell className="text-center font-bold">
-                          {formatCurrency(
-                            months.reduce((sum, _, i) => sum + getMonthlyTotal(i + 1, "income"), 0) -
-                            entries.filter(e => e.category_id !== null).reduce((sum, e) => sum + Number(e.amount), 0)
-                          )}
+                          {formatCurrency(annualTotals.balance)}
                         </TableCell>
                       </TableRow>
                     </TableBody>
