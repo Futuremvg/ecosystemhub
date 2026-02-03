@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Building2, Edit2, X, Save, Trash2, Users, Briefcase, FileText, DollarSign, Lightbulb, ExternalLink, Link2, Image, Upload, Camera, Loader2 } from "lucide-react";
+import { Building2, Edit2, X, Save, Trash2, Users, Briefcase, FileText, DollarSign, Lightbulb, ExternalLink, Link2, Image, Upload, Camera, Loader2, FileSpreadsheet } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,6 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
 import { CompanySettingsPanel } from "./CompanySettingsPanel";
 import { CompanyLinksManager } from "./CompanyLinksManager";
+import { DataExtraction } from "@/components/data-extraction/DataExtraction";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { useAppSettings } from "@/contexts/AppSettingsContext";
@@ -481,6 +482,24 @@ export function CompanyDetailsSheet({
             </TabsContent>
 
             <TabsContent value="manage" className="mt-0 space-y-6">
+              {/* Data Import/Extraction */}
+              <Card className="border-primary/30 bg-primary/5">
+                <CardContent className="p-4">
+                  <h4 className="font-semibold text-sm mb-3 flex items-center gap-2">
+                    <FileSpreadsheet className="w-4 h-4 text-primary" />
+                    {t("company.importData") || "Import/Extract Data"}
+                  </h4>
+                  <p className="text-xs text-muted-foreground mb-4">
+                    {t("company.importDataDesc") || "Import employees, clients, vendors, and financial data from spreadsheets"}
+                  </p>
+                  <DataExtraction 
+                    companyId={company.id}
+                    companyName={company.name}
+                    onImportComplete={() => loadStats()}
+                  />
+                </CardContent>
+              </Card>
+              
               {/* Links Management */}
               <Card>
                 <CardContent className="p-4">

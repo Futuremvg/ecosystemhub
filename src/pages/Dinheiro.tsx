@@ -12,7 +12,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { 
   DollarSign, Plus, ChevronLeft, ChevronRight, Download, 
-  TrendingUp, TrendingDown, Settings, Loader2, Trash2, Edit, Wallet
+  TrendingUp, TrendingDown, Settings, Loader2, Trash2, Edit, Wallet, FileSpreadsheet
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
@@ -22,6 +22,7 @@ import { FinancialSettingsPanel } from "@/components/financial/FinancialSettings
 import { AddTransactionDialog } from "@/components/financial/AddTransactionDialog";
 import { BankStatementImport } from "@/components/financial/BankStatementImport";
 import { DataImport } from "@/components/financial/DataImport";
+import { DataExtraction } from "@/components/data-extraction/DataExtraction";
 
 interface FinancialSource {
   id: string;
@@ -487,6 +488,15 @@ export default function Dinheiro() {
               categories={categories}
               selectedYear={selectedYear}
               onImportComplete={loadData}
+            />
+            <DataExtraction
+              onImportComplete={loadData}
+              triggerButton={
+                <Button variant="outline" size="sm" className="h-9 gap-2">
+                  <FileSpreadsheet className="w-4 h-4" />
+                  {language === 'pt-BR' ? 'Extrair Dados' : 'Extract Data'}
+                </Button>
+              }
             />
             <Button variant="outline" size="sm" onClick={exportToCSV} className="h-9">
               <Download className="w-4 h-4 mr-2" />
