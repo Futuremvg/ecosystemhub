@@ -456,26 +456,37 @@ serve(async (req) => {
 
   try {
     const { messages, userId } = await req.json();
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+    const OPENCLAW_API_URL = Deno.env.get("OPENCLAW_API_URL");
+    const OPENCLAW_API_TOKEN = Deno.env.get("OPENCLAW_API_TOKEN");
     const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
     const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
 
-    if (!LOVABLE_API_KEY) {
-      throw new Error("LOVABLE_API_KEY is not configured");
+    // Check for OpenClaw credentials
+    if (!OPENCLAW_API_URL || !OPENCLAW_API_TOKEN) {
+      console.error("OpenClaw credentials not configured");
+      throw new Error("OpenClaw credentials not configured");
     }
+
+    console.log("[God Mode] Using OpenClaw API:", OPENCLAW_API_URL);
 
     // Create Supabase client with service role for executing actions
     const supabase = createClient(SUPABASE_URL!, SUPABASE_SERVICE_ROLE_KEY!);
 
-    // Call AI with tool calling enabled
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    // Call OpenClaw AI with tool calling enabled
+    const openClawEndpoint = OPENCLAW_API_URL.endsWith("/v1/chat/completions") 
+      ? OPENCLAW_API_URL 
+      : `${OPENCLAW_API_URL}/v1/chat/completions`;
+    
+    console.log("[God Mode] Calling OpenClaw at:", openClawEndpoint);
+    
+    const response = await fetch(openClawEndpoint, {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
+        Authorization: `Bearer ${OPENCLAW_API_TOKEN}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
+        model: "main",
         messages: [
           { role: "system", content: systemPrompt },
           ...messages,
@@ -484,6 +495,8 @@ serve(async (req) => {
         tool_choice: "auto",
       }),
     });
+    
+    console.log("[God Mode] OpenClaw response status:", response.status);
 
     if (!response.ok) {
       const errorText = await response.text();
@@ -1005,15 +1018,15 @@ serve(async (req) => {
         });
       }
       
-      // Call AI again with tool results to get natural response
-      const followUpResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+      // Call OpenClaw again with tool results to get natural response
+      const followUpResponse = await fetch(openClawEndpoint, {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${LOVABLE_API_KEY}`,
+          Authorization: `Bearer ${OPENCLAW_API_TOKEN}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          model: "google/gemini-2.5-flash",
+          model: "main",
           messages: [
             { role: "system", content: systemPrompt },
             ...messages,
@@ -1022,6 +1035,8 @@ serve(async (req) => {
           ],
         }),
       });
+      
+      console.log("[God Mode] OpenClaw follow-up response status:", followUpResponse.status);
       
       const followUpData = await followUpResponse.json();
       const finalResponse = followUpData.choices?.[0]?.message?.content || "Pronto!";
