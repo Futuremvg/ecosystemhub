@@ -458,67 +458,104 @@ serve(async (req) => {
     const { messages, userId } = await req.json();
     const OPENCLAW_API_URL = Deno.env.get("OPENCLAW_API_URL");
     const OPENCLAW_API_TOKEN = Deno.env.get("OPENCLAW_API_TOKEN");
+    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
     const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
-
-    // Check for OpenClaw credentials
-    if (!OPENCLAW_API_URL || !OPENCLAW_API_TOKEN) {
-      console.error("OpenClaw credentials not configured");
-      throw new Error("OpenClaw credentials not configured");
-    }
-
-    console.log("[God Mode] Using OpenClaw API:", OPENCLAW_API_URL);
 
     // Create Supabase client with service role for executing actions
     const supabase = createClient(SUPABASE_URL!, SUPABASE_SERVICE_ROLE_KEY!);
 
-    // Call OpenClaw AI with tool calling enabled
-    const openClawEndpoint = OPENCLAW_API_URL.endsWith("/v1/chat/completions") 
-      ? OPENCLAW_API_URL 
-      : `${OPENCLAW_API_URL}/v1/chat/completions`;
-    
-    console.log("[God Mode] Calling OpenClaw at:", openClawEndpoint);
-    
-    const response = await fetch(openClawEndpoint, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${OPENCLAW_API_TOKEN}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "main",
-        messages: [
-          { role: "system", content: systemPrompt },
-          ...messages,
-        ],
-        tools,
-        tool_choice: "auto",
-      }),
-    });
-    
-    console.log("[God Mode] OpenClaw response status:", response.status);
+    // Determine which AI backend to use
+    let response: Response;
+    let usedOpenClaw = false;
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error("AI gateway error:", response.status, errorText);
+    // Try OpenClaw first if configured
+    if (OPENCLAW_API_URL && OPENCLAW_API_TOKEN) {
+      console.log("[God Mode] Attempting OpenClaw API:", OPENCLAW_API_URL);
       
-      if (response.status === 429) {
+      const openClawEndpoint = OPENCLAW_API_URL.endsWith("/v1/chat/completions") 
+        ? OPENCLAW_API_URL 
+        : `${OPENCLAW_API_URL}/v1/chat/completions`;
+      
+      try {
+        response = await fetch(openClawEndpoint, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${OPENCLAW_API_TOKEN}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            model: "main",
+            messages: [
+              { role: "system", content: systemPrompt },
+              ...messages,
+            ],
+            tools,
+            tool_choice: "auto",
+          }),
+        });
+        
+        console.log("[God Mode] OpenClaw response status:", response.status);
+        
+        if (response.ok) {
+          usedOpenClaw = true;
+        } else {
+          console.warn("[God Mode] OpenClaw failed, falling back to Lovable AI");
+        }
+      } catch (openClawError) {
+        console.warn("[God Mode] OpenClaw error, falling back to Lovable AI:", openClawError);
+      }
+    }
+
+    // Fallback to Lovable AI if OpenClaw not configured or failed
+    if (!usedOpenClaw) {
+      if (!LOVABLE_API_KEY) {
+        throw new Error("No AI backend available");
+      }
+      
+      console.log("[God Mode] Using Lovable AI Gateway");
+      
+      response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${LOVABLE_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: "google/gemini-2.5-flash",
+          messages: [
+            { role: "system", content: systemPrompt },
+            ...messages,
+          ],
+          tools,
+          tool_choice: "auto",
+        }),
+      });
+      
+      console.log("[God Mode] Lovable AI response status:", response!.status);
+    }
+
+    if (!response!.ok) {
+      const errorText = await response!.text();
+      console.error("AI gateway error:", response!.status, errorText);
+      
+      if (response!.status === 429) {
         return new Response(
           JSON.stringify({ error: "Muitas requisições. Aguarde um momento." }),
           { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
-      if (response.status === 402) {
+      if (response!.status === 402) {
         return new Response(
           JSON.stringify({ error: "Créditos insuficientes." }),
           { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
       
-      throw new Error(`AI gateway error: ${response.status}`);
+      throw new Error(`AI gateway error: ${response!.status}`);
     }
 
-    const data = await response.json();
+    const data = await response!.json();
     const message = data.choices?.[0]?.message;
     
     // Check if AI wants to call tools
@@ -1018,15 +1055,26 @@ serve(async (req) => {
         });
       }
       
-      // Call OpenClaw again with tool results to get natural response
-      const followUpResponse = await fetch(openClawEndpoint, {
+      // Call AI again with tool results to get natural response
+      // Determine which endpoint to use for follow-up
+      const followUpEndpoint = (OPENCLAW_API_URL && OPENCLAW_API_TOKEN && usedOpenClaw)
+        ? (OPENCLAW_API_URL.endsWith("/v1/chat/completions") ? OPENCLAW_API_URL : `${OPENCLAW_API_URL}/v1/chat/completions`)
+        : "https://ai.gateway.lovable.dev/v1/chat/completions";
+      const followUpToken = (OPENCLAW_API_URL && OPENCLAW_API_TOKEN && usedOpenClaw) 
+        ? OPENCLAW_API_TOKEN 
+        : LOVABLE_API_KEY;
+      const followUpModel = (OPENCLAW_API_URL && OPENCLAW_API_TOKEN && usedOpenClaw) 
+        ? "main" 
+        : "google/gemini-2.5-flash";
+      
+      const followUpResponse = await fetch(followUpEndpoint, {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${OPENCLAW_API_TOKEN}`,
+          Authorization: `Bearer ${followUpToken}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          model: "main",
+          model: followUpModel,
           messages: [
             { role: "system", content: systemPrompt },
             ...messages,
@@ -1036,7 +1084,7 @@ serve(async (req) => {
         }),
       });
       
-      console.log("[God Mode] OpenClaw follow-up response status:", followUpResponse.status);
+      console.log("[God Mode] Follow-up response status:", followUpResponse.status);
       
       const followUpData = await followUpResponse.json();
       const finalResponse = followUpData.choices?.[0]?.message?.content || "Pronto!";
