@@ -325,7 +325,7 @@ export function DataExtraction({
       return;
     }
 
-    const headerRow = (jsonData[0]).map(h => String(h || "").trim());
+    const headerRow = (jsonData[0] || []).map(h => String(h ?? "").trim()).filter(h => h !== "");
     setHeaders(headerRow);
 
     const dataRows: ParsedRow[] = [];
@@ -342,7 +342,7 @@ export function DataExtraction({
   };
 
   const autoDetectDataset = (cols: string[]) => {
-    const colsLower = cols.map(c => c.toLowerCase());
+    const colsLower = cols.filter(Boolean).map(c => (c || "").toLowerCase());
     let maxScore = 0;
     let detected: DatasetType = "employees";
 
@@ -369,7 +369,8 @@ export function DataExtraction({
 
     fields.forEach(field => {
       for (const col of cols) {
-        const colLower = col.toLowerCase();
+        if (!col) continue;
+        const colLower = (col || "").toLowerCase();
         if (field.patterns.some(p => colLower.includes(p))) {
           detected[field.key] = col;
           break;
