@@ -234,9 +234,9 @@ export function DataExtraction({
         await parseCSV(file);
         setStep("dataset-select");
       } else if (extension === "xlsx" || extension === "xls") {
-        await parseXLSX(file);
+        const result = await parseXLSX(file);
         // If multiple sheets, show sheet selection
-        if (sheetNames.length > 1) {
+        if (result.sheetCount > 1) {
           setStep("sheet-select");
         } else {
           setStep("dataset-select");
@@ -298,7 +298,7 @@ export function DataExtraction({
     });
   };
 
-  const parseXLSX = async (file: File): Promise<void> => {
+  const parseXLSX = async (file: File): Promise<{ sheetCount: number }> => {
     const arrayBuffer = await file.arrayBuffer();
     const wb = XLSX.read(arrayBuffer, { type: "array" });
     setWorkbook(wb);
@@ -310,6 +310,7 @@ export function DataExtraction({
     }
     
     devLog("XLSX parsed", { sheets: wb.SheetNames });
+    return { sheetCount: wb.SheetNames.length };
   };
 
   const loadSheetData = (wb: XLSX.WorkBook, sheetName: string) => {
