@@ -932,16 +932,22 @@ export function DataExtraction({
 
               <div className="grid gap-3">
                 {fields.map((field) => (
-                  <div key={field.key} className="flex items-center gap-3">
-                    <Label className={cn("w-32 shrink-0", field.required && "font-semibold")}>
+                  <div key={field.key} className={cn(
+                    "flex items-center gap-3 p-2 rounded-lg transition-colors",
+                    field.required && !mapping[field.key] && "bg-destructive/10 border border-destructive/30"
+                  )}>
+                    <Label className={cn("w-32 shrink-0", field.required && "font-semibold text-foreground")}>
                       {field.label}
                       {field.required && <span className="text-destructive ml-1">*</span>}
                     </Label>
-                    <Select 
+                    <Select
                       value={mapping[field.key] || "__none__"} 
                       onValueChange={(v) => handleMappingChange(field.key, v)}
                     >
-                      <SelectTrigger className="flex-1">
+                      <SelectTrigger className={cn(
+                        "flex-1",
+                        field.required && !mapping[field.key] && "border-destructive"
+                      )}>
                         <SelectValue placeholder={isPt ? "Selecione coluna" : "Select column"} />
                       </SelectTrigger>
                       <SelectContent>
@@ -959,6 +965,18 @@ export function DataExtraction({
                   </div>
                 ))}
               </div>
+
+              {/* Warning for unmapped required fields */}
+              {fields.filter(f => f.required).some(f => !mapping[f.key]) && (
+                <div className="flex items-center gap-2 p-3 rounded-lg bg-destructive/10 border border-destructive/30 text-sm">
+                  <AlertCircle className="w-4 h-4 text-destructive shrink-0" />
+                  <span className="text-destructive">
+                    {isPt 
+                      ? "Campos obrigatórios (*) precisam ser mapeados para continuar" 
+                      : "Required fields (*) must be mapped to continue"}
+                  </span>
+                </div>
+              )}
 
               <div className="flex gap-2 pt-4">
                 <Button variant="outline" onClick={() => setStep("dataset-select")}>
