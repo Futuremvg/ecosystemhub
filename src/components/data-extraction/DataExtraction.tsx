@@ -2,7 +2,7 @@ import { useState, useRef, useMemo, useCallback } from "react";
 import { 
   FileSpreadsheet, Upload, X, Loader2, Check, AlertCircle, 
   ChevronDown, Download, Users, Briefcase, DollarSign, Receipt,
-  Building2, UserPlus, Wallet, TrendingUp
+  Building2, UserPlus, Wallet, TrendingUp, Wand2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
@@ -380,6 +380,25 @@ export function DataExtraction({
 
     devLog("Auto-detected mapping", detected);
     setMapping(detected);
+  };
+
+  // Re-run auto-detect mapping for current dataset
+  const handleAutoMapAll = () => {
+    autoDetectMapping(headers, selectedDataset);
+    toast({
+      title: isPt ? "Mapeamento automático aplicado" : "Auto-mapping applied",
+      description: isPt 
+        ? "Campos foram mapeados automaticamente com base nos padrões detectados" 
+        : "Fields were automatically mapped based on detected patterns",
+    });
+  };
+
+  // Clear all mappings
+  const handleClearMapping = () => {
+    setMapping({});
+    toast({
+      title: isPt ? "Mapeamento limpo" : "Mapping cleared",
+    });
   };
 
   const handleSheetSelect = (sheetName: string) => {
@@ -886,9 +905,29 @@ export function DataExtraction({
           {/* Step: Column Mapping */}
           {step === "mapping" && (
             <div className="py-4 space-y-4">
-              <div className="flex items-center gap-2 mb-4">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
                 <DatasetIcon className="w-5 h-5 text-primary" />
                 <span className="font-medium">{DATASET_TYPES[selectedDataset].label}</span>
+                </div>
+                <div className="flex gap-2">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={handleAutoMapAll}
+                    className="gap-1"
+                  >
+                    <Wand2 className="w-3 h-3" />
+                    {isPt ? "Mapear Todos" : "Map All"}
+                  </Button>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={handleClearMapping}
+                  >
+                    <X className="w-3 h-3" />
+                  </Button>
+                </div>
               </div>
 
               <div className="grid gap-3">
