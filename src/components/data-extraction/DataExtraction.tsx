@@ -257,6 +257,40 @@ export function DataExtraction({
     }
   };
 
+  /**
+   * Smart header detection: scans the first N rows to find the one that
+   * looks most like a header row (most non-empty, non-numeric unique cells).
+   */
+  const findHeaderRowIndex = (allRows: (string | number)[][]): number => {
+    const maxScan = Math.min(allRows.length, 10);
+    let bestIndex = 0;
+    let bestScore = 0;
+
+    for (let i = 0; i < maxScan; i++) {
+      const row = allRows[i];
+      if (!row || row.length === 0) continue;
+
+      const cells = row.map(c => String(c ?? "").trim()).filter(c => c !== "");
+      if (cells.length === 0) continue;
+
+      // Score: number of non-empty cells that look like text (not purely numeric)
+      const textCells = cells.filter(c => isNaN(Number(c)));
+      const uniqueCells = new Set(cells);
+      // Prefer rows with more text cells + more unique values + at least 2 columns
+      const score = textCells.length * 2 + uniqueCells.size + (cells.length >= 2 ? 5 : 0);
+
+      devLog(`Header scan row ${i}`, { cells: cells.slice(0, 5), score });
+
+      if (score > bestScore) {
+        bestScore = score;
+        bestIndex = i;
+      }
+    }
+
+    devLog("Best header row", { index: bestIndex, score: bestScore });
+    return bestIndex;
+  };
+
   const parseCSV = (file: File): Promise<void> => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -271,23 +305,38 @@ export function DataExtraction({
           }
 
           const delimiter = lines[0].includes(";") ? ";" : lines[0].includes("\t") ? "\t" : ",";
-          const headerLine = lines[0].split(delimiter).map(h => h.trim().replace(/^["']|["']$/g, ""));
+          
+          // Parse all lines into arrays for header detection
+          const allParsed = lines.map(line => 
+            line.split(delimiter).map(v => v.trim().replace(/^["']|["']$/g, ""))
+          );
+
+          const headerIdx = findHeaderRowIndex(allParsed);
+          const headerLine = allParsed[headerIdx].filter(h => h !== "");
+
+          if (headerLine.length === 0) {
+            reject(new Error(isPt ? "Nenhum cabeçalho encontrado no arquivo" : "No headers found in file"));
+            return;
+          }
+
           setHeaders(headerLine);
           
           const dataRows: ParsedRow[] = [];
-          for (let i = 1; i < Math.min(lines.length, 1001); i++) {
-            const values = lines[i].split(delimiter).map(v => v.trim().replace(/^["']|["']$/g, ""));
+          for (let i = headerIdx + 1; i < Math.min(allParsed.length, headerIdx + 1001); i++) {
+            const values = allParsed[i];
             const row: ParsedRow = {};
             headerLine.forEach((header, idx) => {
               row[header] = values[idx] || "";
             });
-            dataRows.push(row);
+            // Skip completely empty rows
+            if (Object.values(row).some(v => String(v).trim() !== "")) {
+              dataRows.push(row);
+            }
           }
           setRows(dataRows);
           autoDetectDataset(headerLine);
-          autoDetectMapping(headerLine, detectedDataset);
           
-          devLog("CSV parsed", { headers: headerLine, rowCount: dataRows.length });
+          devLog("CSV parsed", { headerIdx, headers: headerLine, rowCount: dataRows.length });
           resolve();
         } catch (err) {
           reject(err);
@@ -317,6 +366,12 @@ export function DataExtraction({
     const worksheet = wb.Sheets[sheetName];
     const jsonData = XLSX.utils.sheet_to_json<(string | number)[]>(worksheet, { header: 1 });
 
+    devLog("Raw sheet data", { 
+      sheetName, 
+      totalRows: jsonData.length, 
+      firstRows: jsonData.slice(0, 5).map(r => (r || []).slice(0, 5))
+    });
+
     if (jsonData.length < 2) {
       toast({
         title: isPt ? "Planilha vazia" : "Empty sheet",
@@ -325,17 +380,37 @@ export function DataExtraction({
       return;
     }
 
-    const headerRow = (jsonData[0] || []).map(h => String(h ?? "").trim()).filter(h => h !== "");
+    // Smart header detection - find the actual header row
+    const headerIdx = findHeaderRowIndex(jsonData);
+    const headerRow = (jsonData[headerIdx] || []).map(h => String(h ?? "").trim()).filter(h => h !== "");
+
+    devLog("Detected headers", { headerIdx, headers: headerRow });
+
+    if (headerRow.length === 0) {
+      toast({
+        title: isPt ? "Nenhum cabeçalho encontrado" : "No headers found",
+        description: isPt 
+          ? "Verifique se a planilha tem uma linha de cabeçalho com nomes de colunas"
+          : "Make sure the spreadsheet has a header row with column names",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setHeaders(headerRow);
 
     const dataRows: ParsedRow[] = [];
-    for (let i = 1; i < Math.min(jsonData.length, 1001); i++) {
+    for (let i = headerIdx + 1; i < Math.min(jsonData.length, headerIdx + 1001); i++) {
       const values = jsonData[i];
+      if (!values || values.length === 0) continue;
       const row: ParsedRow = {};
       headerRow.forEach((header, idx) => {
         row[header] = values?.[idx] ?? "";
       });
-      dataRows.push(row);
+      // Skip completely empty rows
+      if (Object.values(row).some(v => String(v).trim() !== "")) {
+        dataRows.push(row);
+      }
     }
     setRows(dataRows);
     autoDetectDataset(headerRow);
@@ -861,13 +936,38 @@ export function DataExtraction({
                 <div>
                   <p className="font-medium">{fileName}</p>
                   <p className="text-sm text-muted-foreground">
-                    {rows.length} {isPt ? "linhas detectadas" : "rows detected"}
+                    {rows.length} {isPt ? "linhas" : "rows"} · {headers.length} {isPt ? "colunas" : "columns"}
                   </p>
                 </div>
                 <Badge variant="secondary">
                   {isPt ? "Detectado" : "Detected"}: {DATASET_TYPES[detectedDataset].label}
                 </Badge>
               </div>
+
+              {/* Show detected columns */}
+              {headers.length > 0 && (
+                <div className="space-y-1">
+                  <p className="text-xs text-muted-foreground font-medium">
+                    {isPt ? "Colunas encontradas:" : "Columns found:"}
+                  </p>
+                  <div className="flex flex-wrap gap-1">
+                    {headers.map(h => (
+                      <Badge key={h} variant="outline" className="text-xs">{h}</Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {headers.length === 0 && (
+                <div className="flex items-center gap-2 p-3 rounded-lg bg-destructive/10 border border-destructive/30 text-sm">
+                  <AlertCircle className="w-4 h-4 text-destructive shrink-0" />
+                  <span className="text-destructive">
+                    {isPt 
+                      ? "Nenhuma coluna detectada. Verifique se a planilha tem cabeçalhos." 
+                      : "No columns detected. Check that the spreadsheet has headers."}
+                  </span>
+                </div>
+              )}
               
               <div>
                 <Label className="mb-2 block">
@@ -896,6 +996,7 @@ export function DataExtraction({
               <Button 
                 onClick={() => setStep("mapping")} 
                 className="w-full"
+                disabled={headers.length === 0}
               >
                 {isPt ? "Continuar para Mapeamento" : "Continue to Mapping"}
               </Button>
